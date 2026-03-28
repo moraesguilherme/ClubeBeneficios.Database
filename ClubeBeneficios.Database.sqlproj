@@ -1,0 +1,65 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Name>ClubeBeneficios.Database</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033, CI</ModelCollation>
+    <ProjectVersion>4.1</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputType>Database</OutputType>
+    <RootPath>.</RootPath>
+    <RootNamespace>ClubeBeneficios.Database</RootNamespace>
+    <AssemblyName>ClubeBeneficios.Database</AssemblyName>
+    <DefaultFileStructure>BySchemaAndType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetDatabaseName>ClubeBeneficiosDb</TargetDatabaseName>
+    <ProjectGuid>{58740122-058a-495c-b507-796bfbae0998}</ProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Publish" />
+    <Folder Include="Security" />
+    <Folder Include="Tables" />
+    <Folder Include="Tables\Auth" />
+    <Folder Include="Tables\Partners" />
+    <Folder Include="Views" />
+    <Folder Include="Views\Partners" />
+    <Folder Include="StoredProcedures" />
+    <Folder Include="StoredProcedures\Partners" />
+    <Folder Include="Seeds" />
+    <Folder Include="Scripts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\Auth\users.sql" />
+    <Build Include="Tables\Auth\roles.sql" />
+    <Build Include="Tables\Auth\user_roles.sql" />
+    <Build Include="Tables\Auth\password_reset_tokens.sql" />
+    <Build Include="Tables\Auth\sessions.sql" />
+    <Build Include="Tables\Auth\refresh_tokens.sql" />
+    <Build Include="Tables\Auth\access_logs.sql" />
+    <Build Include="Tables\Partners\partners.sql" />
+    <Build Include="Tables\Partners\partner_contacts.sql" />
+    <Build Include="Tables\Partners\partner_notes.sql" />
+    <Build Include="Tables\Partners\partner_status_history.sql" />
+    <Build Include="Tables\Partners\partner_metrics_snapshot.sql" />
+    <Build Include="Tables\Partners\partner_access_codes.sql" />
+    <Build Include="Tables\Partners\partner_customers.sql" />
+    <Build Include="Tables\Partners\access_code_usages.sql" />
+    <Build Include="Views\Partners\vw_partners_admin_list.sql" />
+    <Build Include="Views\Partners\vw_partner_pending_details.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_create.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_update.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_change_status.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_add_note.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_metrics_upsert_snapshot.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\PostDeployment.sql" />
+    <PreDeploy Include="Scripts\PreDeployment.sql" />
+  </ItemGroup>
+  <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')" />
+</Project>
