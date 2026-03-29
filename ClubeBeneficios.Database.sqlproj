@@ -55,6 +55,7 @@
     <Build Include="StoredProcedures\Partners\usp_partners_change_status.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_add_note.sql" />
     <Build Include="StoredProcedures\Partners\usp_partner_metrics_upsert_snapshot.sql" />
+    <Build Include="Tables\Partners\partner_access_code_scopes.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />
