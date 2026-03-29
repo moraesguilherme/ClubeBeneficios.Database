@@ -1,46 +1,46 @@
-﻿CREATE PROCEDURE dbo.usp_partners_change_status
-    @PartnerId UNIQUEIDENTIFIER,
-    @NewStatus VARCHAR(30),
-    @Reason VARCHAR(800) = NULL,
-    @ChangedByUserId UNIQUEIDENTIFIER = NULL
+CREATE OR ALTER PROCEDURE dbo.usp_partners_change_status
+    @PartnerId        UNIQUEIDENTIFIER,
+    @NewStatus        VARCHAR(30),
+    @Reason           VARCHAR(800) = NULL,
+    @ChangedByUserId  UNIQUEIDENTIFIER = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
-    SET XACT_ABORT ON;
 
-    DECLARE @CurrentStatus VARCHAR(30);
+    DECLARE @OldStatus VARCHAR(30);
+    DECLARE @Now DATETIME2(7) = SYSUTCDATETIME();
 
-    SELECT @CurrentStatus = status
-    FROM dbo.partners
-    WHERE id = @PartnerId;
+    SELECT @OldStatus = status
+      FROM dbo.partners
+     WHERE id = @PartnerId;
 
-    IF @CurrentStatus IS NULL
-    BEGIN
-        RAISERROR('Parceiro nÃ£o encontrado.', 16, 1);
-        RETURN;
-    END
+    UPDATE dbo.partners
+       SET status = @NewStatus,
+           approved_at = CASE WHEN @NewStatus = 'approved' THEN @Now ELSE approved_at END,
+           rejected_at = CASE WHEN @NewStatus = 'rejected' THEN @Now ELSE rejected_at END,
+           inactivated_at = CASE WHEN @NewStatus = 'inactive' THEN @Now ELSE inactivated_at END,
+           approved_by_user_id = CASE WHEN @NewStatus = 'approved' THEN @ChangedByUserId ELSE approved_by_user_id END,
+           rejected_by_user_id = CASE WHEN @NewStatus = 'rejected' THEN @ChangedByUserId ELSE rejected_by_user_id END,
+           updated_at = @Now
+     WHERE id = @PartnerId;
 
-    BEGIN TRANSACTION;
-
-        UPDATE dbo.partners
-           SET status = @NewStatus,
-               approved_at = CASE WHEN @NewStatus = 'active' THEN ISNULL(approved_at, SYSUTCDATETIME()) ELSE approved_at END,
-               approved_by_user_id = CASE WHEN @NewStatus = 'active' THEN ISNULL(approved_by_user_id, @ChangedByUserId) ELSE approved_by_user_id END,
-               rejected_at = CASE WHEN @NewStatus = 'rejected' THEN SYSUTCDATETIME() ELSE rejected_at END,
-               rejected_by_user_id = CASE WHEN @NewStatus = 'rejected' THEN @ChangedByUserId ELSE rejected_by_user_id END,
-               inactivated_at = CASE WHEN @NewStatus = 'inactive' THEN SYSUTCDATETIME() ELSE inactivated_at END,
-               updated_at = SYSUTCDATETIME()
-         WHERE id = @PartnerId;
-
-        INSERT INTO dbo.partner_status_history
-        (
-            partner_id, from_status, to_status, reason, changed_by_user_id, changed_at
-        )
-        VALUES
-        (
-            @PartnerId, @CurrentStatus, @NewStatus, @Reason, @ChangedByUserId, SYSUTCDATETIME()
-        );
-
-    COMMIT TRANSACTION;
+    INSERT INTO dbo.partner_status_history
+    (
+        partner_id,
+        from_status,
+        to_status,
+        reason,
+        changed_by_user_id,
+        changed_at
+    )
+    VALUES
+    (
+        @PartnerId,
+        @OldStatus,
+        @NewStatus,
+        @Reason,
+        @ChangedByUserId,
+        @Now
+    );
 END
 GO

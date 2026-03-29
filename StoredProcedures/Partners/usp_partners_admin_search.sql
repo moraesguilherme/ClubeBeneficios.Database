@@ -12,8 +12,8 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF @Page IS NULL OR @Page < 1 SET @Page = 1;
-    IF @PageSize IS NULL OR @PageSize < 1 SET @PageSize = 20;
+    IF @Page < 1 SET @Page = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
     IF @PageSize > 200 SET @PageSize = 200;
 
     SET @SortBy = LOWER(ISNULL(@SortBy, 'created_at'));
@@ -39,10 +39,10 @@ BEGIN
                 OR v.responsible_name  LIKE '%' + @Search + '%'
                 OR v.responsible_email LIKE '%' + @Search + '%'
             )
-            AND (@Status   IS NULL OR @Status = '' OR v.status = @Status)
-            AND (@Level    IS NULL OR @Level = '' OR v.level = @Level)
+            AND (@Status IS NULL OR @Status = '' OR v.status = @Status)
+            AND (@Level IS NULL OR @Level = '' OR v.level = @Level)
             AND (@Category IS NULL OR @Category = '' OR v.category = @Category)
-            AND (@Segment  IS NULL OR @Segment = '' OR v.segment = @Segment)
+            AND (@Segment IS NULL OR @Segment = '' OR v.segment = @Segment)
     )
     SELECT
         id,
@@ -84,21 +84,21 @@ BEGIN
         total_count
     FROM filtered
     ORDER BY
-        CASE WHEN @SortBy = 'trade_name'        AND @SortDirection = 'asc'  THEN trade_name END ASC,
-        CASE WHEN @SortBy = 'trade_name'        AND @SortDirection = 'desc' THEN trade_name END DESC,
-        CASE WHEN @SortBy = 'status'            AND @SortDirection = 'asc'  THEN status END ASC,
-        CASE WHEN @SortBy = 'status'            AND @SortDirection = 'desc' THEN status END DESC,
-        CASE WHEN @SortBy = 'level'             AND @SortDirection = 'asc'  THEN level END ASC,
-        CASE WHEN @SortBy = 'level'             AND @SortDirection = 'desc' THEN level END DESC,
-        CASE WHEN @SortBy = 'category'          AND @SortDirection = 'asc'  THEN category END ASC,
-        CASE WHEN @SortBy = 'category'          AND @SortDirection = 'desc' THEN category END DESC,
-        CASE WHEN @SortBy = 'segment'           AND @SortDirection = 'asc'  THEN segment END ASC,
-        CASE WHEN @SortBy = 'segment'           AND @SortDirection = 'desc' THEN segment END DESC,
-        CASE WHEN @SortBy = 'created_at'        AND @SortDirection = 'asc'  THEN created_at END ASC,
-        CASE WHEN @SortBy = 'created_at'        AND @SortDirection = 'desc' THEN created_at END DESC,
-        CASE WHEN @SortBy = 'updated_at'        AND @SortDirection = 'asc'  THEN updated_at END ASC,
-        CASE WHEN @SortBy = 'updated_at'        AND @SortDirection = 'desc' THEN updated_at END DESC,
-        CASE WHEN @SortBy = 'performance_score' AND @SortDirection = 'asc'  THEN performance_score END ASC,
+        CASE WHEN @SortBy = 'trade_name' AND @SortDirection = 'asc' THEN trade_name END ASC,
+        CASE WHEN @SortBy = 'trade_name' AND @SortDirection = 'desc' THEN trade_name END DESC,
+        CASE WHEN @SortBy = 'status' AND @SortDirection = 'asc' THEN status END ASC,
+        CASE WHEN @SortBy = 'status' AND @SortDirection = 'desc' THEN status END DESC,
+        CASE WHEN @SortBy = 'level' AND @SortDirection = 'asc' THEN level END ASC,
+        CASE WHEN @SortBy = 'level' AND @SortDirection = 'desc' THEN level END DESC,
+        CASE WHEN @SortBy = 'category' AND @SortDirection = 'asc' THEN category END ASC,
+        CASE WHEN @SortBy = 'category' AND @SortDirection = 'desc' THEN category END DESC,
+        CASE WHEN @SortBy = 'segment' AND @SortDirection = 'asc' THEN segment END ASC,
+        CASE WHEN @SortBy = 'segment' AND @SortDirection = 'desc' THEN segment END DESC,
+        CASE WHEN @SortBy = 'created_at' AND @SortDirection = 'asc' THEN created_at END ASC,
+        CASE WHEN @SortBy = 'created_at' AND @SortDirection = 'desc' THEN created_at END DESC,
+        CASE WHEN @SortBy = 'updated_at' AND @SortDirection = 'asc' THEN updated_at END ASC,
+        CASE WHEN @SortBy = 'updated_at' AND @SortDirection = 'desc' THEN updated_at END DESC,
+        CASE WHEN @SortBy = 'performance_score' AND @SortDirection = 'asc' THEN performance_score END ASC,
         CASE WHEN @SortBy = 'performance_score' AND @SortDirection = 'desc' THEN performance_score END DESC,
         created_at DESC
     OFFSET (@Page - 1) * @PageSize ROWS
