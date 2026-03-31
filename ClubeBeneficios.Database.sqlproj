@@ -1,4 +1,4 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Name>ClubeBeneficios.Database</Name>
     <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
@@ -21,41 +21,73 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Publish" />
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\Benefits" />
     <Folder Include="Security" />
+    <Folder Include="Seeds" />
+    <Folder Include="Seeds\Benefits" />
+    <Folder Include="StoredProcedures" />
+    <Folder Include="StoredProcedures\Benefits" />
+    <Folder Include="StoredProcedures\Partners" />
     <Folder Include="Tables" />
     <Folder Include="Tables\Auth" />
+    <Folder Include="Tables\Benefits" />
     <Folder Include="Tables\Partners" />
     <Folder Include="Views" />
+    <Folder Include="Views\Benefits" />
     <Folder Include="Views\Partners" />
-    <Folder Include="StoredProcedures" />
-    <Folder Include="StoredProcedures\Partners" />
-    <Folder Include="Seeds" />
-    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\Auth\users.sql" />
-    <Build Include="Tables\Auth\roles.sql" />
-    <Build Include="Tables\Auth\user_roles.sql" />
-    <Build Include="Tables\Auth\password_reset_tokens.sql" />
-    <Build Include="Tables\Auth\sessions.sql" />
-    <Build Include="Tables\Auth\refresh_tokens.sql" />
-    <Build Include="Tables\Auth\access_logs.sql" />
-    <Build Include="Tables\Partners\partners.sql" />
-    <Build Include="Tables\Partners\partner_contacts.sql" />
-    <Build Include="Tables\Partners\partner_notes.sql" />
-    <Build Include="Tables\Partners\partner_status_history.sql" />
-    <Build Include="Tables\Partners\partner_metrics_snapshot.sql" />
-    <Build Include="Tables\Partners\partner_access_codes.sql" />
-    <Build Include="Tables\Partners\partner_customers.sql" />
-    <Build Include="Tables\Partners\access_code_usages.sql" />
-    <Build Include="Views\Partners\vw_partners_admin_list.sql" />
-    <Build Include="Views\Partners\vw_partner_pending_details.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefit_requests_change_status.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefit_requests_create.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefit_usages_confirm.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_add_review.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_admin_search.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_change_status.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_create.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_pending_search.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_benefits_update.sql" />
+    <Build Include="StoredProcedures\Benefits\usp_partner_levels_recalculate.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_metrics_upsert_snapshot.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_add_note.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partners_change_status.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_create.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_update.sql" />
-    <Build Include="StoredProcedures\Partners\usp_partners_change_status.sql" />
-    <Build Include="StoredProcedures\Partners\usp_partners_add_note.sql" />
-    <Build Include="StoredProcedures\Partners\usp_partner_metrics_upsert_snapshot.sql" />
+    <Build Include="Tables\Auth\access_logs.sql" />
+    <Build Include="Tables\Auth\password_reset_tokens.sql" />
+    <Build Include="Tables\Auth\refresh_tokens.sql" />
+    <Build Include="Tables\Auth\roles.sql" />
+    <Build Include="Tables\Auth\sessions.sql" />
+    <Build Include="Tables\Auth\user_roles.sql" />
+    <Build Include="Tables\Auth\users.sql" />
+    <Build Include="Tables\Benefits\benefit_behavior_rules.sql" />
+    <Build Include="Tables\Benefits\benefit_code_rules.sql" />
+    <Build Include="Tables\Benefits\benefit_level_scopes.sql" />
+    <Build Include="Tables\Benefits\benefit_metrics_snapshot.sql" />
+    <Build Include="Tables\Benefits\benefit_requests.sql" />
+    <Build Include="Tables\Benefits\benefit_reviews.sql" />
+    <Build Include="Tables\Benefits\benefit_status_history.sql" />
+    <Build Include="Tables\Benefits\benefit_usage_locks.sql" />
+    <Build Include="Tables\Benefits\benefit_usages.sql" />
+    <Build Include="Tables\Benefits\benefits.sql" />
+    <Build Include="Tables\Benefits\client_level_rules.sql" />
+    <Build Include="Tables\Benefits\customer_level_history.sql" />
+    <Build Include="Tables\Benefits\partner_level_history.sql" />
+    <Build Include="Tables\Benefits\partner_level_rules.sql" />
+    <Build Include="Tables\Partners\access_code_usages.sql" />
     <Build Include="Tables\Partners\partner_access_code_scopes.sql" />
+    <Build Include="Tables\Partners\partner_access_codes.sql" />
+    <Build Include="Tables\Partners\partner_contacts.sql" />
+    <Build Include="Tables\Partners\partner_customers.sql" />
+    <Build Include="Tables\Partners\partner_metrics_snapshot.sql" />
+    <Build Include="Tables\Partners\partner_notes.sql" />
+    <Build Include="Tables\Partners\partner_status_history.sql" />
+    <Build Include="Tables\Partners\partners.sql" />
+    <Build Include="Views\Benefits\vw_benefit_usage_overview.sql" />
+    <Build Include="Views\Benefits\vw_benefits_admin_list.sql" />
+    <Build Include="Views\Benefits\vw_benefits_pending_list.sql" />
+    <Build Include="Views\Partners\vw_partner_pending_details.sql" />
+    <Build Include="Views\Partners\vw_partners_admin_list.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />
