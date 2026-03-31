@@ -35,10 +35,8 @@ BEGIN
       AND (max_active_benefits_each_direction IS NULL OR @ActiveEachDirection <= max_active_benefits_each_direction)
     ORDER BY min_active_benefits_each_direction DESC;
 
-    IF @NewLevel IS NULL
-        SET @NewLevel = NULL;
-
-    IF ISNULL(@CurrentLevel, '') <> ISNULL(@NewLevel, '')
+    IF @NewLevel IS NOT NULL
+       AND ISNULL(@CurrentLevel, '') <> ISNULL(@NewLevel, '')
     BEGIN
         UPDATE dbo.partners
         SET level = @NewLevel,
@@ -51,10 +49,19 @@ BEGIN
         )
         VALUES
         (
-            @PartnerId, @NewLevel, CAST(SYSUTCDATETIME() AS DATE), SYSUTCDATETIME(), 'Recalculo automÃ¡tico por quantidade de benefÃ­cios ativos em cada direÃ§Ã£o.', @ChangedByUserId
+            @PartnerId,
+            @NewLevel,
+            CAST(SYSUTCDATETIME() AS DATE),
+            SYSUTCDATETIME(),
+            'Recalculo automático por quantidade de benefícios ativos em cada direção.',
+            @ChangedByUserId
         );
     END
 
-    SELECT @PartnerId AS partner_id, @CurrentLevel AS old_level, @NewLevel AS new_level, @ActiveEachDirection AS active_benefits_each_direction;
-END
+    SELECT
+        @PartnerId AS partner_id,
+        @CurrentLevel AS old_level,
+        @NewLevel AS new_level,
+        @ActiveEachDirection AS active_benefits_each_direction;
+    END
 GO
