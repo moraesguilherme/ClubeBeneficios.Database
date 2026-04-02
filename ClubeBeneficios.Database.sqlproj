@@ -47,7 +47,6 @@
     <Build Include="StoredProcedures\Benefits\usp_benefits_create.sql" />
     <Build Include="StoredProcedures\Benefits\usp_benefits_pending_search.sql" />
     <Build Include="StoredProcedures\Benefits\usp_benefits_update.sql" />
-    <Build Include="StoredProcedures\Benefits\usp_partner_levels_recalculate.sql" />
     <Build Include="StoredProcedures\Partners\usp_partner_metrics_upsert_snapshot.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_add_note.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_change_status.sql" />
@@ -88,6 +87,7 @@
     <Build Include="Views\Benefits\vw_benefits_pending_list.sql" />
     <Build Include="Views\Partners\vw_partner_pending_details.sql" />
     <Build Include="Views\Partners\vw_partners_admin_list.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_levels_recalculate.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />
