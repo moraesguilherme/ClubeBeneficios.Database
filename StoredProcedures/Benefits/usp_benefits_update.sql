@@ -4,12 +4,15 @@ GO
 
 CREATE OR ALTER PROCEDURE dbo.usp_benefits_update
     @BenefitId UNIQUEIDENTIFIER,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
     @Title VARCHAR(180),
     @BenefitType VARCHAR(40),
+    @Direction VARCHAR(30) = NULL,
     @TargetActorType VARCHAR(30),
     @ShortDescription VARCHAR(500) = NULL,
     @FullDescription VARCHAR(3000) = NULL,
     @InternalNotes VARCHAR(MAX) = NULL,
+    @Status VARCHAR(30) = NULL,
     @EligibilityType VARCHAR(30),
     @RecurrenceType VARCHAR(40),
     @RecurrenceValue INT = NULL,
@@ -50,9 +53,12 @@ BEGIN
 
     UPDATE dbo.benefits
     SET
+        partner_id = ISNULL(@PartnerId, partner_id),
         title = @Title,
         benefit_type = @BenefitType,
+        direction = ISNULL(@Direction, direction),
         target_actor_type = @TargetActorType,
+        status = ISNULL(@Status, status),
         short_description = @ShortDescription,
         full_description = @FullDescription,
         internal_notes = @InternalNotes,
@@ -75,51 +81,96 @@ BEGIN
         updated_at = SYSUTCDATETIME()
     WHERE id = @BenefitId;
 
-    DELETE FROM dbo.benefit_level_scopes WHERE benefit_id = @BenefitId;
+    DELETE FROM dbo.benefit_level_scopes
+    WHERE benefit_id = @BenefitId;
 
     IF @LevelCodesCsv IS NOT NULL AND LTRIM(RTRIM(@LevelCodesCsv)) <> ''
     BEGIN
         INSERT INTO dbo.benefit_level_scopes
         (
-            id, benefit_id, level_type, level_code, created_at
+            id,
+            benefit_id,
+            level_type,
+            level_code,
+            created_at
         )
         SELECT
-            NEWID(), @BenefitId, ISNULL(@LevelType, 'client_level'), LTRIM(RTRIM(value)), SYSUTCDATETIME()
+            NEWID(),
+            @BenefitId,
+            ISNULL(@LevelType, 'client_level'),
+            LTRIM(RTRIM(value)),
+            SYSUTCDATETIME()
         FROM STRING_SPLIT(@LevelCodesCsv, ',')
         WHERE LTRIM(RTRIM(value)) <> '';
     END
 
-    DELETE FROM dbo.benefit_behavior_rules WHERE benefit_id = @BenefitId;
+    DELETE FROM dbo.benefit_behavior_rules
+    WHERE benefit_id = @BenefitId;
+
     IF @EligibilityType IN ('behavior', 'hybrid')
     BEGIN
         INSERT INTO dbo.benefit_behavior_rules
         (
-            id, benefit_id, min_frequency_enabled, min_frequency_value, frequency_window_months,
-            min_ticket_enabled, min_ticket_value, ticket_window_months,
-            first_use_only, requires_matilha_approval, custom_rule_text,
-            created_at, updated_at
+            id,
+            benefit_id,
+            min_frequency_enabled,
+            min_frequency_value,
+            frequency_window_months,
+            min_ticket_enabled,
+            min_ticket_value,
+            ticket_window_months,
+            first_use_only,
+            requires_matilha_approval,
+            custom_rule_text,
+            created_at,
+            updated_at
         )
         VALUES
         (
-            NEWID(), @BenefitId, @MinFrequencyEnabled, @MinFrequencyValue, @FrequencyWindowMonths,
-            @MinTicketEnabled, @MinTicketValue, @TicketWindowMonths,
-            @BehaviorFirstUseOnly, @BehaviorRequiresMatilhaApproval, @CustomRuleText,
-            SYSUTCDATETIME(), SYSUTCDATETIME()
+            NEWID(),
+            @BenefitId,
+            @MinFrequencyEnabled,
+            @MinFrequencyValue,
+            @FrequencyWindowMonths,
+            @MinTicketEnabled,
+            @MinTicketValue,
+            @TicketWindowMonths,
+            @BehaviorFirstUseOnly,
+            @BehaviorRequiresMatilhaApproval,
+            @CustomRuleText,
+            SYSUTCDATETIME(),
+            SYSUTCDATETIME()
         );
     END
 
-    DELETE FROM dbo.benefit_code_rules WHERE benefit_id = @BenefitId;
-    IF @EligibilityType IN ('code', 'hybrid') OR @RequiresAccessCode = 1 OR @RequiresActiveAccessCode = 1
+    DELETE FROM dbo.benefit_code_rules
+    WHERE benefit_id = @BenefitId;
+
+    IF @EligibilityType IN ('code', 'hybrid')
+       OR @RequiresAccessCode = 1
+       OR @RequiresActiveAccessCode = 1
     BEGIN
         INSERT INTO dbo.benefit_code_rules
         (
-            id, benefit_id, requires_access_code, allow_any_active_partner_code,
-            specific_access_code_id, code_validation_mode, created_at, updated_at
+            id,
+            benefit_id,
+            requires_access_code,
+            allow_any_active_partner_code,
+            specific_access_code_id,
+            code_validation_mode,
+            created_at,
+            updated_at
         )
         VALUES
         (
-            NEWID(), @BenefitId, @RequiresAccessCode, @AllowAnyActivePartnerCode,
-            @SpecificAccessCodeId, @CodeValidationMode, SYSUTCDATETIME(), SYSUTCDATETIME()
+            NEWID(),
+            @BenefitId,
+            @RequiresAccessCode,
+            @AllowAnyActivePartnerCode,
+            @SpecificAccessCodeId,
+            @CodeValidationMode,
+            SYSUTCDATETIME(),
+            SYSUTCDATETIME()
         );
     END
 
