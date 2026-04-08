@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER VIEW dbo.vw_benefit_usage_overview
+CREATE VIEW dbo.vw_benefit_usage_overview
 AS
 SELECT
     u.id,

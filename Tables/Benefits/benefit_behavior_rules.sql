@@ -1,9 +1,3 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-IF OBJECT_ID('dbo.benefit_behavior_rules', 'U') IS NULL
-BEGIN
     CREATE TABLE dbo.benefit_behavior_rules
     (
         id UNIQUEIDENTIFIER NOT NULL,
@@ -28,5 +22,3 @@ BEGIN
         CONSTRAINT CK_benefit_behavior_rules_min_ticket_value CHECK (min_ticket_value IS NULL OR min_ticket_value >= 0),
         CONSTRAINT CK_benefit_behavior_rules_ticket_window CHECK (ticket_window_months IS NULL OR ticket_window_months > 0)
     );
-END
-GO

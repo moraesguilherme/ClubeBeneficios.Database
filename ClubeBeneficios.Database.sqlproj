@@ -36,6 +36,12 @@
     <Folder Include="Views" />
     <Folder Include="Views\Benefits" />
     <Folder Include="Views\Partners" />
+    <Folder Include="Tables\Customers" />
+    <Folder Include="StoredProcedures\Customers" />
+    <Folder Include="Views\Customers" />
+    <Folder Include="Views\PartnerCustomers" />
+    <Folder Include="StoredProcedures\PartnerCustomers" />
+    <Folder Include="Tables\PartnerCustomers" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Benefits\usp_benefit_requests_change_status.sql" />
@@ -69,15 +75,10 @@
     <Build Include="Tables\Benefits\benefit_usage_locks.sql" />
     <Build Include="Tables\Benefits\benefit_usages.sql" />
     <Build Include="Tables\Benefits\benefits.sql" />
-    <Build Include="Tables\Benefits\client_level_rules.sql" />
-    <Build Include="Tables\Benefits\customer_level_history.sql" />
-    <Build Include="Tables\Benefits\partner_level_history.sql" />
-    <Build Include="Tables\Benefits\partner_level_rules.sql" />
     <Build Include="Tables\Partners\access_code_usages.sql" />
     <Build Include="Tables\Partners\partner_access_code_scopes.sql" />
     <Build Include="Tables\Partners\partner_access_codes.sql" />
     <Build Include="Tables\Partners\partner_contacts.sql" />
-    <Build Include="Tables\Partners\partner_customers.sql" />
     <Build Include="Tables\Partners\partner_metrics_snapshot.sql" />
     <Build Include="Tables\Partners\partner_notes.sql" />
     <Build Include="Tables\Partners\partner_status_history.sql" />
@@ -88,6 +89,23 @@
     <Build Include="Views\Partners\vw_partner_pending_details.sql" />
     <Build Include="Views\Partners\vw_partners_admin_list.sql" />
     <Build Include="StoredProcedures\Partners\usp_partner_levels_recalculate.sql" />
+    <Build Include="Tables\Customers\client_documents.sql" />
+    <Build Include="Tables\Customers\client_level_rules.sql" />
+    <Build Include="Tables\Customers\customer_level_history.sql" />
+    <Build Include="Tables\Customers\client_notes.sql" />
+    <Build Include="Tables\Customers\clients.sql" />
+    <Build Include="Tables\Customers\client_pet_health_records.sql" />
+    <Build Include="Tables\Customers\client_pets.sql" />
+    <Build Include="Tables\Customers\client_status_history.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customers.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_access_history.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_documents.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_notes.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_pet_health_records.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_pets.sql" />
+    <Build Include="Tables\PartnerCustomers\partner_customer_status_history.sql" />
+    <Build Include="Tables\Partners\partner_level_history.sql" />
+    <Build Include="Tables\Partners\partner_level_rules.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />

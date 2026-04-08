@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_change_status
+CREATE PROCEDURE dbo.usp_benefit_requests_change_status
     @BenefitRequestId UNIQUEIDENTIFIER,
     @NewStatus VARCHAR(30),
     @ReviewNotes VARCHAR(1500) = NULL,

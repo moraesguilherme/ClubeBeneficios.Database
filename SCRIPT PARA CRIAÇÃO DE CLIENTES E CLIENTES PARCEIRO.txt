@@ -1,0 +1,3686 @@
+CREATE TABLE dbo.clients (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_clients PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    user_id UNIQUEIDENTIFIER NULL,
+
+    full_name VARCHAR(150) NOT NULL,
+    document VARCHAR(30) NULL,
+    email VARCHAR(150) NOT NULL,
+    phone VARCHAR(30) NULL,
+    birth_date DATE NULL,
+
+    instagram VARCHAR(100) NULL,
+
+    address_zip_code VARCHAR(20) NULL,
+    address_street VARCHAR(150) NULL,
+    address_number VARCHAR(30) NULL,
+    address_complement VARCHAR(100) NULL,
+    address_neighborhood VARCHAR(100) NULL,
+    address_city VARCHAR(100) NULL,
+    address_state VARCHAR(50) NULL,
+
+    origin_type VARCHAR(30) NOT NULL
+        CONSTRAINT DF_clients_origin_type DEFAULT 'manual',
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_clients_status DEFAULT 'lead',
+
+    notes_summary VARCHAR(1000) NULL,
+
+    accepts_marketing BIT NOT NULL
+        CONSTRAINT DF_clients_accepts_marketing DEFAULT 0,
+
+    lgpd_consent_at DATETIME2 NULL,
+
+    first_service_at DATETIME2 NULL,
+    last_service_at DATETIME2 NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_clients_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_clients_updated_at DEFAULT SYSUTCDATETIME(),
+
+    created_by_user_id UNIQUEIDENTIFIER NULL,
+    updated_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT CK_clients_origin_type
+        CHECK (origin_type IN (
+            'manual',
+            'site',
+            'landing_page',
+            'indication',
+            'partner_conversion',
+            'internal_import'
+        )),
+
+    CONSTRAINT CK_clients_status
+        CHECK (status IN (
+            'lead',
+            'pending_profile',
+            'pending_documents',
+            'pending_behavior_evaluation',
+            'active',
+            'inactive',
+            'blocked',
+            'archived'
+        ))
+);
+GO
+
+CREATE UNIQUE INDEX UX_clients_email
+    ON dbo.clients(email);
+GO
+
+CREATE UNIQUE INDEX UX_clients_document
+    ON dbo.clients(document)
+    WHERE document IS NOT NULL;
+GO
+
+CREATE INDEX IX_clients_user_id
+    ON dbo.clients(user_id)
+    WHERE user_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_clients_status
+    ON dbo.clients(status);
+GO
+
+CREATE INDEX IX_clients_origin_type
+    ON dbo.clients(origin_type);
+GO
+
+
+---=============================================================
+
+CREATE TABLE dbo.client_pets (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_client_pets PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    client_id UNIQUEIDENTIFIER NOT NULL,
+
+    name VARCHAR(120) NOT NULL,
+    species VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_pets_species DEFAULT 'dog',
+
+    breed VARCHAR(100) NULL,
+    sex VARCHAR(20) NULL,
+    birth_date DATE NULL,
+    age_months INT NULL,
+
+    weight_kg DECIMAL(10,2) NULL,
+    size VARCHAR(30) NULL,
+    color VARCHAR(60) NULL,
+
+    is_neutered BIT NOT NULL
+        CONSTRAINT DF_client_pets_is_neutered DEFAULT 0,
+
+    neutered_at DATE NULL,
+
+    behavior_status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_pets_behavior_status DEFAULT 'not_evaluated',
+
+    temperament_summary VARCHAR(1000) NULL,
+    restriction_notes VARCHAR(1500) NULL,
+    medical_notes VARCHAR(1500) NULL,
+    feeding_notes VARCHAR(1500) NULL,
+    special_care_notes VARCHAR(1500) NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_pets_status DEFAULT 'active',
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_pets_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_pets_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_client_pets_clients
+        FOREIGN KEY (client_id)
+        REFERENCES dbo.clients(id),
+
+    CONSTRAINT CK_client_pets_species
+        CHECK (species IN (
+            'dog',
+            'other'
+        )),
+
+    CONSTRAINT CK_client_pets_sex
+        CHECK (sex IS NULL OR sex IN (
+            'male',
+            'female'
+        )),
+
+    CONSTRAINT CK_client_pets_size
+        CHECK (size IS NULL OR size IN (
+            'small',
+            'medium',
+            'large',
+            'giant'
+        )),
+
+    CONSTRAINT CK_client_pets_behavior_status
+        CHECK (behavior_status IN (
+            'not_evaluated',
+            'pending_evaluation',
+            'approved',
+            'approved_with_restrictions',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_client_pets_status
+        CHECK (status IN (
+            'active',
+            'inactive',
+            'blocked',
+            'archived'
+        )),
+
+    CONSTRAINT CK_client_pets_age_months
+        CHECK (age_months IS NULL OR age_months >= 0),
+
+    CONSTRAINT CK_client_pets_weight_kg
+        CHECK (weight_kg IS NULL OR weight_kg >= 0)
+);
+GO
+
+CREATE INDEX IX_client_pets_client_id
+    ON dbo.client_pets(client_id);
+GO
+
+CREATE INDEX IX_client_pets_behavior_status
+    ON dbo.client_pets(behavior_status);
+GO
+
+CREATE INDEX IX_client_pets_status
+    ON dbo.client_pets(status);
+GO
+
+CREATE INDEX IX_client_pets_name
+    ON dbo.client_pets(name);
+GO
+
+--============================================================================
+
+CREATE TABLE dbo.partner_customers (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customers PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    user_id UNIQUEIDENTIFIER NULL,
+    partner_id UNIQUEIDENTIFIER NOT NULL,
+    access_code_id UNIQUEIDENTIFIER NULL,
+
+    full_name VARCHAR(150) NULL,
+    email VARCHAR(150) NULL,
+    phone VARCHAR(30) NULL,
+    document VARCHAR(30) NULL,
+    birth_date DATE NULL,
+
+    origin_type VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customers_origin_type DEFAULT 'partner_qr_code',
+
+    origin_channel VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customers_origin_channel DEFAULT 'qr_code',
+
+    registration_stage VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customers_registration_stage DEFAULT 'pre_registered',
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customers_status DEFAULT 'active',
+
+    benefits_dashboard_unlocked_at DATETIME2 NULL,
+    converted_to_full_registration_at DATETIME2 NULL,
+
+    first_access_at DATETIME2 NULL,
+    last_access_at DATETIME2 NULL,
+
+    accepted_terms_at DATETIME2 NULL,
+    accepted_privacy_policy_at DATETIME2 NULL,
+
+    notes_summary VARCHAR(1000) NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customers_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customers_updated_at DEFAULT SYSUTCDATETIME(),
+
+    created_by_user_id UNIQUEIDENTIFIER NULL,
+    updated_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT FK_partner_customers_partners
+        FOREIGN KEY (partner_id)
+        REFERENCES dbo.partners(id),
+
+    CONSTRAINT FK_partner_customers_partner_access_codes
+        FOREIGN KEY (access_code_id)
+        REFERENCES dbo.partner_access_codes(id),
+
+    CONSTRAINT CK_partner_customers_origin_type
+        CHECK (origin_type IN (
+            'partner_qr_code',
+            'partner_access_code',
+            'manual',
+            'imported'
+        )),
+
+    CONSTRAINT CK_partner_customers_origin_channel
+        CHECK (origin_channel IN (
+            'qr_code',
+            'landing_page',
+            'manual_code',
+            'internal'
+        )),
+
+    CONSTRAINT CK_partner_customers_registration_stage
+        CHECK (registration_stage IN (
+            'pre_registered',
+            'dashboard_enabled',
+            'profile_completed',
+            'pet_completed',
+            'documents_pending',
+            'under_review',
+            'eligible',
+            'ineligible'
+        )),
+
+    CONSTRAINT CK_partner_customers_status
+        CHECK (status IN (
+            'active',
+            'inactive',
+            'blocked',
+            'archived'
+        )),
+
+    CONSTRAINT CK_partner_customers_min_identification
+        CHECK (
+            email IS NOT NULL
+            OR phone IS NOT NULL
+            OR full_name IS NOT NULL
+        )
+);
+GO
+
+CREATE INDEX IX_partner_customers_partner_id
+    ON dbo.partner_customers(partner_id);
+GO
+
+CREATE INDEX IX_partner_customers_access_code_id
+    ON dbo.partner_customers(access_code_id)
+    WHERE access_code_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_partner_customers_registration_stage
+    ON dbo.partner_customers(registration_stage);
+GO
+
+CREATE INDEX IX_partner_customers_status
+    ON dbo.partner_customers(status);
+GO
+
+CREATE INDEX IX_partner_customers_user_id
+    ON dbo.partner_customers(user_id)
+    WHERE user_id IS NOT NULL;
+GO
+
+CREATE UNIQUE INDEX UX_partner_customers_partner_email
+    ON dbo.partner_customers(partner_id, email)
+    WHERE email IS NOT NULL;
+GO
+
+CREATE UNIQUE INDEX UX_partner_customers_partner_phone
+    ON dbo.partner_customers(partner_id, phone)
+    WHERE phone IS NOT NULL;
+GO
+
+--====================================================================
+
+CREATE TABLE dbo.partner_customer_access_history (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_access_history PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_id UNIQUEIDENTIFIER NULL,
+    partner_id UNIQUEIDENTIFIER NOT NULL,
+    access_code_id UNIQUEIDENTIFIER NULL,
+
+    anonymous_key VARCHAR(100) NULL,
+    session_key VARCHAR(100) NULL,
+
+    access_channel VARCHAR(30) NOT NULL,
+    conversion_stage VARCHAR(30) NOT NULL,
+
+    ip_address VARCHAR(50) NULL,
+    user_agent VARCHAR(500) NULL,
+
+    accessed_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_access_history_accessed_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_partner_customer_access_history_partner_customers
+        FOREIGN KEY (partner_customer_id)
+        REFERENCES dbo.partner_customers(id),
+
+    CONSTRAINT FK_partner_customer_access_history_partners
+        FOREIGN KEY (partner_id)
+        REFERENCES dbo.partners(id),
+
+    CONSTRAINT FK_partner_customer_access_history_partner_access_codes
+        FOREIGN KEY (access_code_id)
+        REFERENCES dbo.partner_access_codes(id),
+
+    CONSTRAINT CK_partner_customer_access_history_access_channel
+        CHECK (access_channel IN (
+            'qr_code',
+            'landing_page',
+            'manual_code',
+            'internal'
+        )),
+
+    CONSTRAINT CK_partner_customer_access_history_conversion_stage
+        CHECK (conversion_stage IN (
+            'landing_opened',
+            'code_validated',
+            'pre_registration_started',
+            'pre_registration_completed',
+            'dashboard_accessed',
+            'benefit_viewed',
+            'benefit_requested'
+        ))
+);
+GO
+
+CREATE INDEX IX_partner_customer_access_history_partner_customer_id
+    ON dbo.partner_customer_access_history(partner_customer_id)
+    WHERE partner_customer_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_partner_customer_access_history_partner_id
+    ON dbo.partner_customer_access_history(partner_id);
+GO
+
+CREATE INDEX IX_partner_customer_access_history_access_code_id
+    ON dbo.partner_customer_access_history(access_code_id)
+    WHERE access_code_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_partner_customer_access_history_accessed_at
+    ON dbo.partner_customer_access_history(accessed_at);
+GO
+
+CREATE INDEX IX_partner_customer_access_history_conversion_stage
+    ON dbo.partner_customer_access_history(conversion_stage);
+GO
+
+--===================================================================
+/* =========================================================
+   1) PARTNER CUSTOMER PETS
+   ========================================================= */
+
+CREATE TABLE dbo.partner_customer_pets (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_pets PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_id UNIQUEIDENTIFIER NOT NULL,
+
+    name VARCHAR(120) NOT NULL,
+    species VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_pets_species DEFAULT 'dog',
+
+    breed VARCHAR(100) NULL,
+    sex VARCHAR(20) NULL,
+    birth_date DATE NULL,
+    age_months INT NULL,
+
+    weight_kg DECIMAL(10,2) NULL,
+    size VARCHAR(30) NULL,
+    color VARCHAR(60) NULL,
+
+    is_neutered BIT NOT NULL
+        CONSTRAINT DF_partner_customer_pets_is_neutered DEFAULT 0,
+
+    neutered_at DATE NULL,
+
+    behavior_status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_pets_behavior_status DEFAULT 'not_evaluated',
+
+    temperament_summary VARCHAR(1000) NULL,
+    restriction_notes VARCHAR(1500) NULL,
+    medical_notes VARCHAR(1500) NULL,
+    feeding_notes VARCHAR(1500) NULL,
+    special_care_notes VARCHAR(1500) NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_pets_status DEFAULT 'active',
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_pets_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_pets_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_partner_customer_pets_partner_customers
+        FOREIGN KEY (partner_customer_id)
+        REFERENCES dbo.partner_customers(id),
+
+    CONSTRAINT CK_partner_customer_pets_species
+        CHECK (species IN (
+            'dog',
+            'other'
+        )),
+
+    CONSTRAINT CK_partner_customer_pets_sex
+        CHECK (sex IS NULL OR sex IN (
+            'male',
+            'female'
+        )),
+
+    CONSTRAINT CK_partner_customer_pets_size
+        CHECK (size IS NULL OR size IN (
+            'small',
+            'medium',
+            'large',
+            'giant'
+        )),
+
+    CONSTRAINT CK_partner_customer_pets_behavior_status
+        CHECK (behavior_status IN (
+            'not_evaluated',
+            'pending_evaluation',
+            'approved',
+            'approved_with_restrictions',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_partner_customer_pets_status
+        CHECK (status IN (
+            'active',
+            'inactive',
+            'blocked',
+            'archived'
+        )),
+
+    CONSTRAINT CK_partner_customer_pets_age_months
+        CHECK (age_months IS NULL OR age_months >= 0),
+
+    CONSTRAINT CK_partner_customer_pets_weight_kg
+        CHECK (weight_kg IS NULL OR weight_kg >= 0)
+);
+GO
+
+CREATE INDEX IX_partner_customer_pets_partner_customer_id
+    ON dbo.partner_customer_pets(partner_customer_id);
+GO
+
+CREATE INDEX IX_partner_customer_pets_behavior_status
+    ON dbo.partner_customer_pets(behavior_status);
+GO
+
+CREATE INDEX IX_partner_customer_pets_status
+    ON dbo.partner_customer_pets(status);
+GO
+
+CREATE INDEX IX_partner_customer_pets_name
+    ON dbo.partner_customer_pets(name);
+GO
+
+
+/* =========================================================
+   2) CLIENT NOTES
+   ========================================================= */
+
+CREATE TABLE dbo.client_notes (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_client_notes PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    client_id UNIQUEIDENTIFIER NOT NULL,
+
+    note_type VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_notes_note_type DEFAULT 'general',
+
+    title VARCHAR(150) NULL,
+    content VARCHAR(2000) NOT NULL,
+
+    is_internal BIT NOT NULL
+        CONSTRAINT DF_client_notes_is_internal DEFAULT 1,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_notes_created_at DEFAULT SYSUTCDATETIME(),
+
+    created_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT FK_client_notes_clients
+        FOREIGN KEY (client_id)
+        REFERENCES dbo.clients(id),
+
+    CONSTRAINT CK_client_notes_note_type
+        CHECK (note_type IN (
+            'general',
+            'service',
+            'behavior',
+            'financial',
+            'approval',
+            'warning'
+        ))
+);
+GO
+
+CREATE INDEX IX_client_notes_client_id
+    ON dbo.client_notes(client_id);
+GO
+
+CREATE INDEX IX_client_notes_note_type
+    ON dbo.client_notes(note_type);
+GO
+
+CREATE INDEX IX_client_notes_created_at
+    ON dbo.client_notes(created_at);
+GO
+
+
+/* =========================================================
+   3) PARTNER CUSTOMER NOTES
+   ========================================================= */
+
+CREATE TABLE dbo.partner_customer_notes (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_notes PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_id UNIQUEIDENTIFIER NOT NULL,
+
+    note_type VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_notes_note_type DEFAULT 'general',
+
+    title VARCHAR(150) NULL,
+    content VARCHAR(2000) NOT NULL,
+
+    is_internal BIT NOT NULL
+        CONSTRAINT DF_partner_customer_notes_is_internal DEFAULT 1,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_notes_created_at DEFAULT SYSUTCDATETIME(),
+
+    created_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT FK_partner_customer_notes_partner_customers
+        FOREIGN KEY (partner_customer_id)
+        REFERENCES dbo.partner_customers(id),
+
+    CONSTRAINT CK_partner_customer_notes_note_type
+        CHECK (note_type IN (
+            'general',
+            'registration',
+            'eligibility',
+            'benefit',
+            'approval',
+            'warning'
+        ))
+);
+GO
+
+CREATE INDEX IX_partner_customer_notes_partner_customer_id
+    ON dbo.partner_customer_notes(partner_customer_id);
+GO
+
+CREATE INDEX IX_partner_customer_notes_note_type
+    ON dbo.partner_customer_notes(note_type);
+GO
+
+CREATE INDEX IX_partner_customer_notes_created_at
+    ON dbo.partner_customer_notes(created_at);
+GO
+
+
+/* =========================================================
+   4) CLIENT STATUS HISTORY
+   ========================================================= */
+
+CREATE TABLE dbo.client_status_history (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_client_status_history PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    client_id UNIQUEIDENTIFIER NOT NULL,
+
+    old_status VARCHAR(30) NULL,
+    new_status VARCHAR(30) NOT NULL,
+
+    reason VARCHAR(500) NULL,
+
+    changed_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_status_history_changed_at DEFAULT SYSUTCDATETIME(),
+
+    changed_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT FK_client_status_history_clients
+        FOREIGN KEY (client_id)
+        REFERENCES dbo.clients(id),
+
+    CONSTRAINT CK_client_status_history_old_status
+        CHECK (
+            old_status IS NULL OR old_status IN (
+                'lead',
+                'pending_profile',
+                'pending_documents',
+                'pending_behavior_evaluation',
+                'active',
+                'inactive',
+                'blocked',
+                'archived'
+            )
+        ),
+
+    CONSTRAINT CK_client_status_history_new_status
+        CHECK (
+            new_status IN (
+                'lead',
+                'pending_profile',
+                'pending_documents',
+                'pending_behavior_evaluation',
+                'active',
+                'inactive',
+                'blocked',
+                'archived'
+            )
+        )
+);
+GO
+
+CREATE INDEX IX_client_status_history_client_id
+    ON dbo.client_status_history(client_id);
+GO
+
+CREATE INDEX IX_client_status_history_changed_at
+    ON dbo.client_status_history(changed_at);
+GO
+
+CREATE INDEX IX_client_status_history_new_status
+    ON dbo.client_status_history(new_status);
+GO
+
+
+/* =========================================================
+   5) PARTNER CUSTOMER STATUS HISTORY
+   ========================================================= */
+
+CREATE TABLE dbo.partner_customer_status_history (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_status_history PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_id UNIQUEIDENTIFIER NOT NULL,
+
+    old_status VARCHAR(30) NULL,
+    new_status VARCHAR(30) NOT NULL,
+
+    old_registration_stage VARCHAR(30) NULL,
+    new_registration_stage VARCHAR(30) NULL,
+
+    reason VARCHAR(500) NULL,
+
+    changed_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_status_history_changed_at DEFAULT SYSUTCDATETIME(),
+
+    changed_by_user_id UNIQUEIDENTIFIER NULL,
+
+    CONSTRAINT FK_partner_customer_status_history_partner_customers
+        FOREIGN KEY (partner_customer_id)
+        REFERENCES dbo.partner_customers(id),
+
+    CONSTRAINT CK_partner_customer_status_history_old_status
+        CHECK (
+            old_status IS NULL OR old_status IN (
+                'active',
+                'inactive',
+                'blocked',
+                'archived'
+            )
+        ),
+
+    CONSTRAINT CK_partner_customer_status_history_new_status
+        CHECK (
+            new_status IN (
+                'active',
+                'inactive',
+                'blocked',
+                'archived'
+            )
+        ),
+
+    CONSTRAINT CK_partner_customer_status_history_old_registration_stage
+        CHECK (
+            old_registration_stage IS NULL OR old_registration_stage IN (
+                'pre_registered',
+                'dashboard_enabled',
+                'profile_completed',
+                'pet_completed',
+                'documents_pending',
+                'under_review',
+                'eligible',
+                'ineligible'
+            )
+        ),
+
+    CONSTRAINT CK_partner_customer_status_history_new_registration_stage
+        CHECK (
+            new_registration_stage IS NULL OR new_registration_stage IN (
+                'pre_registered',
+                'dashboard_enabled',
+                'profile_completed',
+                'pet_completed',
+                'documents_pending',
+                'under_review',
+                'eligible',
+                'ineligible'
+            )
+        )
+);
+GO
+
+CREATE INDEX IX_partner_customer_status_history_partner_customer_id
+    ON dbo.partner_customer_status_history(partner_customer_id);
+GO
+
+CREATE INDEX IX_partner_customer_status_history_changed_at
+    ON dbo.partner_customer_status_history(changed_at);
+GO
+
+CREATE INDEX IX_partner_customer_status_history_new_status
+    ON dbo.partner_customer_status_history(new_status);
+GO
+
+CREATE INDEX IX_partner_customer_status_history_new_registration_stage
+    ON dbo.partner_customer_status_history(new_registration_stage);
+GO
+
+--===========================================================================
+--daqui
+--============================================================================
+
+/* =========================================================
+   1) CLIENT DOCUMENTS
+   ========================================================= */
+
+CREATE TABLE dbo.client_documents (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_client_documents PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    client_id UNIQUEIDENTIFIER NOT NULL,
+    client_pet_id UNIQUEIDENTIFIER NULL,
+
+    document_type VARCHAR(40) NOT NULL,
+    file_url VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NULL,
+    mime_type VARCHAR(100) NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_documents_status DEFAULT 'pending',
+
+    expires_at DATE NULL,
+    verified_at DATETIME2 NULL,
+    verified_by_user_id UNIQUEIDENTIFIER NULL,
+    rejection_reason VARCHAR(1000) NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_documents_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_documents_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_client_documents_clients
+        FOREIGN KEY (client_id)
+        REFERENCES dbo.clients(id),
+
+    CONSTRAINT FK_client_documents_client_pets
+        FOREIGN KEY (client_pet_id)
+        REFERENCES dbo.client_pets(id),
+
+    CONSTRAINT CK_client_documents_document_type
+        CHECK (document_type IN (
+            'client_document',
+            'vaccination_card',
+            'anti_parasite_receipt',
+            'behavior_evaluation',
+            'service_contract',
+            'consent_form',
+            'other'
+        )),
+
+    CONSTRAINT CK_client_documents_status
+        CHECK (status IN (
+            'pending',
+            'valid',
+            'expired',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_client_documents_file_url
+        CHECK (LEN(LTRIM(RTRIM(file_url))) > 0)
+);
+GO
+
+CREATE INDEX IX_client_documents_client_id
+    ON dbo.client_documents(client_id);
+GO
+
+CREATE INDEX IX_client_documents_client_pet_id
+    ON dbo.client_documents(client_pet_id)
+    WHERE client_pet_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_client_documents_document_type
+    ON dbo.client_documents(document_type);
+GO
+
+CREATE INDEX IX_client_documents_status
+    ON dbo.client_documents(status);
+GO
+
+CREATE INDEX IX_client_documents_expires_at
+    ON dbo.client_documents(expires_at)
+    WHERE expires_at IS NOT NULL;
+GO
+
+
+/* =========================================================
+   2) PARTNER CUSTOMER DOCUMENTS
+   ========================================================= */
+
+CREATE TABLE dbo.partner_customer_documents (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_documents PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_id UNIQUEIDENTIFIER NOT NULL,
+    partner_customer_pet_id UNIQUEIDENTIFIER NULL,
+
+    document_type VARCHAR(40) NOT NULL,
+    file_url VARCHAR(500) NOT NULL,
+    file_name VARCHAR(255) NULL,
+    mime_type VARCHAR(100) NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_documents_status DEFAULT 'pending',
+
+    expires_at DATE NULL,
+    verified_at DATETIME2 NULL,
+    verified_by_user_id UNIQUEIDENTIFIER NULL,
+    rejection_reason VARCHAR(1000) NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_documents_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_documents_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_partner_customer_documents_partner_customers
+        FOREIGN KEY (partner_customer_id)
+        REFERENCES dbo.partner_customers(id),
+
+    CONSTRAINT FK_partner_customer_documents_partner_customer_pets
+        FOREIGN KEY (partner_customer_pet_id)
+        REFERENCES dbo.partner_customer_pets(id),
+
+    CONSTRAINT CK_partner_customer_documents_document_type
+        CHECK (document_type IN (
+            'client_document',
+            'vaccination_card',
+            'anti_parasite_receipt',
+            'behavior_evaluation',
+            'consent_form',
+            'partner_indication_proof',
+            'other'
+        )),
+
+    CONSTRAINT CK_partner_customer_documents_status
+        CHECK (status IN (
+            'pending',
+            'valid',
+            'expired',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_partner_customer_documents_file_url
+        CHECK (LEN(LTRIM(RTRIM(file_url))) > 0)
+);
+GO
+
+CREATE INDEX IX_partner_customer_documents_partner_customer_id
+    ON dbo.partner_customer_documents(partner_customer_id);
+GO
+
+CREATE INDEX IX_partner_customer_documents_partner_customer_pet_id
+    ON dbo.partner_customer_documents(partner_customer_pet_id)
+    WHERE partner_customer_pet_id IS NOT NULL;
+GO
+
+CREATE INDEX IX_partner_customer_documents_document_type
+    ON dbo.partner_customer_documents(document_type);
+GO
+
+CREATE INDEX IX_partner_customer_documents_status
+    ON dbo.partner_customer_documents(status);
+GO
+
+CREATE INDEX IX_partner_customer_documents_expires_at
+    ON dbo.partner_customer_documents(expires_at)
+    WHERE expires_at IS NOT NULL;
+GO
+
+
+/* =========================================================
+   3) CLIENT PET HEALTH RECORDS
+   ========================================================= */
+
+CREATE TABLE dbo.client_pet_health_records (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_client_pet_health_records PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    client_pet_id UNIQUEIDENTIFIER NOT NULL,
+
+    record_type VARCHAR(30) NOT NULL,
+    record_name VARCHAR(60) NOT NULL,
+
+    applied_at DATE NULL,
+    expires_at DATE NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_client_pet_health_records_status DEFAULT 'pending',
+
+    document_file_url VARCHAR(500) NULL,
+
+    verified_at DATETIME2 NULL,
+    verified_by_user_id UNIQUEIDENTIFIER NULL,
+
+    notes VARCHAR(1000) NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_pet_health_records_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_client_pet_health_records_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_client_pet_health_records_client_pets
+        FOREIGN KEY (client_pet_id)
+        REFERENCES dbo.client_pets(id),
+
+    CONSTRAINT CK_client_pet_health_records_record_type
+        CHECK (record_type IN (
+            'vaccine',
+            'deworming',
+            'flea_tick_control',
+            'medical_clearance'
+        )),
+
+    CONSTRAINT CK_client_pet_health_records_record_name
+        CHECK (record_name IN (
+            'v10',
+            'rabies',
+            'giardia',
+            'kennel_cough',
+            'deworming',
+            'flea_tick_control',
+            'medical_clearance'
+        )),
+
+    CONSTRAINT CK_client_pet_health_records_status
+        CHECK (status IN (
+            'pending',
+            'valid',
+            'expired',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_client_pet_health_records_dates
+        CHECK (
+            applied_at IS NULL
+            OR expires_at IS NULL
+            OR expires_at >= applied_at
+        )
+);
+GO
+
+CREATE INDEX IX_client_pet_health_records_client_pet_id
+    ON dbo.client_pet_health_records(client_pet_id);
+GO
+
+CREATE INDEX IX_client_pet_health_records_record_type
+    ON dbo.client_pet_health_records(record_type);
+GO
+
+CREATE INDEX IX_client_pet_health_records_record_name
+    ON dbo.client_pet_health_records(record_name);
+GO
+
+CREATE INDEX IX_client_pet_health_records_status
+    ON dbo.client_pet_health_records(status);
+GO
+
+CREATE INDEX IX_client_pet_health_records_expires_at
+    ON dbo.client_pet_health_records(expires_at)
+    WHERE expires_at IS NOT NULL;
+GO
+
+
+/* =========================================================
+   4) PARTNER CUSTOMER PET HEALTH RECORDS
+   ========================================================= */
+
+CREATE TABLE dbo.partner_customer_pet_health_records (
+    id UNIQUEIDENTIFIER NOT NULL
+        CONSTRAINT PK_partner_customer_pet_health_records PRIMARY KEY
+        DEFAULT NEWSEQUENTIALID(),
+
+    partner_customer_pet_id UNIQUEIDENTIFIER NOT NULL,
+
+    record_type VARCHAR(30) NOT NULL,
+    record_name VARCHAR(60) NOT NULL,
+
+    applied_at DATE NULL,
+    expires_at DATE NULL,
+
+    status VARCHAR(30) NOT NULL
+        CONSTRAINT DF_partner_customer_pet_health_records_status DEFAULT 'pending',
+
+    document_file_url VARCHAR(500) NULL,
+
+    verified_at DATETIME2 NULL,
+    verified_by_user_id UNIQUEIDENTIFIER NULL,
+
+    notes VARCHAR(1000) NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_pet_health_records_created_at DEFAULT SYSUTCDATETIME(),
+
+    updated_at DATETIME2 NOT NULL
+        CONSTRAINT DF_partner_customer_pet_health_records_updated_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT FK_partner_customer_pet_health_records_partner_customer_pets
+        FOREIGN KEY (partner_customer_pet_id)
+        REFERENCES dbo.partner_customer_pets(id),
+
+    CONSTRAINT CK_partner_customer_pet_health_records_record_type
+        CHECK (record_type IN (
+            'vaccine',
+            'deworming',
+            'flea_tick_control',
+            'medical_clearance'
+        )),
+
+    CONSTRAINT CK_partner_customer_pet_health_records_record_name
+        CHECK (record_name IN (
+            'v10',
+            'rabies',
+            'giardia',
+            'kennel_cough',
+            'deworming',
+            'flea_tick_control',
+            'medical_clearance'
+        )),
+
+    CONSTRAINT CK_partner_customer_pet_health_records_status
+        CHECK (status IN (
+            'pending',
+            'valid',
+            'expired',
+            'rejected'
+        )),
+
+    CONSTRAINT CK_partner_customer_pet_health_records_dates
+        CHECK (
+            applied_at IS NULL
+            OR expires_at IS NULL
+            OR expires_at >= applied_at
+        )
+);
+GO
+
+CREATE INDEX IX_partner_customer_pet_health_records_partner_customer_pet_id
+    ON dbo.partner_customer_pet_health_records(partner_customer_pet_id);
+GO
+
+CREATE INDEX IX_partner_customer_pet_health_records_record_type
+    ON dbo.partner_customer_pet_health_records(record_type);
+GO
+
+CREATE INDEX IX_partner_customer_pet_health_records_record_name
+    ON dbo.partner_customer_pet_health_records(record_name);
+GO
+
+CREATE INDEX IX_partner_customer_pet_health_records_status
+    ON dbo.partner_customer_pet_health_records(status);
+GO
+
+CREATE INDEX IX_partner_customer_pet_health_records_expires_at
+    ON dbo.partner_customer_pet_health_records(expires_at)
+    WHERE expires_at IS NOT NULL;
+GO
+
+----=======================================================
+-----aqui-----------------
+
+/* =========================================================
+   FASE 1 - AMARRAÇÕES ENTRE BENEFÍCIOS E CLIENTES
+   Estratégia:
+   - manter colunas legadas por compatibilidade
+   - introduzir colunas novas corretas para clients/client_pets
+   - separar pet do cliente matilha e pet do cliente parceiro
+   - criar revisão/aprovação da solicitação
+   ========================================================= */
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+/* =========================================================
+   1) BENEFIT REQUESTS - EVOLUÇÃO
+   ========================================================= */
+
+/* 1.1 - novas colunas */
+IF COL_LENGTH('dbo.benefit_requests', 'requester_client_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD requester_client_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'requester_client_pet_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD requester_client_pet_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'requester_partner_customer_pet_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD requester_partner_customer_pet_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'requested_by_user_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD requested_by_user_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'pet_source_type') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD pet_source_type VARCHAR(30) NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'review_required') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD review_required BIT NOT NULL
+            CONSTRAINT DF_benefit_requests_review_required DEFAULT 0;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'approval_status') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD approval_status VARCHAR(30) NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'approval_requested_at') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD approval_requested_at DATETIME2(7) NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'approval_decided_at') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD approval_decided_at DATETIME2(7) NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'approval_decided_by_user_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD approval_decided_by_user_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_requests', 'approval_reason') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD approval_reason VARCHAR(1500) NULL;
+END
+GO
+
+/* 1.2 - backfill inicial compatível */
+UPDATE dbo.benefit_requests
+SET requested_by_user_id = requester_user_id
+WHERE requested_by_user_id IS NULL
+  AND requester_user_id IS NOT NULL;
+GO
+
+UPDATE dbo.benefit_requests
+SET approval_status =
+    CASE
+        WHEN request_status = 'approved' THEN 'approved'
+        WHEN request_status = 'declined' THEN 'rejected'
+        WHEN request_status = 'requested' THEN 'pending_review'
+        WHEN request_status = 'expired' THEN 'expired'
+        WHEN request_status = 'cancelled' THEN 'cancelled'
+        ELSE approval_status
+    END
+WHERE approval_status IS NULL;
+GO
+
+UPDATE dbo.benefit_requests
+SET approval_requested_at = requested_at
+WHERE approval_requested_at IS NULL
+  AND review_required = 1;
+GO
+
+/* 1.3 - FKs novas */
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_requests_clients'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD CONSTRAINT FK_benefit_requests_clients
+        FOREIGN KEY (requester_client_id)
+        REFERENCES dbo.clients(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_requests_client_pets'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD CONSTRAINT FK_benefit_requests_client_pets
+        FOREIGN KEY (requester_client_pet_id)
+        REFERENCES dbo.client_pets(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_requests_partner_customer_pets'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD CONSTRAINT FK_benefit_requests_partner_customer_pets
+        FOREIGN KEY (requester_partner_customer_pet_id)
+        REFERENCES dbo.partner_customer_pets(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_requests_users_requested_by'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD CONSTRAINT FK_benefit_requests_users_requested_by
+        FOREIGN KEY (requested_by_user_id)
+        REFERENCES dbo.users(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_requests_users_approval_decided'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        ADD CONSTRAINT FK_benefit_requests_users_approval_decided
+        FOREIGN KEY (approval_decided_by_user_id)
+        REFERENCES dbo.users(id);
+END
+GO
+
+/* 1.4 - remover checks antigos para recriar */
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = 'CK_benefit_requests_requester_presence'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        DROP CONSTRAINT CK_benefit_requests_requester_presence;
+END
+GO
+
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = 'CK_benefit_requests_request_status'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        DROP CONSTRAINT CK_benefit_requests_request_status;
+END
+GO
+
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = 'CK_benefit_requests_requester_type'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_requests
+        DROP CONSTRAINT CK_benefit_requests_requester_type;
+END
+GO
+
+/* 1.5 - checks novos */
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_requester_type
+    CHECK (requester_type IN ('client', 'partner_customer'));
+GO
+
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_request_status
+    CHECK (request_status IN (
+        'requested',
+        'pending_review',
+        'under_review',
+        'approved',
+        'declined',
+        'cancelled',
+        'expired',
+        'scheduled',
+        'no_show',
+        'converted_to_usage'
+    ));
+GO
+
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_approval_status
+    CHECK (
+        approval_status IS NULL OR approval_status IN (
+            'pending_review',
+            'under_review',
+            'approved',
+            'rejected',
+            'cancelled',
+            'expired'
+        )
+    );
+GO
+
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_pet_source_type
+    CHECK (
+        pet_source_type IS NULL OR pet_source_type IN (
+            'client_pet',
+            'partner_customer_pet'
+        )
+    );
+GO
+
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_requester_presence
+    CHECK (
+        (
+            requester_type = 'client'
+            AND requester_partner_customer_id IS NULL
+            AND (
+                requester_client_id IS NOT NULL
+                OR requester_user_id IS NOT NULL
+            )
+        )
+        OR
+        (
+            requester_type = 'partner_customer'
+            AND requester_partner_customer_id IS NOT NULL
+            AND requester_client_id IS NULL
+        )
+    );
+GO
+
+ALTER TABLE dbo.benefit_requests
+    ADD CONSTRAINT CK_benefit_requests_pet_presence
+    CHECK (
+        (
+            pet_source_type IS NULL
+            AND requester_client_pet_id IS NULL
+            AND requester_partner_customer_pet_id IS NULL
+        )
+        OR
+        (
+            pet_source_type = 'client_pet'
+            AND requester_client_pet_id IS NOT NULL
+            AND requester_partner_customer_pet_id IS NULL
+        )
+        OR
+        (
+            pet_source_type = 'partner_customer_pet'
+            AND requester_partner_customer_pet_id IS NOT NULL
+            AND requester_client_pet_id IS NULL
+        )
+    );
+GO
+
+/* 1.6 - índices novos */
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_requests_requester_client_id'
+      AND object_id = OBJECT_ID('dbo.benefit_requests')
+)
+BEGIN
+    CREATE INDEX IX_benefit_requests_requester_client_id
+        ON dbo.benefit_requests(requester_client_id)
+        WHERE requester_client_id IS NOT NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_requests_requester_partner_customer_id'
+      AND object_id = OBJECT_ID('dbo.benefit_requests')
+)
+BEGIN
+    CREATE INDEX IX_benefit_requests_requester_partner_customer_id
+        ON dbo.benefit_requests(requester_partner_customer_id)
+        WHERE requester_partner_customer_id IS NOT NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_requests_approval_status'
+      AND object_id = OBJECT_ID('dbo.benefit_requests')
+)
+BEGIN
+    CREATE INDEX IX_benefit_requests_approval_status
+        ON dbo.benefit_requests(approval_status, requested_at DESC);
+END
+GO
+
+
+/* =========================================================
+   2) BENEFIT USAGES - EVOLUÇÃO
+   ========================================================= */
+
+IF COL_LENGTH('dbo.benefit_usages', 'used_by_client_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD used_by_client_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_usages', 'client_pet_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD client_pet_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_usages', 'partner_customer_pet_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD partner_customer_pet_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_usages', 'pet_source_type') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD pet_source_type VARCHAR(30) NULL;
+END
+GO
+
+IF COL_LENGTH('dbo.benefit_usages', 'recorded_by_user_id') IS NULL
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD recorded_by_user_id UNIQUEIDENTIFIER NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_usages_clients'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD CONSTRAINT FK_benefit_usages_clients
+        FOREIGN KEY (used_by_client_id)
+        REFERENCES dbo.clients(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_usages_client_pets'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD CONSTRAINT FK_benefit_usages_client_pets
+        FOREIGN KEY (client_pet_id)
+        REFERENCES dbo.client_pets(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_usages_partner_customer_pets'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD CONSTRAINT FK_benefit_usages_partner_customer_pets
+        FOREIGN KEY (partner_customer_pet_id)
+        REFERENCES dbo.partner_customer_pets(id);
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_benefit_usages_recorded_by_user'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        ADD CONSTRAINT FK_benefit_usages_recorded_by_user
+        FOREIGN KEY (recorded_by_user_id)
+        REFERENCES dbo.users(id);
+END
+GO
+
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = 'CK_benefit_usages_user_presence'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        DROP CONSTRAINT CK_benefit_usages_user_presence;
+END
+GO
+
+IF EXISTS (
+    SELECT 1 FROM sys.check_constraints
+    WHERE name = 'CK_benefit_usages_used_by_type'
+)
+BEGIN
+    ALTER TABLE dbo.benefit_usages
+        DROP CONSTRAINT CK_benefit_usages_used_by_type;
+END
+GO
+
+ALTER TABLE dbo.benefit_usages
+    ADD CONSTRAINT CK_benefit_usages_used_by_type
+    CHECK (used_by_type IN ('client', 'partner_customer'));
+GO
+
+ALTER TABLE dbo.benefit_usages
+    ADD CONSTRAINT CK_benefit_usages_pet_source_type
+    CHECK (
+        pet_source_type IS NULL OR pet_source_type IN (
+            'client_pet',
+            'partner_customer_pet'
+        )
+    );
+GO
+
+ALTER TABLE dbo.benefit_usages
+    ADD CONSTRAINT CK_benefit_usages_user_presence
+    CHECK (
+        (
+            used_by_type = 'client'
+            AND used_by_partner_customer_id IS NULL
+            AND (
+                used_by_client_id IS NOT NULL
+                OR used_by_user_id IS NOT NULL
+            )
+        )
+        OR
+        (
+            used_by_type = 'partner_customer'
+            AND used_by_partner_customer_id IS NOT NULL
+            AND used_by_client_id IS NULL
+        )
+    );
+GO
+
+ALTER TABLE dbo.benefit_usages
+    ADD CONSTRAINT CK_benefit_usages_pet_presence
+    CHECK (
+        (
+            pet_source_type IS NULL
+            AND client_pet_id IS NULL
+            AND partner_customer_pet_id IS NULL
+        )
+        OR
+        (
+            pet_source_type = 'client_pet'
+            AND client_pet_id IS NOT NULL
+            AND partner_customer_pet_id IS NULL
+        )
+        OR
+        (
+            pet_source_type = 'partner_customer_pet'
+            AND partner_customer_pet_id IS NOT NULL
+            AND client_pet_id IS NULL
+        )
+    );
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_usages_used_by_client_id'
+      AND object_id = OBJECT_ID('dbo.benefit_usages')
+)
+BEGIN
+    CREATE INDEX IX_benefit_usages_used_by_client_id
+        ON dbo.benefit_usages(used_by_client_id)
+        WHERE used_by_client_id IS NOT NULL;
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_usages_used_by_partner_customer_id'
+      AND object_id = OBJECT_ID('dbo.benefit_usages')
+)
+BEGIN
+    CREATE INDEX IX_benefit_usages_used_by_partner_customer_id
+        ON dbo.benefit_usages(used_by_partner_customer_id)
+        WHERE used_by_partner_customer_id IS NOT NULL;
+END
+GO
+
+
+/* =========================================================
+   3) APROVAÇÃO DE SOLICITAÇÃO
+   Não usa dbo.benefit_reviews, porque aquela tabela é review do benefício.
+   ========================================================= */
+
+IF OBJECT_ID('dbo.benefit_request_reviews', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.benefit_request_reviews
+    (
+        id UNIQUEIDENTIFIER NOT NULL
+            CONSTRAINT PK_benefit_request_reviews PRIMARY KEY
+            DEFAULT NEWSEQUENTIALID(),
+
+        benefit_request_id UNIQUEIDENTIFIER NOT NULL,
+        review_status VARCHAR(30) NOT NULL,
+        review_point VARCHAR(200) NULL,
+        review_recommendation VARCHAR(1500) NULL,
+        reviewed_by_user_id UNIQUEIDENTIFIER NOT NULL,
+        reviewed_at DATETIME2(7) NOT NULL
+            CONSTRAINT DF_benefit_request_reviews_reviewed_at DEFAULT SYSUTCDATETIME(),
+        created_at DATETIME2(7) NOT NULL
+            CONSTRAINT DF_benefit_request_reviews_created_at DEFAULT SYSUTCDATETIME(),
+
+        CONSTRAINT FK_benefit_request_reviews_requests
+            FOREIGN KEY (benefit_request_id)
+            REFERENCES dbo.benefit_requests(id),
+
+        CONSTRAINT FK_benefit_request_reviews_users
+            FOREIGN KEY (reviewed_by_user_id)
+            REFERENCES dbo.users(id),
+
+        CONSTRAINT CK_benefit_request_reviews_status
+            CHECK (review_status IN (
+                'pending_review',
+                'under_review',
+                'approved',
+                'rejected',
+                'cancelled',
+                'expired'
+            ))
+    );
+END
+GO
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes
+    WHERE name = 'IX_benefit_request_reviews_request_reviewed_at'
+      AND object_id = OBJECT_ID('dbo.benefit_request_reviews')
+)
+BEGIN
+    CREATE INDEX IX_benefit_request_reviews_request_reviewed_at
+        ON dbo.benefit_request_reviews(benefit_request_id, reviewed_at DESC);
+END
+GO
+
+--=====================================aquiiiiiiii
+
+//* =========================================================
+   SCRIPT 2 - VIEWS E STORED PROCEDURES
+   Compatível com o modelo evoluído de clients + partner_customers
+   ========================================================= */
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+/* =========================================================
+   1) VIEW - SOLICITAÇÕES / LISTA ADMIN
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_requests_admin_list
+AS
+SELECT
+    r.id,
+    r.benefit_id,
+    b.title AS benefit_title,
+    r.partner_id,
+    p.trade_name AS partner_name,
+
+    r.requester_type,
+    r.requester_user_id,
+    r.requester_client_id,
+    r.requester_partner_customer_id,
+    r.requested_by_user_id,
+
+    c.full_name AS client_name,
+    c.email AS client_email,
+    c.phone AS client_phone,
+
+    pc.full_name AS partner_customer_name,
+    pc.email AS partner_customer_email,
+    pc.phone AS partner_customer_phone,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.full_name
+        WHEN r.requester_type = 'partner_customer' THEN pc.full_name
+        ELSE NULL
+    END AS requester_name,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.email
+        WHEN r.requester_type = 'partner_customer' THEN pc.email
+        ELSE NULL
+    END AS requester_email,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.phone
+        WHEN r.requester_type = 'partner_customer' THEN pc.phone
+        ELSE NULL
+    END AS requester_phone,
+
+    r.pet_source_type,
+    r.requester_client_pet_id,
+    r.requester_partner_customer_pet_id,
+    cp.name AS client_pet_name,
+    pcp.name AS partner_customer_pet_name,
+
+    CASE
+        WHEN r.pet_source_type = 'client_pet' THEN cp.name
+        WHEN r.pet_source_type = 'partner_customer_pet' THEN pcp.name
+        ELSE NULL
+    END AS pet_name,
+
+    r.access_code_id,
+    r.request_status,
+    r.review_required,
+    r.approval_status,
+    r.approval_requested_at,
+    r.approval_decided_at,
+    r.approval_decided_by_user_id,
+    r.approval_reason,
+
+    r.reviewed_at,
+    r.reviewed_by_user_id,
+    r.review_notes,
+
+    r.requested_at,
+    r.scheduled_for,
+    r.expires_at,
+    r.created_at,
+    r.updated_at
+FROM dbo.benefit_requests r
+INNER JOIN dbo.benefits b
+    ON b.id = r.benefit_id
+INNER JOIN dbo.partners p
+    ON p.id = r.partner_id
+LEFT JOIN dbo.clients c
+    ON c.id = r.requester_client_id
+LEFT JOIN dbo.partner_customers pc
+    ON pc.id = r.requester_partner_customer_id
+LEFT JOIN dbo.client_pets cp
+    ON cp.id = r.requester_client_pet_id
+LEFT JOIN dbo.partner_customer_pets pcp
+    ON pcp.id = r.requester_partner_customer_pet_id;
+GO
+
+
+/* =========================================================
+   2) VIEW - DETALHE / TIMELINE DE SOLICITAÇÃO
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_request_detail
+AS
+SELECT
+    r.id,
+    r.benefit_id,
+    b.title AS benefit_title,
+    b.status AS benefit_status,
+    b.benefit_type,
+    b.direction,
+    b.eligibility_type,
+
+    r.partner_id,
+    p.trade_name AS partner_name,
+    p.segment AS partner_segment,
+    p.category AS partner_category,
+
+    r.requester_type,
+    r.requester_user_id,
+    r.requester_client_id,
+    r.requester_partner_customer_id,
+    r.requested_by_user_id,
+
+    c.full_name AS client_name,
+    c.document AS client_document,
+    c.email AS client_email,
+    c.phone AS client_phone,
+    c.status AS client_status,
+
+    pc.full_name AS partner_customer_name,
+    pc.document AS partner_customer_document,
+    pc.email AS partner_customer_email,
+    pc.phone AS partner_customer_phone,
+    pc.status AS partner_customer_status,
+    pc.registration_stage AS partner_customer_registration_stage,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.full_name
+        WHEN r.requester_type = 'partner_customer' THEN pc.full_name
+        ELSE NULL
+    END AS requester_name,
+
+    r.pet_source_type,
+    r.requester_client_pet_id,
+    r.requester_partner_customer_pet_id,
+
+    cp.name AS client_pet_name,
+    cp.species AS client_pet_species,
+    cp.breed AS client_pet_breed,
+    cp.sex AS client_pet_sex,
+    cp.behavior_status AS client_pet_behavior_status,
+    cp.status AS client_pet_status,
+
+    pcp.name AS partner_customer_pet_name,
+    pcp.species AS partner_customer_pet_species,
+    pcp.breed AS partner_customer_pet_breed,
+    pcp.sex AS partner_customer_pet_sex,
+    pcp.behavior_status AS partner_customer_pet_behavior_status,
+    pcp.status AS partner_customer_pet_status,
+
+    CASE
+        WHEN r.pet_source_type = 'client_pet' THEN cp.name
+        WHEN r.pet_source_type = 'partner_customer_pet' THEN pcp.name
+        ELSE NULL
+    END AS pet_name,
+
+    r.access_code_id,
+    pac.code AS access_code,
+
+    r.request_status,
+    r.review_required,
+    r.approval_status,
+    r.approval_requested_at,
+    r.approval_decided_at,
+    r.approval_decided_by_user_id,
+    r.approval_reason,
+
+    r.reviewed_at,
+    r.reviewed_by_user_id,
+    r.review_notes,
+
+    r.requested_at,
+    r.scheduled_for,
+    r.expires_at,
+    r.created_at,
+    r.updated_at
+FROM dbo.benefit_requests r
+INNER JOIN dbo.benefits b
+    ON b.id = r.benefit_id
+INNER JOIN dbo.partners p
+    ON p.id = r.partner_id
+LEFT JOIN dbo.clients c
+    ON c.id = r.requester_client_id
+LEFT JOIN dbo.partner_customers pc
+    ON pc.id = r.requester_partner_customer_id
+LEFT JOIN dbo.client_pets cp
+    ON cp.id = r.requester_client_pet_id
+LEFT JOIN dbo.partner_customer_pets pcp
+    ON pcp.id = r.requester_partner_customer_pet_id
+LEFT JOIN dbo.partner_access_codes pac
+    ON pac.id = r.access_code_id;
+GO
+
+
+/* =========================================================
+   3) VIEW - USAGE OVERVIEW EVOLUÍDA
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_usage_overview
+AS
+SELECT
+    u.id,
+    u.benefit_request_id,
+    u.benefit_id,
+    u.partner_id,
+    p.trade_name AS partner_name,
+
+    u.used_by_type,
+    u.used_by_user_id,
+    u.used_by_client_id,
+    u.used_by_partner_customer_id,
+
+    c.full_name AS client_name,
+    pc.full_name AS partner_customer_name,
+
+    CASE
+        WHEN u.used_by_type = 'client' THEN c.full_name
+        WHEN u.used_by_type = 'partner_customer' THEN pc.full_name
+        ELSE NULL
+    END AS used_by_name,
+
+    u.pet_source_type,
+    u.client_pet_id,
+    u.partner_customer_pet_id,
+
+    cp.name AS client_pet_name,
+    pcp.name AS partner_customer_pet_name,
+
+    CASE
+        WHEN u.pet_source_type = 'client_pet' THEN cp.name
+        WHEN u.pet_source_type = 'partner_customer_pet' THEN pcp.name
+        ELSE NULL
+    END AS pet_name,
+
+    u.usage_status,
+    u.used_at,
+    u.confirmed_by_partner_user_id,
+    u.confirmed_by_admin_user_id,
+    u.recorded_by_user_id,
+
+    u.snapshot_title,
+    u.snapshot_partner_name,
+    u.snapshot_rule_summary,
+    u.monetary_value,
+    u.discount_value,
+
+    u.created_at,
+    u.updated_at
+FROM dbo.benefit_usages u
+INNER JOIN dbo.partners p
+    ON p.id = u.partner_id
+LEFT JOIN dbo.clients c
+    ON c.id = u.used_by_client_id
+LEFT JOIN dbo.partner_customers pc
+    ON pc.id = u.used_by_partner_customer_id
+LEFT JOIN dbo.client_pets cp
+    ON cp.id = u.client_pet_id
+LEFT JOIN dbo.partner_customer_pets pcp
+    ON pcp.id = u.partner_customer_pet_id;
+GO
+
+
+/* =========================================================
+   4) SP - CRIAR SOLICITAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_create
+    @BenefitId UNIQUEIDENTIFIER,
+    @RequesterType VARCHAR(30),
+    @RequesterUserId UNIQUEIDENTIFIER = NULL,                 -- legado
+    @RequesterClientId UNIQUEIDENTIFIER = NULL,
+    @RequesterPartnerCustomerId UNIQUEIDENTIFIER = NULL,
+    @RequestedByUserId UNIQUEIDENTIFIER = NULL,
+    @AccessCodeId UNIQUEIDENTIFIER = NULL,
+    @PetSourceType VARCHAR(30) = NULL,
+    @RequesterClientPetId UNIQUEIDENTIFIER = NULL,
+    @RequesterPartnerCustomerPetId UNIQUEIDENTIFIER = NULL,
+    @ScheduledFor DATETIME2(7) = NULL,
+    @ExpiresAt DATETIME2(7) = NULL,
+    @ReviewRequired BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @PartnerId UNIQUEIDENTIFIER;
+    DECLARE @BenefitStatus VARCHAR(30);
+    DECLARE @RequiresAccessCode BIT;
+
+    SELECT
+        @PartnerId = partner_id,
+        @BenefitStatus = status,
+        @RequiresAccessCode = requires_active_access_code
+    FROM dbo.benefits
+    WHERE id = @BenefitId;
+
+    IF @BenefitStatus IS NULL
+    BEGIN
+        RAISERROR('Benefício não encontrado.', 16, 1);
+        RETURN;
+    END
+
+    IF @BenefitStatus NOT IN ('active', 'approved')
+    BEGIN
+        RAISERROR('Benefício não está disponível para solicitação.', 16, 1);
+        RETURN;
+    END
+
+    IF @RequesterType NOT IN ('client', 'partner_customer')
+    BEGIN
+        RAISERROR('RequesterType inválido.', 16, 1);
+        RETURN;
+    END
+
+    IF @RequiresAccessCode = 1 AND @AccessCodeId IS NULL
+    BEGIN
+        RAISERROR('Este benefício exige código de acesso.', 16, 1);
+        RETURN;
+    END
+
+    IF @RequesterType = 'client' AND @RequesterClientId IS NULL AND @RequesterUserId IS NULL
+    BEGIN
+        RAISERROR('Solicitação de cliente exige RequesterClientId ou RequesterUserId.', 16, 1);
+        RETURN;
+    END
+
+    IF @RequesterType = 'partner_customer' AND @RequesterPartnerCustomerId IS NULL
+    BEGIN
+        RAISERROR('Solicitação de cliente parceiro exige RequesterPartnerCustomerId.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType IS NOT NULL AND @PetSourceType NOT IN ('client_pet', 'partner_customer_pet')
+    BEGIN
+        RAISERROR('PetSourceType inválido.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType = 'client_pet' AND @RequesterClientPetId IS NULL
+    BEGIN
+        RAISERROR('PetSourceType client_pet exige RequesterClientPetId.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType = 'partner_customer_pet' AND @RequesterPartnerCustomerPetId IS NULL
+    BEGIN
+        RAISERROR('PetSourceType partner_customer_pet exige RequesterPartnerCustomerPetId.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO dbo.benefit_requests
+    (
+        id,
+        benefit_id,
+        partner_id,
+        requester_user_id,
+        requester_client_id,
+        requester_partner_customer_id,
+        requested_by_user_id,
+        requester_type,
+        pet_source_type,
+        requester_client_pet_id,
+        requester_partner_customer_pet_id,
+        access_code_id,
+        request_status,
+        review_required,
+        approval_status,
+        approval_requested_at,
+        requested_at,
+        scheduled_for,
+        expires_at,
+        created_at,
+        updated_at
+    )
+    VALUES
+    (
+        NEWID(),
+        @BenefitId,
+        @PartnerId,
+        @RequesterUserId,
+        @RequesterClientId,
+        @RequesterPartnerCustomerId,
+        @RequestedByUserId,
+        @RequesterType,
+        @PetSourceType,
+        @RequesterClientPetId,
+        @RequesterPartnerCustomerPetId,
+        @AccessCodeId,
+        CASE WHEN @ReviewRequired = 1 THEN 'pending_review' ELSE 'requested' END,
+        @ReviewRequired,
+        CASE WHEN @ReviewRequired = 1 THEN 'pending_review' ELSE NULL END,
+        CASE WHEN @ReviewRequired = 1 THEN SYSUTCDATETIME() ELSE NULL END,
+        SYSUTCDATETIME(),
+        @ScheduledFor,
+        @ExpiresAt,
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
+    );
+
+    UPDATE dbo.benefit_metrics_snapshot
+    SET
+        requests_count = requests_count + 1,
+        refreshed_at = SYSUTCDATETIME()
+    WHERE benefit_id = @BenefitId;
+END
+GO
+
+
+/* =========================================================
+   5) SP - ALTERAR STATUS DA SOLICITAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_change_status
+    @BenefitRequestId UNIQUEIDENTIFIER,
+    @NewStatus VARCHAR(30),
+    @ReviewNotes VARCHAR(1500) = NULL,
+    @ReviewedByUserId UNIQUEIDENTIFIER = NULL,
+    @ApprovalStatus VARCHAR(30) = NULL,
+    @ApprovalReason VARCHAR(1500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @BenefitId UNIQUEIDENTIFIER;
+
+    SELECT @BenefitId = benefit_id
+    FROM dbo.benefit_requests
+    WHERE id = @BenefitRequestId;
+
+    IF @BenefitId IS NULL
+    BEGIN
+        RAISERROR('Solicitação não encontrada.', 16, 1);
+        RETURN;
+    END
+
+    IF @NewStatus NOT IN (
+        'requested',
+        'pending_review',
+        'under_review',
+        'approved',
+        'declined',
+        'cancelled',
+        'expired',
+        'scheduled',
+        'no_show',
+        'converted_to_usage'
+    )
+    BEGIN
+        RAISERROR('NewStatus inválido.', 16, 1);
+        RETURN;
+    END
+
+    IF @ApprovalStatus IS NOT NULL
+       AND @ApprovalStatus NOT IN ('pending_review', 'under_review', 'approved', 'rejected', 'cancelled', 'expired')
+    BEGIN
+        RAISERROR('ApprovalStatus inválido.', 16, 1);
+        RETURN;
+    END
+
+    UPDATE dbo.benefit_requests
+    SET
+        request_status = @NewStatus,
+        reviewed_at = SYSUTCDATETIME(),
+        reviewed_by_user_id = @ReviewedByUserId,
+        review_notes = @ReviewNotes,
+        approval_status = COALESCE(@ApprovalStatus, approval_status),
+        approval_decided_at = CASE WHEN @ApprovalStatus IS NOT NULL THEN SYSUTCDATETIME() ELSE approval_decided_at END,
+        approval_decided_by_user_id = CASE WHEN @ApprovalStatus IS NOT NULL THEN @ReviewedByUserId ELSE approval_decided_by_user_id END,
+        approval_reason = COALESCE(@ApprovalReason, approval_reason),
+        updated_at = SYSUTCDATETIME()
+    WHERE id = @BenefitRequestId;
+
+    IF @ApprovalStatus IS NOT NULL
+    BEGIN
+        INSERT INTO dbo.benefit_request_reviews
+        (
+            id,
+            benefit_request_id,
+            review_status,
+            review_point,
+            review_recommendation,
+            reviewed_by_user_id,
+            reviewed_at,
+            created_at
+        )
+        VALUES
+        (
+            NEWID(),
+            @BenefitRequestId,
+            @ApprovalStatus,
+            'request_status_change',
+            COALESCE(@ApprovalReason, @ReviewNotes),
+            @ReviewedByUserId,
+            SYSUTCDATETIME(),
+            SYSUTCDATETIME()
+        );
+    END
+
+    IF @NewStatus = 'approved'
+    BEGIN
+        UPDATE dbo.benefit_metrics_snapshot
+        SET
+            approved_requests_count = approved_requests_count + 1,
+            conversion_rate =
+                CASE
+                    WHEN requests_count > 0
+                        THEN CAST(((approved_requests_count + 1) * 100.0) / requests_count AS DECIMAL(9,2))
+                    ELSE 0
+                END,
+            refreshed_at = SYSUTCDATETIME()
+        WHERE benefit_id = @BenefitId;
+    END
+END
+GO
+
+
+/* =========================================================
+   6) SP - CONFIRMAR UTILIZAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_usages_confirm
+    @BenefitId UNIQUEIDENTIFIER,
+    @BenefitRequestId UNIQUEIDENTIFIER = NULL,
+    @UsedByType VARCHAR(30),
+    @UsedByUserId UNIQUEIDENTIFIER = NULL,                    -- legado
+    @UsedByClientId UNIQUEIDENTIFIER = NULL,
+    @UsedByPartnerCustomerId UNIQUEIDENTIFIER = NULL,
+    @PetSourceType VARCHAR(30) = NULL,
+    @ClientPetId UNIQUEIDENTIFIER = NULL,
+    @PartnerCustomerPetId UNIQUEIDENTIFIER = NULL,
+    @RecordedByUserId UNIQUEIDENTIFIER = NULL,
+    @ConfirmedByPartnerUserId UNIQUEIDENTIFIER = NULL,
+    @ConfirmedByAdminUserId UNIQUEIDENTIFIER = NULL,
+    @MonetaryValue DECIMAL(18,2) = NULL,
+    @DiscountValue DECIMAL(18,2) = NULL,
+    @RuleSummary VARCHAR(1000) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @PartnerId UNIQUEIDENTIFIER;
+    DECLARE @Title VARCHAR(180);
+    DECLARE @PartnerName VARCHAR(150);
+
+    SELECT
+        @PartnerId = b.partner_id,
+        @Title = b.title,
+        @PartnerName = p.trade_name
+    FROM dbo.benefits b
+    INNER JOIN dbo.partners p
+        ON p.id = b.partner_id
+    WHERE b.id = @BenefitId;
+
+    IF @PartnerId IS NULL
+    BEGIN
+        RAISERROR('Benefício não encontrado.', 16, 1);
+        RETURN;
+    END
+
+    IF @UsedByType NOT IN ('client', 'partner_customer')
+    BEGIN
+        RAISERROR('UsedByType inválido.', 16, 1);
+        RETURN;
+    END
+
+    IF @UsedByType = 'client' AND @UsedByClientId IS NULL AND @UsedByUserId IS NULL
+    BEGIN
+        RAISERROR('Uso de cliente exige UsedByClientId ou UsedByUserId.', 16, 1);
+        RETURN;
+    END
+
+    IF @UsedByType = 'partner_customer' AND @UsedByPartnerCustomerId IS NULL
+    BEGIN
+        RAISERROR('Uso de cliente parceiro exige UsedByPartnerCustomerId.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType IS NOT NULL AND @PetSourceType NOT IN ('client_pet', 'partner_customer_pet')
+    BEGIN
+        RAISERROR('PetSourceType inválido.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType = 'client_pet' AND @ClientPetId IS NULL
+    BEGIN
+        RAISERROR('PetSourceType client_pet exige ClientPetId.', 16, 1);
+        RETURN;
+    END
+
+    IF @PetSourceType = 'partner_customer_pet' AND @PartnerCustomerPetId IS NULL
+    BEGIN
+        RAISERROR('PetSourceType partner_customer_pet exige PartnerCustomerPetId.', 16, 1);
+        RETURN;
+    END
+
+    INSERT INTO dbo.benefit_usages
+    (
+        id,
+        benefit_request_id,
+        benefit_id,
+        partner_id,
+        used_by_user_id,
+        used_by_client_id,
+        used_by_partner_customer_id,
+        used_by_type,
+        pet_source_type,
+        client_pet_id,
+        partner_customer_pet_id,
+        usage_status,
+        used_at,
+        recorded_by_user_id,
+        confirmed_by_partner_user_id,
+        confirmed_by_admin_user_id,
+        monetary_value,
+        discount_value,
+        snapshot_title,
+        snapshot_partner_name,
+        snapshot_rule_summary,
+        created_at,
+        updated_at
+    )
+    VALUES
+    (
+        NEWID(),
+        @BenefitRequestId,
+        @BenefitId,
+        @PartnerId,
+        @UsedByUserId,
+        @UsedByClientId,
+        @UsedByPartnerCustomerId,
+        @UsedByType,
+        @PetSourceType,
+        @ClientPetId,
+        @PartnerCustomerPetId,
+        'used',
+        SYSUTCDATETIME(),
+        @RecordedByUserId,
+        @ConfirmedByPartnerUserId,
+        @ConfirmedByAdminUserId,
+        @MonetaryValue,
+        @DiscountValue,
+        @Title,
+        @PartnerName,
+        @RuleSummary,
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
+    );
+
+    IF @BenefitRequestId IS NOT NULL
+    BEGIN
+        UPDATE dbo.benefit_requests
+        SET
+            request_status = 'converted_to_usage',
+            updated_at = SYSUTCDATETIME()
+        WHERE id = @BenefitRequestId;
+    END
+
+    UPDATE dbo.benefit_metrics_snapshot
+    SET
+        usages_count = usages_count + 1,
+        conversion_rate =
+            CASE
+                WHEN requests_count > 0
+                    THEN CAST(((usages_count + 1) * 100.0) / requests_count AS DECIMAL(9,2))
+                ELSE 0
+            END,
+        refreshed_at = SYSUTCDATETIME()
+    WHERE benefit_id = @BenefitId;
+END
+GO
+
+
+/* =========================================================
+   7) SP - BUSCA ADMIN DE SOLICITAÇÕES
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_admin_search
+    @Search VARCHAR(150) = NULL,
+    @RequesterType VARCHAR(30) = NULL,
+    @RequestStatus VARCHAR(30) = NULL,
+    @ApprovalStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        v.*
+    FROM dbo.vw_benefit_requests_admin_list v
+    WHERE
+        (@Search IS NULL OR
+            v.benefit_title LIKE '%' + @Search + '%'
+            OR v.partner_name LIKE '%' + @Search + '%'
+            OR v.requester_name LIKE '%' + @Search + '%'
+            OR v.pet_name LIKE '%' + @Search + '%')
+        AND (@RequesterType IS NULL OR v.requester_type = @RequesterType)
+        AND (@RequestStatus IS NULL OR v.request_status = @RequestStatus)
+        AND (@ApprovalStatus IS NULL OR v.approval_status = @ApprovalStatus)
+        AND (@PartnerId IS NULL OR v.partner_id = @PartnerId)
+        AND (@BenefitId IS NULL OR v.benefit_id = @BenefitId)
+    ORDER BY v.requested_at DESC, v.created_at DESC;
+END
+GO
+
+
+/* =========================================================
+   8) SP - DETALHE DE SOLICITAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_request_get_by_id
+    @BenefitRequestId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_benefit_request_detail
+    WHERE id = @BenefitRequestId;
+
+    SELECT
+        rr.id,
+        rr.benefit_request_id,
+        rr.review_status,
+        rr.review_point,
+        rr.review_recommendation,
+        rr.reviewed_by_user_id,
+        rr.reviewed_at,
+        rr.created_at
+    FROM dbo.benefit_request_reviews rr
+    WHERE rr.benefit_request_id = @BenefitRequestId
+    ORDER BY rr.reviewed_at DESC, rr.created_at DESC;
+END
+GO
+
+
+/* =========================================================
+   9) SP - BUSCA ADMIN DE UTILIZAÇÕES
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_usages_admin_search
+    @Search VARCHAR(150) = NULL,
+    @UsedByType VARCHAR(30) = NULL,
+    @UsageStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        v.*
+    FROM dbo.vw_benefit_usage_overview v
+    WHERE
+        (@Search IS NULL OR
+            v.snapshot_title LIKE '%' + @Search + '%'
+            OR v.partner_name LIKE '%' + @Search + '%'
+            OR v.used_by_name LIKE '%' + @Search + '%'
+            OR v.pet_name LIKE '%' + @Search + '%')
+        AND (@UsedByType IS NULL OR v.used_by_type = @UsedByType)
+        AND (@UsageStatus IS NULL OR v.usage_status = @UsageStatus)
+        AND (@PartnerId IS NULL OR v.partner_id = @PartnerId)
+        AND (@BenefitId IS NULL OR v.benefit_id = @BenefitId)
+    ORDER BY v.used_at DESC, v.created_at DESC;
+END
+GO
+
+--==========================================================
+
+/* =========================================================
+   SCRIPT 3 - FILTROS, LOOKUPS E CENTRAL DE APROVAÇÕES
+   Pré-requisito:
+   - Script 1 aplicado
+   - Script 2 aplicado
+   ========================================================= */
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+/* =========================================================
+   1) VIEW - FILA DA CENTRAL DE APROVAÇÕES
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_request_approval_queue
+AS
+SELECT
+    r.id,
+    r.benefit_id,
+    b.title AS benefit_title,
+    b.status AS benefit_status,
+    b.benefit_type,
+    b.direction,
+    b.eligibility_type,
+
+    r.partner_id,
+    p.trade_name AS partner_name,
+    p.segment AS partner_segment,
+    p.category AS partner_category,
+    p.status AS partner_status,
+
+    r.requester_type,
+    r.requester_client_id,
+    r.requester_partner_customer_id,
+
+    c.full_name AS client_name,
+    c.email AS client_email,
+    c.phone AS client_phone,
+    c.status AS client_status,
+
+    pc.full_name AS partner_customer_name,
+    pc.email AS partner_customer_email,
+    pc.phone AS partner_customer_phone,
+    pc.status AS partner_customer_status,
+    pc.registration_stage AS partner_customer_registration_stage,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.full_name
+        WHEN r.requester_type = 'partner_customer' THEN pc.full_name
+        ELSE NULL
+    END AS requester_name,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.email
+        WHEN r.requester_type = 'partner_customer' THEN pc.email
+        ELSE NULL
+    END AS requester_email,
+
+    CASE
+        WHEN r.requester_type = 'client' THEN c.phone
+        WHEN r.requester_type = 'partner_customer' THEN pc.phone
+        ELSE NULL
+    END AS requester_phone,
+
+    r.pet_source_type,
+    r.requester_client_pet_id,
+    r.requester_partner_customer_pet_id,
+
+    cp.name AS client_pet_name,
+    pcp.name AS partner_customer_pet_name,
+
+    CASE
+        WHEN r.pet_source_type = 'client_pet' THEN cp.name
+        WHEN r.pet_source_type = 'partner_customer_pet' THEN pcp.name
+        ELSE NULL
+    END AS pet_name,
+
+    r.access_code_id,
+    pac.code AS access_code,
+
+    r.request_status,
+    r.review_required,
+    r.approval_status,
+    r.approval_requested_at,
+    r.approval_decided_at,
+    r.approval_decided_by_user_id,
+    r.approval_reason,
+
+    r.reviewed_at,
+    r.reviewed_by_user_id,
+    r.review_notes,
+
+    r.requested_at,
+    r.scheduled_for,
+    r.expires_at,
+    r.created_at,
+    r.updated_at,
+
+    CASE
+        WHEN r.expires_at IS NOT NULL AND r.expires_at < SYSUTCDATETIME() THEN 1
+        ELSE 0
+    END AS is_expired,
+
+    CASE
+        WHEN r.approval_status IN ('pending_review', 'under_review') THEN 1
+        ELSE 0
+    END AS is_pending_queue
+FROM dbo.benefit_requests r
+INNER JOIN dbo.benefits b
+    ON b.id = r.benefit_id
+INNER JOIN dbo.partners p
+    ON p.id = r.partner_id
+LEFT JOIN dbo.clients c
+    ON c.id = r.requester_client_id
+LEFT JOIN dbo.partner_customers pc
+    ON pc.id = r.requester_partner_customer_id
+LEFT JOIN dbo.client_pets cp
+    ON cp.id = r.requester_client_pet_id
+LEFT JOIN dbo.partner_customer_pets pcp
+    ON pcp.id = r.requester_partner_customer_pet_id
+LEFT JOIN dbo.partner_access_codes pac
+    ON pac.id = r.access_code_id
+WHERE
+    r.review_required = 1
+    OR r.approval_status IS NOT NULL;
+GO
+
+
+/* =========================================================
+   2) VIEW - RESUMO DE PENDÊNCIAS PARA DASH/ADMIN
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_request_pending_summary
+AS
+SELECT
+    r.partner_id,
+    p.trade_name AS partner_name,
+    r.benefit_id,
+    b.title AS benefit_title,
+
+    COUNT(1) AS total_requests,
+    SUM(CASE WHEN r.approval_status = 'pending_review' THEN 1 ELSE 0 END) AS pending_review_count,
+    SUM(CASE WHEN r.approval_status = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+    SUM(CASE WHEN r.approval_status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+    SUM(CASE WHEN r.approval_status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
+    SUM(CASE WHEN r.request_status = 'converted_to_usage' THEN 1 ELSE 0 END) AS converted_to_usage_count,
+    MAX(r.requested_at) AS latest_requested_at,
+    MAX(r.updated_at) AS latest_updated_at
+FROM dbo.benefit_requests r
+INNER JOIN dbo.partners p
+    ON p.id = r.partner_id
+INNER JOIN dbo.benefits b
+    ON b.id = r.benefit_id
+GROUP BY
+    r.partner_id,
+    p.trade_name,
+    r.benefit_id,
+    b.title;
+GO
+
+
+/* =========================================================
+   3) PROCEDURE - LOOKUPS/FILTER OPTIONS DE SOLICITAÇÕES
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 'requester_types' AS bucket, 'client' AS value, 'Cliente Matilha' AS label
+    UNION ALL
+    SELECT 'requester_types', 'partner_customer', 'Cliente do parceiro'
+    UNION ALL
+    SELECT 'request_statuses', 'requested', 'Solicitado'
+    UNION ALL
+    SELECT 'request_statuses', 'pending_review', 'Pendente de análise'
+    UNION ALL
+    SELECT 'request_statuses', 'under_review', 'Em análise'
+    UNION ALL
+    SELECT 'request_statuses', 'approved', 'Aprovado'
+    UNION ALL
+    SELECT 'request_statuses', 'declined', 'Recusado'
+    UNION ALL
+    SELECT 'request_statuses', 'cancelled', 'Cancelado'
+    UNION ALL
+    SELECT 'request_statuses', 'expired', 'Expirado'
+    UNION ALL
+    SELECT 'request_statuses', 'scheduled', 'Agendado'
+    UNION ALL
+    SELECT 'request_statuses', 'no_show', 'Não compareceu'
+    UNION ALL
+    SELECT 'request_statuses', 'converted_to_usage', 'Convertido em utilização'
+    UNION ALL
+    SELECT 'approval_statuses', 'pending_review', 'Pendente de análise'
+    UNION ALL
+    SELECT 'approval_statuses', 'under_review', 'Em análise'
+    UNION ALL
+    SELECT 'approval_statuses', 'approved', 'Aprovado'
+    UNION ALL
+    SELECT 'approval_statuses', 'rejected', 'Rejeitado'
+    UNION ALL
+    SELECT 'approval_statuses', 'cancelled', 'Cancelado'
+    UNION ALL
+    SELECT 'approval_statuses', 'expired', 'Expirado'
+    UNION ALL
+    SELECT 'pet_source_types', 'client_pet', 'Pet do cliente Matilha'
+    UNION ALL
+    SELECT 'pet_source_types', 'partner_customer_pet', 'Pet do cliente parceiro';
+END
+GO
+
+
+/* =========================================================
+   4) PROCEDURE - LISTA DE PARCEIROS PARA FILTRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_partner_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT
+        p.id,
+        p.trade_name,
+        p.status,
+        p.segment,
+        p.category
+    FROM dbo.vw_benefit_requests_admin_list r
+    INNER JOIN dbo.partners p
+        ON p.id = r.partner_id
+    ORDER BY p.trade_name;
+END
+GO
+
+
+/* =========================================================
+   5) PROCEDURE - LISTA DE BENEFÍCIOS PARA FILTRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_benefit_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT DISTINCT
+        b.id,
+        b.title,
+        b.status,
+        b.benefit_type,
+        b.direction,
+        b.partner_id
+    FROM dbo.vw_benefit_requests_admin_list r
+    INNER JOIN dbo.benefits b
+        ON b.id = r.benefit_id
+    ORDER BY b.title;
+END
+GO
+
+
+/* =========================================================
+   6) PROCEDURE - BUSCA DA FILA DE APROVAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_pending_review_search
+    @Search VARCHAR(150) = NULL,
+    @RequesterType VARCHAR(30) = NULL,
+    @ApprovalStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL,
+    @OnlyExpired BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        q.*
+    FROM dbo.vw_benefit_request_approval_queue q
+    WHERE
+        (@Search IS NULL OR
+            q.benefit_title LIKE '%' + @Search + '%'
+            OR q.partner_name LIKE '%' + @Search + '%'
+            OR q.requester_name LIKE '%' + @Search + '%'
+            OR q.pet_name LIKE '%' + @Search + '%'
+            OR q.access_code LIKE '%' + @Search + '%')
+        AND (@RequesterType IS NULL OR q.requester_type = @RequesterType)
+        AND (@ApprovalStatus IS NULL OR q.approval_status = @ApprovalStatus)
+        AND (@PartnerId IS NULL OR q.partner_id = @PartnerId)
+        AND (@BenefitId IS NULL OR q.benefit_id = @BenefitId)
+        AND (@OnlyExpired = 0 OR q.is_expired = 1)
+    ORDER BY
+        CASE WHEN q.approval_status = 'pending_review' THEN 0 ELSE 1 END,
+        q.approval_requested_at DESC,
+        q.requested_at DESC;
+END
+GO
+
+
+/* =========================================================
+   7) PROCEDURE - RESUMO DA CENTRAL DE APROVAÇÕES
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_approval_dashboard_summary
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        COUNT(1) AS total_queue_items,
+        SUM(CASE WHEN approval_status = 'pending_review' THEN 1 ELSE 0 END) AS pending_review_count,
+        SUM(CASE WHEN approval_status = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+        SUM(CASE WHEN approval_status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+        SUM(CASE WHEN approval_status = 'rejected' THEN 1 ELSE 0 END) AS rejected_count,
+        SUM(CASE WHEN is_expired = 1 THEN 1 ELSE 0 END) AS expired_count,
+        MAX(requested_at) AS latest_requested_at
+    FROM dbo.vw_benefit_request_approval_queue;
+END
+GO
+
+
+/* =========================================================
+   8) PROCEDURE - ADICIONAR REVIEW/DECISÃO NA SOLICITAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_request_add_review
+    @BenefitRequestId UNIQUEIDENTIFIER,
+    @ReviewStatus VARCHAR(30),
+    @ReviewPoint VARCHAR(200) = NULL,
+    @ReviewRecommendation VARCHAR(1500) = NULL,
+    @ReviewedByUserId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT ON;
+
+    DECLARE @CurrentRequestStatus VARCHAR(30);
+    DECLARE @MappedRequestStatus VARCHAR(30);
+
+    SELECT
+        @CurrentRequestStatus = request_status
+    FROM dbo.benefit_requests
+    WHERE id = @BenefitRequestId;
+
+    IF @CurrentRequestStatus IS NULL
+    BEGIN
+        RAISERROR('Solicitação não encontrada.', 16, 1);
+        RETURN;
+    END
+
+    IF @ReviewStatus NOT IN ('pending_review', 'under_review', 'approved', 'rejected', 'cancelled', 'expired')
+    BEGIN
+        RAISERROR('ReviewStatus inválido.', 16, 1);
+        RETURN;
+    END
+
+    SET @MappedRequestStatus =
+        CASE
+            WHEN @ReviewStatus = 'approved' THEN 'approved'
+            WHEN @ReviewStatus = 'rejected' THEN 'declined'
+            WHEN @ReviewStatus = 'pending_review' THEN 'pending_review'
+            WHEN @ReviewStatus = 'under_review' THEN 'under_review'
+            WHEN @ReviewStatus = 'cancelled' THEN 'cancelled'
+            WHEN @ReviewStatus = 'expired' THEN 'expired'
+            ELSE @CurrentRequestStatus
+        END;
+
+    INSERT INTO dbo.benefit_request_reviews
+    (
+        id,
+        benefit_request_id,
+        review_status,
+        review_point,
+        review_recommendation,
+        reviewed_by_user_id,
+        reviewed_at,
+        created_at
+    )
+    VALUES
+    (
+        NEWID(),
+        @BenefitRequestId,
+        @ReviewStatus,
+        @ReviewPoint,
+        @ReviewRecommendation,
+        @ReviewedByUserId,
+        SYSUTCDATETIME(),
+        SYSUTCDATETIME()
+    );
+
+    EXEC dbo.usp_benefit_requests_change_status
+        @BenefitRequestId = @BenefitRequestId,
+        @NewStatus = @MappedRequestStatus,
+        @ReviewNotes = @ReviewRecommendation,
+        @ReviewedByUserId = @ReviewedByUserId,
+        @ApprovalStatus = @ReviewStatus,
+        @ApprovalReason = @ReviewRecommendation;
+END
+GO
+
+
+/* =========================================================
+   9) PROCEDURE - DETALHE DA FILA DE APROVAÇÃO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_request_approval_get_by_id
+    @BenefitRequestId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_benefit_request_approval_queue
+    WHERE id = @BenefitRequestId;
+
+    SELECT
+        rr.id,
+        rr.benefit_request_id,
+        rr.review_status,
+        rr.review_point,
+        rr.review_recommendation,
+        rr.reviewed_by_user_id,
+        rr.reviewed_at,
+        rr.created_at
+    FROM dbo.benefit_request_reviews rr
+    WHERE rr.benefit_request_id = @BenefitRequestId
+    ORDER BY rr.reviewed_at DESC, rr.created_at DESC;
+END
+GO
+
+
+/* =========================================================
+   10) VIEW - CUSTOMER FACING LIST (CLIENT + PARTNER_CUSTOMER)
+   opcional, mas útil para front de dashboard
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_benefit_requests_customer_list
+AS
+SELECT
+    r.id,
+    r.benefit_id,
+    b.title AS benefit_title,
+    b.benefit_type,
+    b.direction,
+    r.partner_id,
+    p.trade_name AS partner_name,
+
+    r.requester_type,
+    r.requester_client_id,
+    r.requester_partner_customer_id,
+
+    r.pet_source_type,
+    r.requester_client_pet_id,
+    r.requester_partner_customer_pet_id,
+
+    CASE
+        WHEN r.pet_source_type = 'client_pet' THEN cp.name
+        WHEN r.pet_source_type = 'partner_customer_pet' THEN pcp.name
+        ELSE NULL
+    END AS pet_name,
+
+    r.request_status,
+    r.approval_status,
+    r.requested_at,
+    r.scheduled_for,
+    r.expires_at,
+    r.updated_at
+FROM dbo.benefit_requests r
+INNER JOIN dbo.benefits b
+    ON b.id = r.benefit_id
+INNER JOIN dbo.partners p
+    ON p.id = r.partner_id
+LEFT JOIN dbo.client_pets cp
+    ON cp.id = r.requester_client_pet_id
+LEFT JOIN dbo.partner_customer_pets pcp
+    ON pcp.id = r.requester_partner_customer_pet_id;
+GO
+
+
+/* =========================================================
+   11) PROCEDURE - LISTA DE SOLICITAÇÕES DO CLIENTE MATILHA
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_client_benefit_requests_list
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_benefit_requests_customer_list
+    WHERE requester_type = 'client'
+      AND requester_client_id = @ClientId
+    ORDER BY requested_at DESC, updated_at DESC;
+END
+GO
+
+
+/* =========================================================
+   12) PROCEDURE - LISTA DE SOLICITAÇÕES DO CLIENTE PARCEIRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customer_benefit_requests_list
+    @PartnerCustomerId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_benefit_requests_customer_list
+    WHERE requester_type = 'partner_customer'
+      AND requester_partner_customer_id = @PartnerCustomerId
+    ORDER BY requested_at DESC, updated_at DESC;
+END
+GO
+
+--=============================================================
+
+/* =========================================================
+   SCRIPT 4 - ESTRUTURA COMPLEMENTAR
+   - paginação server-side
+   - dashboard summaries
+   - cards operacionais
+   - métricas por cliente e cliente parceiro
+   - lookups auxiliares
+   Pré-requisitos:
+   - Script 1 aplicado
+   - Script 2 aplicado
+   - Script 3 aplicado
+   ========================================================= */
+
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+GO
+
+/* =========================================================
+   1) VIEW - DASHBOARD SUMMARY POR CLIENTE MATILHA
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_client_benefit_dashboard_summary
+AS
+SELECT
+    c.id AS client_id,
+    c.full_name,
+    c.email,
+    c.phone,
+    c.status,
+
+    COUNT(DISTINCT r.id) AS total_requests,
+    SUM(CASE WHEN r.request_status = 'requested' THEN 1 ELSE 0 END) AS requested_count,
+    SUM(CASE WHEN r.request_status = 'pending_review' THEN 1 ELSE 0 END) AS pending_review_count,
+    SUM(CASE WHEN r.request_status = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+    SUM(CASE WHEN r.request_status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+    SUM(CASE WHEN r.request_status = 'declined' THEN 1 ELSE 0 END) AS declined_count,
+    SUM(CASE WHEN r.request_status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled_count,
+    SUM(CASE WHEN r.request_status = 'expired' THEN 1 ELSE 0 END) AS expired_count,
+    SUM(CASE WHEN r.request_status = 'converted_to_usage' THEN 1 ELSE 0 END) AS converted_to_usage_count,
+
+    COUNT(DISTINCT u.id) AS total_usages,
+    MAX(r.requested_at) AS last_request_at,
+    MAX(u.used_at) AS last_usage_at
+FROM dbo.clients c
+LEFT JOIN dbo.benefit_requests r
+    ON r.requester_type = 'client'
+   AND r.requester_client_id = c.id
+LEFT JOIN dbo.benefit_usages u
+    ON u.used_by_type = 'client'
+   AND u.used_by_client_id = c.id
+GROUP BY
+    c.id,
+    c.full_name,
+    c.email,
+    c.phone,
+    c.status;
+GO
+
+
+/* =========================================================
+   2) VIEW - DASHBOARD SUMMARY POR CLIENTE PARCEIRO
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_partner_customer_benefit_dashboard_summary
+AS
+SELECT
+    pc.id AS partner_customer_id,
+    pc.partner_id,
+    p.trade_name AS partner_name,
+    pc.full_name,
+    pc.email,
+    pc.phone,
+    pc.status,
+    pc.registration_stage,
+
+    COUNT(DISTINCT r.id) AS total_requests,
+    SUM(CASE WHEN r.request_status = 'requested' THEN 1 ELSE 0 END) AS requested_count,
+    SUM(CASE WHEN r.request_status = 'pending_review' THEN 1 ELSE 0 END) AS pending_review_count,
+    SUM(CASE WHEN r.request_status = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+    SUM(CASE WHEN r.request_status = 'approved' THEN 1 ELSE 0 END) AS approved_count,
+    SUM(CASE WHEN r.request_status = 'declined' THEN 1 ELSE 0 END) AS declined_count,
+    SUM(CASE WHEN r.request_status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled_count,
+    SUM(CASE WHEN r.request_status = 'expired' THEN 1 ELSE 0 END) AS expired_count,
+    SUM(CASE WHEN r.request_status = 'converted_to_usage' THEN 1 ELSE 0 END) AS converted_to_usage_count,
+
+    COUNT(DISTINCT u.id) AS total_usages,
+    MAX(r.requested_at) AS last_request_at,
+    MAX(u.used_at) AS last_usage_at
+FROM dbo.partner_customers pc
+INNER JOIN dbo.partners p
+    ON p.id = pc.partner_id
+LEFT JOIN dbo.benefit_requests r
+    ON r.requester_type = 'partner_customer'
+   AND r.requester_partner_customer_id = pc.id
+LEFT JOIN dbo.benefit_usages u
+    ON u.used_by_type = 'partner_customer'
+   AND u.used_by_partner_customer_id = pc.id
+GROUP BY
+    pc.id,
+    pc.partner_id,
+    p.trade_name,
+    pc.full_name,
+    pc.email,
+    pc.phone,
+    pc.status,
+    pc.registration_stage;
+GO
+
+
+/* =========================================================
+   3) VIEW - RESUMO ADMIN DE CLIENTES MATILHA
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_clients_admin_summary
+AS
+SELECT
+    COUNT(1) AS total_clients,
+    SUM(CASE WHEN status = 'lead' THEN 1 ELSE 0 END) AS lead_count,
+    SUM(CASE WHEN status = 'pending_profile' THEN 1 ELSE 0 END) AS pending_profile_count,
+    SUM(CASE WHEN status = 'pending_documents' THEN 1 ELSE 0 END) AS pending_documents_count,
+    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count,
+    SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) AS inactive_count,
+    SUM(CASE WHEN status = 'blocked' THEN 1 ELSE 0 END) AS blocked_count,
+    MAX(created_at) AS latest_created_at,
+    MAX(updated_at) AS latest_updated_at
+FROM dbo.clients;
+GO
+
+
+/* =========================================================
+   4) VIEW - RESUMO ADMIN DE CLIENTES PARCEIRO
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_partner_customers_admin_summary
+AS
+SELECT
+    COUNT(1) AS total_partner_customers,
+    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_count,
+    SUM(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) AS inactive_count,
+    SUM(CASE WHEN status = 'blocked' THEN 1 ELSE 0 END) AS blocked_count,
+    SUM(CASE WHEN registration_stage = 'pre_registered' THEN 1 ELSE 0 END) AS pre_registered_count,
+    SUM(CASE WHEN registration_stage = 'dashboard_enabled' THEN 1 ELSE 0 END) AS dashboard_enabled_count,
+    SUM(CASE WHEN registration_stage = 'profile_completed' THEN 1 ELSE 0 END) AS profile_completed_count,
+    SUM(CASE WHEN registration_stage = 'pet_completed' THEN 1 ELSE 0 END) AS pet_completed_count,
+    SUM(CASE WHEN registration_stage = 'documents_pending' THEN 1 ELSE 0 END) AS documents_pending_count,
+    SUM(CASE WHEN registration_stage = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+    SUM(CASE WHEN registration_stage = 'eligible' THEN 1 ELSE 0 END) AS eligible_count,
+    SUM(CASE WHEN registration_stage = 'ineligible' THEN 1 ELSE 0 END) AS ineligible_count,
+    MAX(created_at) AS latest_created_at,
+    MAX(updated_at) AS latest_updated_at
+FROM dbo.partner_customers;
+GO
+
+
+/* =========================================================
+   5) VIEW - FUNIL DE CONVERSÃO DE CLIENTE PARCEIRO
+   ========================================================= */
+CREATE OR ALTER VIEW dbo.vw_partner_customers_conversion_funnel
+AS
+SELECT
+    pc.partner_id,
+    p.trade_name AS partner_name,
+    COUNT(1) AS total_records,
+    SUM(CASE WHEN pc.registration_stage = 'pre_registered' THEN 1 ELSE 0 END) AS pre_registered_count,
+    SUM(CASE WHEN pc.registration_stage = 'dashboard_enabled' THEN 1 ELSE 0 END) AS dashboard_enabled_count,
+    SUM(CASE WHEN pc.registration_stage = 'profile_completed' THEN 1 ELSE 0 END) AS profile_completed_count,
+    SUM(CASE WHEN pc.registration_stage = 'pet_completed' THEN 1 ELSE 0 END) AS pet_completed_count,
+    SUM(CASE WHEN pc.registration_stage = 'documents_pending' THEN 1 ELSE 0 END) AS documents_pending_count,
+    SUM(CASE WHEN pc.registration_stage = 'under_review' THEN 1 ELSE 0 END) AS under_review_count,
+    SUM(CASE WHEN pc.registration_stage = 'eligible' THEN 1 ELSE 0 END) AS eligible_count,
+    SUM(CASE WHEN pc.registration_stage = 'ineligible' THEN 1 ELSE 0 END) AS ineligible_count,
+    MAX(pc.first_access_at) AS latest_first_access_at,
+    MAX(pc.last_access_at) AS latest_last_access_at
+FROM dbo.partner_customers pc
+INNER JOIN dbo.partners p
+    ON p.id = pc.partner_id
+GROUP BY
+    pc.partner_id,
+    p.trade_name;
+GO
+
+
+/* =========================================================
+   6) PROCEDURE - CLIENTS ADMIN SEARCH PAGINADO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_clients_admin_search_paged
+    @Search VARCHAR(150) = NULL,
+    @Status VARCHAR(30) = NULL,
+    @OriginType VARCHAR(30) = NULL,
+    @PageNumber INT = 1,
+    @PageSize INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PageNumber < 1 SET @PageNumber = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
+    IF @PageSize > 200 SET @PageSize = 200;
+
+    ;WITH base AS
+    (
+        SELECT
+            c.*,
+            ROW_NUMBER() OVER (
+                ORDER BY c.created_at DESC, c.full_name ASC
+            ) AS rn,
+            COUNT(1) OVER() AS total_count
+        FROM dbo.clients c
+        WHERE
+            (@Search IS NULL OR
+                c.full_name LIKE '%' + @Search + '%'
+                OR c.email LIKE '%' + @Search + '%'
+                OR c.phone LIKE '%' + @Search + '%'
+                OR c.document LIKE '%' + @Search + '%')
+            AND (@Status IS NULL OR c.status = @Status)
+            AND (@OriginType IS NULL OR c.origin_type = @OriginType)
+    )
+    SELECT *
+    FROM base
+    WHERE rn BETWEEN ((@PageNumber - 1) * @PageSize) + 1
+                AND (@PageNumber * @PageSize)
+    ORDER BY rn;
+END
+GO
+
+
+/* =========================================================
+   7) PROCEDURE - PARTNER CUSTOMERS ADMIN SEARCH PAGINADO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customers_admin_search_paged
+    @Search VARCHAR(150) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @Status VARCHAR(30) = NULL,
+    @RegistrationStage VARCHAR(30) = NULL,
+    @PageNumber INT = 1,
+    @PageSize INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PageNumber < 1 SET @PageNumber = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
+    IF @PageSize > 200 SET @PageSize = 200;
+
+    ;WITH base AS
+    (
+        SELECT
+            pc.id,
+            pc.user_id,
+            pc.partner_id,
+            p.trade_name AS partner_name,
+            pc.access_code_id,
+            pc.full_name,
+            pc.email,
+            pc.phone,
+            pc.document,
+            pc.birth_date,
+            pc.origin_type,
+            pc.origin_channel,
+            pc.registration_stage,
+            pc.status,
+            pc.benefits_dashboard_unlocked_at,
+            pc.converted_to_full_registration_at,
+            pc.first_access_at,
+            pc.last_access_at,
+            pc.created_at,
+            pc.updated_at,
+            ROW_NUMBER() OVER (
+                ORDER BY pc.created_at DESC, pc.full_name ASC
+            ) AS rn,
+            COUNT(1) OVER() AS total_count
+        FROM dbo.partner_customers pc
+        INNER JOIN dbo.partners p
+            ON p.id = pc.partner_id
+        WHERE
+            (@Search IS NULL OR
+                pc.full_name LIKE '%' + @Search + '%'
+                OR pc.email LIKE '%' + @Search + '%'
+                OR pc.phone LIKE '%' + @Search + '%'
+                OR pc.document LIKE '%' + @Search + '%'
+                OR p.trade_name LIKE '%' + @Search + '%')
+            AND (@PartnerId IS NULL OR pc.partner_id = @PartnerId)
+            AND (@Status IS NULL OR pc.status = @Status)
+            AND (@RegistrationStage IS NULL OR pc.registration_stage = @RegistrationStage)
+    )
+    SELECT *
+    FROM base
+    WHERE rn BETWEEN ((@PageNumber - 1) * @PageSize) + 1
+                AND (@PageNumber * @PageSize)
+    ORDER BY rn;
+END
+GO
+
+
+/* =========================================================
+   8) PROCEDURE - BENEFIT REQUESTS ADMIN SEARCH PAGINADO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_admin_search_paged
+    @Search VARCHAR(150) = NULL,
+    @RequesterType VARCHAR(30) = NULL,
+    @RequestStatus VARCHAR(30) = NULL,
+    @ApprovalStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL,
+    @PageNumber INT = 1,
+    @PageSize INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PageNumber < 1 SET @PageNumber = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
+    IF @PageSize > 200 SET @PageSize = 200;
+
+    ;WITH base AS
+    (
+        SELECT
+            v.*,
+            ROW_NUMBER() OVER (
+                ORDER BY v.requested_at DESC, v.created_at DESC
+            ) AS rn,
+            COUNT(1) OVER() AS total_count
+        FROM dbo.vw_benefit_requests_admin_list v
+        WHERE
+            (@Search IS NULL OR
+                v.benefit_title LIKE '%' + @Search + '%'
+                OR v.partner_name LIKE '%' + @Search + '%'
+                OR v.requester_name LIKE '%' + @Search + '%'
+                OR v.pet_name LIKE '%' + @Search + '%')
+            AND (@RequesterType IS NULL OR v.requester_type = @RequesterType)
+            AND (@RequestStatus IS NULL OR v.request_status = @RequestStatus)
+            AND (@ApprovalStatus IS NULL OR v.approval_status = @ApprovalStatus)
+            AND (@PartnerId IS NULL OR v.partner_id = @PartnerId)
+            AND (@BenefitId IS NULL OR v.benefit_id = @BenefitId)
+    )
+    SELECT *
+    FROM base
+    WHERE rn BETWEEN ((@PageNumber - 1) * @PageSize) + 1
+                AND (@PageNumber * @PageSize)
+    ORDER BY rn;
+END
+GO
+
+
+/* =========================================================
+   9) PROCEDURE - FILA DE APROVAÇÃO PAGINADA
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_requests_pending_review_search_paged
+    @Search VARCHAR(150) = NULL,
+    @RequesterType VARCHAR(30) = NULL,
+    @ApprovalStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL,
+    @OnlyExpired BIT = 0,
+    @PageNumber INT = 1,
+    @PageSize INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PageNumber < 1 SET @PageNumber = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
+    IF @PageSize > 200 SET @PageSize = 200;
+
+    ;WITH base AS
+    (
+        SELECT
+            q.*,
+            ROW_NUMBER() OVER (
+                ORDER BY
+                    CASE WHEN q.approval_status = 'pending_review' THEN 0 ELSE 1 END,
+                    q.approval_requested_at DESC,
+                    q.requested_at DESC
+            ) AS rn,
+            COUNT(1) OVER() AS total_count
+        FROM dbo.vw_benefit_request_approval_queue q
+        WHERE
+            (@Search IS NULL OR
+                q.benefit_title LIKE '%' + @Search + '%'
+                OR q.partner_name LIKE '%' + @Search + '%'
+                OR q.requester_name LIKE '%' + @Search + '%'
+                OR q.pet_name LIKE '%' + @Search + '%'
+                OR q.access_code LIKE '%' + @Search + '%')
+            AND (@RequesterType IS NULL OR q.requester_type = @RequesterType)
+            AND (@ApprovalStatus IS NULL OR q.approval_status = @ApprovalStatus)
+            AND (@PartnerId IS NULL OR q.partner_id = @PartnerId)
+            AND (@BenefitId IS NULL OR q.benefit_id = @BenefitId)
+            AND (@OnlyExpired = 0 OR q.is_expired = 1)
+    )
+    SELECT *
+    FROM base
+    WHERE rn BETWEEN ((@PageNumber - 1) * @PageSize) + 1
+                AND (@PageNumber * @PageSize)
+    ORDER BY rn;
+END
+GO
+
+
+/* =========================================================
+   10) PROCEDURE - BENEFIT USAGES ADMIN SEARCH PAGINADO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefit_usages_admin_search_paged
+    @Search VARCHAR(150) = NULL,
+    @UsedByType VARCHAR(30) = NULL,
+    @UsageStatus VARCHAR(30) = NULL,
+    @PartnerId UNIQUEIDENTIFIER = NULL,
+    @BenefitId UNIQUEIDENTIFIER = NULL,
+    @PageNumber INT = 1,
+    @PageSize INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @PageNumber < 1 SET @PageNumber = 1;
+    IF @PageSize < 1 SET @PageSize = 20;
+    IF @PageSize > 200 SET @PageSize = 200;
+
+    ;WITH base AS
+    (
+        SELECT
+            v.*,
+            ROW_NUMBER() OVER (
+                ORDER BY v.used_at DESC, v.created_at DESC
+            ) AS rn,
+            COUNT(1) OVER() AS total_count
+        FROM dbo.vw_benefit_usage_overview v
+        WHERE
+            (@Search IS NULL OR
+                v.snapshot_title LIKE '%' + @Search + '%'
+                OR v.partner_name LIKE '%' + @Search + '%'
+                OR v.used_by_name LIKE '%' + @Search + '%'
+                OR v.pet_name LIKE '%' + @Search + '%')
+            AND (@UsedByType IS NULL OR v.used_by_type = @UsedByType)
+            AND (@UsageStatus IS NULL OR v.usage_status = @UsageStatus)
+            AND (@PartnerId IS NULL OR v.partner_id = @PartnerId)
+            AND (@BenefitId IS NULL OR v.benefit_id = @BenefitId)
+    )
+    SELECT *
+    FROM base
+    WHERE rn BETWEEN ((@PageNumber - 1) * @PageSize) + 1
+                AND (@PageNumber * @PageSize)
+    ORDER BY rn;
+END
+GO
+
+
+/* =========================================================
+   11) PROCEDURE - DASHBOARD SUMMARY DO CLIENTE MATILHA
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_client_benefit_dashboard_summary
+    @ClientId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_client_benefit_dashboard_summary
+    WHERE client_id = @ClientId;
+
+    SELECT TOP (5)
+        id,
+        benefit_id,
+        benefit_title,
+        partner_id,
+        partner_name,
+        request_status,
+        approval_status,
+        pet_name,
+        requested_at,
+        updated_at
+    FROM dbo.vw_benefit_requests_customer_list
+    WHERE requester_type = 'client'
+      AND requester_client_id = @ClientId
+    ORDER BY requested_at DESC, updated_at DESC;
+END
+GO
+
+
+/* =========================================================
+   12) PROCEDURE - DASHBOARD SUMMARY DO CLIENTE PARCEIRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customer_benefit_dashboard_summary
+    @PartnerCustomerId UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_partner_customer_benefit_dashboard_summary
+    WHERE partner_customer_id = @PartnerCustomerId;
+
+    SELECT TOP (5)
+        id,
+        benefit_id,
+        benefit_title,
+        partner_id,
+        partner_name,
+        request_status,
+        approval_status,
+        pet_name,
+        requested_at,
+        updated_at
+    FROM dbo.vw_benefit_requests_customer_list
+    WHERE requester_type = 'partner_customer'
+      AND requester_partner_customer_id = @PartnerCustomerId
+    ORDER BY requested_at DESC, updated_at DESC;
+END
+GO
+
+
+/* =========================================================
+   13) PROCEDURE - RESUMO ADMIN DE CLIENTES
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_clients_admin_dashboard_summary
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_clients_admin_summary;
+END
+GO
+
+
+/* =========================================================
+   14) PROCEDURE - RESUMO ADMIN DE CLIENTES PARCEIRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customers_admin_dashboard_summary
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM dbo.vw_partner_customers_admin_summary;
+
+    SELECT *
+    FROM dbo.vw_partner_customers_conversion_funnel
+    ORDER BY partner_name;
+END
+GO
+
+
+/* =========================================================
+   15) PROCEDURE - LOOKUPS DE CLIENTS
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_clients_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 'statuses' AS bucket, 'lead' AS value, 'Lead' AS label
+    UNION ALL SELECT 'statuses', 'pending_profile', 'Perfil pendente'
+    UNION ALL SELECT 'statuses', 'pending_documents', 'Documentos pendentes'
+    UNION ALL SELECT 'statuses', 'pending_behavior_evaluation', 'Avaliação pendente'
+    UNION ALL SELECT 'statuses', 'active', 'Ativo'
+    UNION ALL SELECT 'statuses', 'inactive', 'Inativo'
+    UNION ALL SELECT 'statuses', 'blocked', 'Bloqueado'
+    UNION ALL SELECT 'statuses', 'archived', 'Arquivado'
+    UNION ALL SELECT 'origin_types', 'manual', 'Manual'
+    UNION ALL SELECT 'origin_types', 'site', 'Site'
+    UNION ALL SELECT 'origin_types', 'landing_page', 'Landing page'
+    UNION ALL SELECT 'origin_types', 'indication', 'Indicação'
+    UNION ALL SELECT 'origin_types', 'partner_conversion', 'Conversão parceiro'
+    UNION ALL SELECT 'origin_types', 'internal_import', 'Importação interna';
+END
+GO
+
+
+/* =========================================================
+   16) PROCEDURE - LOOKUPS DE PARTNER CUSTOMERS
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customers_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 'statuses' AS bucket, 'active' AS value, 'Ativo' AS label
+    UNION ALL SELECT 'statuses', 'inactive', 'Inativo'
+    UNION ALL SELECT 'statuses', 'blocked', 'Bloqueado'
+    UNION ALL SELECT 'statuses', 'archived', 'Arquivado'
+    UNION ALL SELECT 'registration_stages', 'pre_registered', 'Pré-cadastro'
+    UNION ALL SELECT 'registration_stages', 'dashboard_enabled', 'Dashboard liberada'
+    UNION ALL SELECT 'registration_stages', 'profile_completed', 'Perfil completo'
+    UNION ALL SELECT 'registration_stages', 'pet_completed', 'Pet completo'
+    UNION ALL SELECT 'registration_stages', 'documents_pending', 'Documentos pendentes'
+    UNION ALL SELECT 'registration_stages', 'under_review', 'Em análise'
+    UNION ALL SELECT 'registration_stages', 'eligible', 'Elegível'
+    UNION ALL SELECT 'registration_stages', 'ineligible', 'Inelegível'
+    UNION ALL SELECT 'origin_types', 'partner_qr_code', 'QR code do parceiro'
+    UNION ALL SELECT 'origin_types', 'partner_access_code', 'Código do parceiro'
+    UNION ALL SELECT 'origin_types', 'manual', 'Manual'
+    UNION ALL SELECT 'origin_types', 'imported', 'Importado'
+    UNION ALL SELECT 'origin_channels', 'qr_code', 'QR code'
+    UNION ALL SELECT 'origin_channels', 'landing_page', 'Landing page'
+    UNION ALL SELECT 'origin_channels', 'manual_code', 'Código manual'
+    UNION ALL SELECT 'origin_channels', 'internal', 'Interno';
+END
+GO
+
+
+/* =========================================================
+   17) PROCEDURE - LISTA DE PARCEIROS PARA FILTRO DE CLIENTE PARCEIRO
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_partner_customers_partner_filter_options
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        p.id,
+        p.trade_name,
+        p.status,
+        p.segment,
+        p.category
+    FROM dbo.partners p
+    WHERE EXISTS (
+        SELECT 1
+        FROM dbo.partner_customers pc
+        WHERE pc.partner_id = p.id
+    )
+    ORDER BY p.trade_name;
+END
+GO
+
+
+/* =========================================================
+   18) PROCEDURE - RESUMO ADMIN DO MÓDULO DE BENEFÍCIOS
+   ========================================================= */
+CREATE OR ALTER PROCEDURE dbo.usp_benefits_module_operational_summary
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        (SELECT COUNT(1) FROM dbo.benefit_requests) AS total_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_requests WHERE approval_status = 'pending_review') AS pending_approval_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_requests WHERE approval_status = 'under_review') AS under_review_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_requests WHERE request_status = 'approved') AS approved_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_requests WHERE request_status = 'declined') AS declined_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_requests WHERE request_status = 'converted_to_usage') AS converted_to_usage_requests,
+        (SELECT COUNT(1) FROM dbo.benefit_usages) AS total_usages,
+        (SELECT COUNT(1) FROM dbo.clients) AS total_clients,
+        (SELECT COUNT(1) FROM dbo.partner_customers) AS total_partner_customers;
+END
+GO

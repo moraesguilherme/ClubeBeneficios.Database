@@ -1,12 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-/* =========================================================
-   PROCEDURES
-   ========================================================= */
-
-CREATE OR ALTER PROCEDURE dbo.usp_benefits_create
+CREATE PROCEDURE dbo.usp_benefits_create
     @PartnerId UNIQUEIDENTIFIER,
     @Title VARCHAR(180),
     @BenefitType VARCHAR(40),

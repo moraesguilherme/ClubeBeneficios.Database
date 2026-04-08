@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER PROCEDURE dbo.usp_partner_levels_recalculate
+CREATE PROCEDURE dbo.usp_partner_levels_recalculate
     @PartnerId UNIQUEIDENTIFIER,
     @ChangedByUserId UNIQUEIDENTIFIER = NULL
 AS

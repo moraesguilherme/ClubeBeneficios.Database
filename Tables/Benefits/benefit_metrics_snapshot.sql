@@ -1,9 +1,3 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-IF OBJECT_ID('dbo.benefit_metrics_snapshot', 'U') IS NULL
-BEGIN
     CREATE TABLE dbo.benefit_metrics_snapshot
     (
         benefit_id UNIQUEIDENTIFIER NOT NULL,
@@ -16,5 +10,3 @@ BEGIN
         CONSTRAINT PK_benefit_metrics_snapshot PRIMARY KEY CLUSTERED (benefit_id ASC),
         CONSTRAINT FK_benefit_metrics_snapshot_benefits FOREIGN KEY (benefit_id) REFERENCES dbo.benefits(id)
     );
-END
-GO

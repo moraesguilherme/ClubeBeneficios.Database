@@ -1,51 +1,153 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
+CREATE TABLE [dbo].[benefit_requests](
+	[id] [uniqueidentifier] NOT NULL,
+	[benefit_id] [uniqueidentifier] NOT NULL,
+	[partner_id] [uniqueidentifier] NOT NULL,
+	[requester_user_id] [uniqueidentifier] NULL,
+	[requester_partner_customer_id] [uniqueidentifier] NULL,
+	[requester_type] [varchar](30) NOT NULL,
+	[pet_id] [uniqueidentifier] NULL,
+	[access_code_id] [uniqueidentifier] NULL,
+	[request_status] [varchar](30) NOT NULL,
+	[requested_at] [datetime2](7) NOT NULL,
+	[reviewed_at] [datetime2](7) NULL,
+	[reviewed_by_user_id] [uniqueidentifier] NULL,
+	[review_notes] [varchar](1500) NULL,
+	[scheduled_for] [datetime2](7) NULL,
+	[expires_at] [datetime2](7) NULL,
+	[created_at] [datetime2](7) NOT NULL,
+	[updated_at] [datetime2](7) NOT NULL,
+	[requester_client_id] [uniqueidentifier] NULL,
+	[requester_client_pet_id] [uniqueidentifier] NULL,
+	[requester_partner_customer_pet_id] [uniqueidentifier] NULL,
+	[requested_by_user_id] [uniqueidentifier] NULL,
+	[pet_source_type] [varchar](30) NULL,
+	[review_required] [bit] NOT NULL,
+	[approval_status] [varchar](30) NULL,
+	[approval_requested_at] [datetime2](7) NULL,
+	[approval_decided_at] [datetime2](7) NULL,
+	[approval_decided_by_user_id] [uniqueidentifier] NULL,
+	[approval_reason] [varchar](1500) NULL,
+ CONSTRAINT [PK_benefit_requests] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
 GO
 
-IF OBJECT_ID('dbo.benefit_requests', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.benefit_requests
-    (
-        id UNIQUEIDENTIFIER NOT NULL,
-        benefit_id UNIQUEIDENTIFIER NOT NULL,
-        partner_id UNIQUEIDENTIFIER NOT NULL,
-        requester_user_id UNIQUEIDENTIFIER NULL,
-        requester_partner_customer_id UNIQUEIDENTIFIER NULL,
-        requester_type VARCHAR(30) NOT NULL,
-        pet_id UNIQUEIDENTIFIER NULL,
-        access_code_id UNIQUEIDENTIFIER NULL,
-        request_status VARCHAR(30) NOT NULL,
-        requested_at DATETIME2(7) NOT NULL,
-        reviewed_at DATETIME2(7) NULL,
-        reviewed_by_user_id UNIQUEIDENTIFIER NULL,
-        review_notes VARCHAR(1500) NULL,
-        scheduled_for DATETIME2(7) NULL,
-        expires_at DATETIME2(7) NULL,
-        created_at DATETIME2(7) NOT NULL,
-        updated_at DATETIME2(7) NOT NULL,
-
-        CONSTRAINT PK_benefit_requests PRIMARY KEY CLUSTERED (id ASC),
-        CONSTRAINT FK_benefit_requests_benefits FOREIGN KEY (benefit_id) REFERENCES dbo.benefits(id),
-        CONSTRAINT FK_benefit_requests_partners FOREIGN KEY (partner_id) REFERENCES dbo.partners(id),
-        CONSTRAINT FK_benefit_requests_users_requester FOREIGN KEY (requester_user_id) REFERENCES dbo.users(id),
-        CONSTRAINT FK_benefit_requests_partner_customers FOREIGN KEY (requester_partner_customer_id) REFERENCES dbo.partner_customers(id),
-        CONSTRAINT FK_benefit_requests_access_codes FOREIGN KEY (access_code_id) REFERENCES dbo.partner_access_codes(id),
-        CONSTRAINT FK_benefit_requests_users_reviewed FOREIGN KEY (reviewed_by_user_id) REFERENCES dbo.users(id),
-        CONSTRAINT CK_benefit_requests_requester_type CHECK (requester_type IN ('client', 'partner_customer')),
-        CONSTRAINT CK_benefit_requests_request_status CHECK (request_status IN ('requested', 'approved', 'declined', 'cancelled', 'expired')),
-        CONSTRAINT CK_benefit_requests_requester_presence CHECK (
-            (requester_type = 'client' AND requester_user_id IS NOT NULL AND requester_partner_customer_id IS NULL)
-            OR
-            (requester_type = 'partner_customer' AND requester_partner_customer_id IS NOT NULL AND requester_user_id IS NULL)
-        )
-    );
-END
+ALTER TABLE [dbo].[benefit_requests] ADD  CONSTRAINT [DF_benefit_requests_review_required]  DEFAULT ((0)) FOR [review_required]
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_benefit_requests_benefit_status' AND object_id = OBJECT_ID('dbo.benefit_requests'))
-    CREATE INDEX IX_benefit_requests_benefit_status ON dbo.benefit_requests(benefit_id, request_status);
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_access_codes] FOREIGN KEY([access_code_id])
+REFERENCES [dbo].[partner_access_codes] ([id])
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_benefit_requests_partner_requested_at' AND object_id = OBJECT_ID('dbo.benefit_requests'))
-    CREATE INDEX IX_benefit_requests_partner_requested_at ON dbo.benefit_requests(partner_id, requested_at DESC);
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_access_codes]
 GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_benefits] FOREIGN KEY([benefit_id])
+REFERENCES [dbo].[benefits] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_benefits]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_client_pets] FOREIGN KEY([requester_client_pet_id])
+REFERENCES [dbo].[client_pets] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_client_pets]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_clients] FOREIGN KEY([requester_client_id])
+REFERENCES [dbo].[clients] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_clients]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_partner_customer_pets] FOREIGN KEY([requester_partner_customer_pet_id])
+REFERENCES [dbo].[partner_customer_pets] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_partner_customer_pets]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_partner_customers] FOREIGN KEY([requester_partner_customer_id])
+REFERENCES [dbo].[partner_customers] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_partner_customers]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_partners] FOREIGN KEY([partner_id])
+REFERENCES [dbo].[partners] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_partners]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_users_approval_decided] FOREIGN KEY([approval_decided_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_users_approval_decided]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_users_requested_by] FOREIGN KEY([requested_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_users_requested_by]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_users_requester] FOREIGN KEY([requester_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_users_requester]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_users_reviewed] FOREIGN KEY([reviewed_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_users_reviewed]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_approval_status] CHECK  (([approval_status] IS NULL OR ([approval_status]='expired' OR [approval_status]='cancelled' OR [approval_status]='rejected' OR [approval_status]='approved' OR [approval_status]='under_review' OR [approval_status]='pending_review')))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_approval_status]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_pet_presence] CHECK  (([pet_source_type] IS NULL AND [requester_client_pet_id] IS NULL AND [requester_partner_customer_pet_id] IS NULL OR [pet_source_type]='client_pet' AND [requester_client_pet_id] IS NOT NULL AND [requester_partner_customer_pet_id] IS NULL OR [pet_source_type]='partner_customer_pet' AND [requester_partner_customer_pet_id] IS NOT NULL AND [requester_client_pet_id] IS NULL))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_pet_presence]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_pet_source_type] CHECK  (([pet_source_type] IS NULL OR ([pet_source_type]='partner_customer_pet' OR [pet_source_type]='client_pet')))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_pet_source_type]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_request_status] CHECK  (([request_status]='converted_to_usage' OR [request_status]='no_show' OR [request_status]='scheduled' OR [request_status]='expired' OR [request_status]='cancelled' OR [request_status]='declined' OR [request_status]='approved' OR [request_status]='under_review' OR [request_status]='pending_review' OR [request_status]='requested'))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_request_status]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_requester_presence] CHECK  (([requester_type]='client' AND [requester_partner_customer_id] IS NULL AND ([requester_client_id] IS NOT NULL OR [requester_user_id] IS NOT NULL) OR [requester_type]='partner_customer' AND [requester_partner_customer_id] IS NOT NULL AND [requester_client_id] IS NULL))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_requester_presence]
+GO
+
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [CK_benefit_requests_requester_type] CHECK  (([requester_type]='partner_customer' OR [requester_type]='client'))
+GO
+
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [CK_benefit_requests_requester_type]
+GO
+
+

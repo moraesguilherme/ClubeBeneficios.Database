@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER PROCEDURE dbo.usp_benefits_admin_search
+CREATE PROCEDURE dbo.usp_benefits_admin_search
     @Search VARCHAR(200) = NULL,
     @Direction VARCHAR(30) = NULL,
     @Status VARCHAR(30) = NULL,

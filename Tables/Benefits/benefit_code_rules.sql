@@ -1,9 +1,3 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-IF OBJECT_ID('dbo.benefit_code_rules', 'U') IS NULL
-BEGIN
     CREATE TABLE dbo.benefit_code_rules
     (
         id UNIQUEIDENTIFIER NOT NULL,
@@ -21,5 +15,3 @@ BEGIN
         CONSTRAINT FK_benefit_code_rules_access_codes FOREIGN KEY (specific_access_code_id) REFERENCES dbo.partner_access_codes(id),
         CONSTRAINT CK_benefit_code_rules_code_validation_mode CHECK (code_validation_mode IN ('partner_code', 'matilha_coupon', 'invite_code'))
     );
-END
-GO

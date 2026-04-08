@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER VIEW dbo.vw_benefits_pending_list
+CREATE VIEW dbo.vw_benefits_pending_list
 AS
 SELECT
     b.id,

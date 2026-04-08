@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.usp_partners_update
+CREATE PROCEDURE dbo.usp_partners_update
     @PartnerId                UNIQUEIDENTIFIER,
     @TradeName                VARCHAR(150) = NULL,
     @LegalName                VARCHAR(150) = NULL,

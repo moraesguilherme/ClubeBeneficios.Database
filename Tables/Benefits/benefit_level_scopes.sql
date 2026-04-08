@@ -1,25 +1,33 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
+CREATE TABLE [dbo].[benefit_level_scopes](
+	[id] [uniqueidentifier] NOT NULL,
+	[benefit_id] [uniqueidentifier] NOT NULL,
+	[level_type] [varchar](30) NOT NULL,
+	[level_code] [varchar](30) NOT NULL,
+	[created_at] [datetime2](7) NOT NULL,
+ CONSTRAINT [PK_benefit_level_scopes] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
 GO
 
-IF OBJECT_ID('dbo.benefit_level_scopes', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.benefit_level_scopes
-    (
-        id UNIQUEIDENTIFIER NOT NULL,
-        benefit_id UNIQUEIDENTIFIER NOT NULL,
-        level_type VARCHAR(30) NOT NULL,
-        level_code VARCHAR(30) NOT NULL,
-        created_at DATETIME2(7) NOT NULL,
-
-        CONSTRAINT PK_benefit_level_scopes PRIMARY KEY CLUSTERED (id ASC),
-        CONSTRAINT FK_benefit_level_scopes_benefits FOREIGN KEY (benefit_id) REFERENCES dbo.benefits(id),
-        CONSTRAINT CK_benefit_level_scopes_level_type CHECK (level_type IN ('partner_level', 'client_level')),
-        CONSTRAINT CK_benefit_level_scopes_level_code CHECK (level_code IN ('bronze', 'silver', 'gold', 'diamond', 'platinum'))
-    );
-END
+ALTER TABLE [dbo].[benefit_level_scopes]  WITH CHECK ADD  CONSTRAINT [FK_benefit_level_scopes_benefits] FOREIGN KEY([benefit_id])
+REFERENCES [dbo].[benefits] ([id])
 GO
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_benefit_level_scopes_benefit' AND object_id = OBJECT_ID('dbo.benefit_level_scopes'))
-    CREATE INDEX IX_benefit_level_scopes_benefit ON dbo.benefit_level_scopes(benefit_id);
+ALTER TABLE [dbo].[benefit_level_scopes] CHECK CONSTRAINT [FK_benefit_level_scopes_benefits]
 GO
+
+ALTER TABLE [dbo].[benefit_level_scopes]  WITH CHECK ADD  CONSTRAINT [CK_benefit_level_scopes_level_code] CHECK  (([level_code]='platinum' OR [level_code]='diamond' OR [level_code]='gold' OR [level_code]='silver' OR [level_code]='bronze'))
+GO
+
+ALTER TABLE [dbo].[benefit_level_scopes] CHECK CONSTRAINT [CK_benefit_level_scopes_level_code]
+GO
+
+ALTER TABLE [dbo].[benefit_level_scopes]  WITH CHECK ADD  CONSTRAINT [CK_benefit_level_scopes_level_type] CHECK  (([level_type]='client_level' OR [level_type]='partner_level'))
+GO
+
+ALTER TABLE [dbo].[benefit_level_scopes] CHECK CONSTRAINT [CK_benefit_level_scopes_level_type]
+GO
+
+
