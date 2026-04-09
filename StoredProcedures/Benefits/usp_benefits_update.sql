@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.usp_benefits_update
+CREATE   PROCEDURE [dbo].[usp_benefits_update]
     @BenefitId UNIQUEIDENTIFIER,
     @PartnerId UNIQUEIDENTIFIER = NULL,
     @Title VARCHAR(180),
@@ -173,3 +173,5 @@ BEGIN
     COMMIT TRANSACTION;
 END
 GO
+
+

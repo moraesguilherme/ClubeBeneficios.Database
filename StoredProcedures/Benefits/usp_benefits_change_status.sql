@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.usp_benefits_change_status
+CREATE   PROCEDURE [dbo].[usp_benefits_change_status]
     @BenefitId UNIQUEIDENTIFIER,
     @NewStatus VARCHAR(30),
     @Reason VARCHAR(1500) = NULL,
@@ -19,7 +19,7 @@ BEGIN
 
     IF @CurrentStatus IS NULL
     BEGIN
-        RAISERROR('BenefÃ­cio nÃ£o encontrado.', 16, 1);
+        RAISERROR('Benefício não encontrado.', 16, 1);
         RETURN;
     END
 
@@ -53,4 +53,7 @@ BEGIN
 
     COMMIT TRANSACTION;
 END
+
 GO
+
+

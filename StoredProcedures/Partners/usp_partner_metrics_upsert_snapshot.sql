@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE dbo.usp_partner_metrics_upsert_snapshot
+﻿CREATE PROCEDURE [dbo].[usp_partner_metrics_upsert_snapshot]
     @PartnerId UNIQUEIDENTIFIER,
     @BenefitsCount INT = 0,
     @ConvertedClientsCount INT = 0,
@@ -39,3 +39,5 @@ BEGIN
         );
 END
 GO
+
+

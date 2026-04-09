@@ -1,4 +1,4 @@
-CREATE VIEW dbo.vw_benefits_admin_list
+CREATE   VIEW [dbo].[vw_benefits_admin_list]
 AS
 SELECT
     b.id,
@@ -24,4 +24,5 @@ SELECT
 FROM dbo.benefits b
 INNER JOIN dbo.partners p ON p.id = b.partner_id
 LEFT JOIN dbo.benefit_metrics_snapshot ms ON ms.benefit_id = b.id;
+
 GO

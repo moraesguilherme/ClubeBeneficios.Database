@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.usp_benefits_create
+CREATE   PROCEDURE [dbo].[usp_benefits_create]
     @PartnerId UNIQUEIDENTIFIER,
     @Title VARCHAR(180),
     @BenefitType VARCHAR(40),
@@ -121,7 +121,7 @@ BEGIN
     )
     VALUES
     (
-        @BenefitId, NULL, @InitialStatus, 'Cadastro inicial do benefÃ­cio.', @CreatedByUserId, SYSUTCDATETIME()
+        @BenefitId, NULL, @InitialStatus, 'Cadastro inicial do benefício.', @CreatedByUserId, SYSUTCDATETIME()
     );
 
     INSERT INTO dbo.benefit_metrics_snapshot
@@ -137,4 +137,7 @@ BEGIN
 
     SELECT @BenefitId AS benefit_id;
 END
+
 GO
+
+

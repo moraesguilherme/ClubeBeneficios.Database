@@ -1,4 +1,4 @@
-CREATE PROCEDURE dbo.usp_benefits_admin_search
+CREATE   PROCEDURE [dbo].[usp_benefits_admin_search]
     @Search VARCHAR(200) = NULL,
     @Direction VARCHAR(30) = NULL,
     @Status VARCHAR(30) = NULL,
@@ -19,4 +19,7 @@ BEGIN
         AND (@TargetActorType IS NULL OR target_actor_type = @TargetActorType)
     ORDER BY created_at DESC;
 END
+
 GO
+
+

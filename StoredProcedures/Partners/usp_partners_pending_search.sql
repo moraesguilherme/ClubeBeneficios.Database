@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.usp_partners_pending_search
+CREATE   PROCEDURE [dbo].[usp_partners_pending_search]
     @Search         VARCHAR(150) = NULL,
     @Category       VARCHAR(120) = NULL,
     @Segment        VARCHAR(120) = NULL,
@@ -94,3 +94,5 @@ BEGIN
     FETCH NEXT @PageSize ROWS ONLY;
 END
 GO
+
+
