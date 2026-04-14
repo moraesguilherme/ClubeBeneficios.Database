@@ -39,9 +39,13 @@
     <Folder Include="Tables\Customers" />
     <Folder Include="StoredProcedures\Customers" />
     <Folder Include="Views\Customers" />
-    <Folder Include="Views\PartnerCustomers" />
     <Folder Include="StoredProcedures\PartnerCustomers" />
     <Folder Include="Tables\PartnerCustomers" />
+    <Folder Include="StoredProcedures\Etl" />
+    <Folder Include="StoredProcedures\Loyalty" />
+    <Folder Include="Views\Etl" />
+    <Folder Include="Tables\Etl" />
+    <Folder Include="Tables\Loyalty" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Benefits\usp_benefit_requests_change_status.sql" />
@@ -113,9 +117,6 @@
     <Build Include="Views\Benefits\vw_benefit_requests_customer_list.sql" />
     <Build Include="Views\Customers\vw_clients_admin_summary.sql" />
     <Build Include="Views\Customers\vw_client_benefit_dashboard_summary.sql" />
-    <Build Include="Views\PartnerCustomers\vw_partner_customers_admin_summary.sql" />
-    <Build Include="Views\PartnerCustomers\vw_partner_customer_benefit_dashboard_summary.sql" />
-    <Build Include="Views\PartnerCustomers\vw_partner_customers_conversion_funnel.sql" />
     <Build Include="StoredProcedures\Benefits\usp_benefit_requests_approval_dashboard_summary.sql" />
     <Build Include="StoredProcedures\Benefits\usp_benefit_request_add_review.sql" />
     <Build Include="StoredProcedures\Benefits\usp_benefit_request_approval_get_by_id.sql" />
@@ -143,6 +144,48 @@
     <Build Include="StoredProcedures\Partners\usp_partners_pending_search.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_admin_search.sql" />
     <Build Include="StoredProcedures\Partners\usp_partners_admin_summary.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_batch_create.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_batch_get_detail.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_service_payment_fact_upsert.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_batch_set_status.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_create.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_error_add.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_match_upsert.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_pet_candidate_upsert.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_set_status.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_processing_run_create.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_processing_run_finish.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_rows_get_pending_processing.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_service_payment_fact_set_loyalty_status.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_service_payment_fact_set_match.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_service_payment_fact_set_review.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_exists_for_etl_row.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row_and_rebuild_balance.sql" />
+    <Build Include="Views\Etl\vw_etl_batch_row_summary.sql" />
+    <Build Include="Views\Etl\vw_etl_batches_admin_list.sql" />
+    <Build Include="Views\Etl\vw_etl_creche_rows_pending_parse.sql" />
+    <Build Include="Views\Etl\vw_etl_hotel_rows_pending_parse.sql" />
+    <Build Include="Views\Etl\vw_etl_rows_pending_processing.sql" />
+    <Build Include="Views\Etl\vw_etl_rows_ready_for_loyalty_event].sql" />
+    <Build Include="Views\Etl\vw_etl_rows_with_errors.sql" />
+    <Build Include="Tables\Etl\etl_processing_runs.sql" />
+    <Build Include="Tables\Etl\etl_import_batches.sql" />
+    <Build Include="Tables\Etl\etl_import_row_errors.sql" />
+    <Build Include="Tables\Etl\etl_import_row_matches.sql" />
+    <Build Include="Tables\Etl\etl_import_rows.sql" />
+    <Build Include="Tables\Loyalty\loyalty_rules.sql" />
+    <Build Include="Tables\Loyalty\loyalty_campaign_conditions.sql" />
+    <Build Include="Tables\Loyalty\loyalty_campaigns.sql" />
+    <Build Include="Tables\Loyalty\loyalty_rewards.sql" />
+    <Build Include="Tables\Loyalty\loyalty_rule_conditions.sql" />
+    <Build Include="Tables\Loyalty\loyalty_rule_sets.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_scores.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_adjustments.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_balances.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_events.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_redemptions.sql" />
+    <Build Include="Tables\Customers\customer_loyalty_score_history.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />

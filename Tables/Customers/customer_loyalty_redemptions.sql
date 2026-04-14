@@ -1,0 +1,89 @@
+CREATE TABLE [dbo].[customer_loyalty_redemptions](
+	[id] [uniqueidentifier] NOT NULL,
+	[client_id] [uniqueidentifier] NOT NULL,
+	[reward_id] [uniqueidentifier] NOT NULL,
+	[status] [varchar](30) NOT NULL,
+	[requested_at] [datetime2](7) NOT NULL,
+	[approved_at] [datetime2](7) NULL,
+	[used_at] [datetime2](7) NULL,
+	[cancelled_at] [datetime2](7) NULL,
+	[expires_at] [datetime2](7) NULL,
+	[points_reserved] [int] NOT NULL,
+	[points_committed] [int] NOT NULL,
+	[decision_notes] [varchar](1500) NULL,
+	[requested_by_user_id] [uniqueidentifier] NULL,
+	[decided_by_user_id] [uniqueidentifier] NULL,
+	[benefit_request_id] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_customer_loyalty_redemptions] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] ADD  CONSTRAINT [DF_customer_loyalty_redemptions_points_reserved]  DEFAULT ((0)) FOR [points_reserved]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] ADD  CONSTRAINT [DF_customer_loyalty_redemptions_points_committed]  DEFAULT ((0)) FOR [points_committed]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [FK_customer_loyalty_redemptions_benefit_requests] FOREIGN KEY([benefit_request_id])
+REFERENCES [dbo].[benefit_requests] ([id])
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [FK_customer_loyalty_redemptions_benefit_requests]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [FK_customer_loyalty_redemptions_clients] FOREIGN KEY([client_id])
+REFERENCES [dbo].[clients] ([id])
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [FK_customer_loyalty_redemptions_clients]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [FK_customer_loyalty_redemptions_rewards] FOREIGN KEY([reward_id])
+REFERENCES [dbo].[loyalty_rewards] ([id])
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [FK_customer_loyalty_redemptions_rewards]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [FK_customer_loyalty_redemptions_users_decided_by] FOREIGN KEY([decided_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [FK_customer_loyalty_redemptions_users_decided_by]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [FK_customer_loyalty_redemptions_users_requested_by] FOREIGN KEY([requested_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [FK_customer_loyalty_redemptions_users_requested_by]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [CK_customer_loyalty_redemptions_dates] CHECK  (([approved_at] IS NULL OR [approved_at]>=[requested_at]))
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [CK_customer_loyalty_redemptions_dates]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [CK_customer_loyalty_redemptions_points_committed] CHECK  (([points_committed]>=(0)))
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [CK_customer_loyalty_redemptions_points_committed]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [CK_customer_loyalty_redemptions_points_reserved] CHECK  (([points_reserved]>=(0)))
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [CK_customer_loyalty_redemptions_points_reserved]
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [CK_customer_loyalty_redemptions_status] CHECK  (([status]='rejected' OR [status]='expired' OR [status]='cancelled' OR [status]='used' OR [status]='approved' OR [status]='requested'))
+GO
+
+ALTER TABLE [dbo].[customer_loyalty_redemptions] CHECK CONSTRAINT [CK_customer_loyalty_redemptions_status]
+GO
+
+
