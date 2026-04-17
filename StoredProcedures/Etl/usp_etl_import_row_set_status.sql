@@ -1,30 +1,20 @@
 CREATE PROCEDURE [dbo].[usp_etl_import_row_set_status]
     @ImportRowId bigint,
-    @Status varchar(30),
-    @ParsedAt datetime2(7) = NULL,
-    @ProcessedAt datetime2(7) = NULL
+    @Status varchar(30)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     DECLARE @BatchId uniqueidentifier;
-    DECLARE @PreviousStatus varchar(30);
 
     SELECT
-        @BatchId = batch_id,
-        @PreviousStatus = status
+        @BatchId = batch_id
     FROM dbo.etl_import_rows
     WHERE id = @ImportRowId;
 
     UPDATE dbo.etl_import_rows
     SET
-        status = @Status,
-        parsed_at = CASE WHEN @ParsedAt IS NOT NULL THEN @ParsedAt
-                         WHEN @Status IN ('parsed', 'matched') AND parsed_at IS NULL THEN SYSUTCDATETIME()
-                         ELSE parsed_at END,
-        processed_at = CASE WHEN @ProcessedAt IS NOT NULL THEN @ProcessedAt
-                            WHEN @Status IN ('processed', 'ignored', 'error') THEN SYSUTCDATETIME()
-                            ELSE processed_at END
+        status = @Status
     WHERE id = @ImportRowId;
 
     UPDATE b
@@ -61,7 +51,4 @@ BEGIN
     FROM dbo.etl_import_rows
     WHERE id = @ImportRowId;
 END
-
 GO
-
-

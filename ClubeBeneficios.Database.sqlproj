@@ -157,8 +157,6 @@
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row.sql" />
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row_and_rebuild_balance.sql" />
     <Build Include="Views\Etl\vw_etl_batches_admin_list.sql" />
-    <Build Include="Views\Etl\vw_etl_creche_rows_pending_parse.sql" />
-    <Build Include="Views\Etl\vw_etl_hotel_rows_pending_parse.sql" />
     <Build Include="Views\Etl\vw_etl_rows_with_errors.sql" />
     <Build Include="Tables\Etl\etl_processing_runs.sql" />
     <Build Include="Tables\Etl\etl_import_batches.sql" />
@@ -176,6 +174,11 @@
     <Build Include="Tables\Customers\customer_loyalty_events.sql" />
     <Build Include="Tables\Customers\customer_loyalty_redemptions.sql" />
     <Build Include="Tables\Customers\customer_loyalty_score_history.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_resolve_state.sql" />
+    <Build Include="StoredProcedures\Etl\usp_etl_import_row_supersede.sql" />
+    <Build Include="Views\Etl\vw_etl_import_rows_current.sql" />
+    <Build Include="Views\Etl\vw_etl_import_rows_history.sql" />
+    <Build Include="Views\Etl\vw_etl_import_rows_dedup_audit.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />

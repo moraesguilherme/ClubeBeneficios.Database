@@ -119,11 +119,11 @@ BEGIN
         @CreatedByUserId
     );
 
-    UPDATE dbo.etl_import_rows
-    SET
-        status = 'processed',
-        processed_at = ISNULL(processed_at, SYSUTCDATETIME())
-    WHERE id = @ImportRowId;
+    --UPDATE dbo.etl_import_rows
+    --SET
+    --    status = 'processed',
+    --    processed_at = ISNULL(processed_at, SYSUTCDATETIME())
+    --WHERE id = @ImportRowId;
 
     SELECT *
     FROM dbo.customer_loyalty_events

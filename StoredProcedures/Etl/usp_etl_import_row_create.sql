@@ -1,47 +1,43 @@
 CREATE PROCEDURE [dbo].[usp_etl_import_row_create]
     @BatchId uniqueidentifier,
     @RowNumber int,
-    @ExternalRowKey varchar(200) = NULL,
+    @ExternalRowKey varchar(200),
+    @SourceContentHash varchar(64),
     @RawPayloadJson nvarchar(max),
+
+    @SourceFileName varchar(255) = NULL,
+    @SourceSheetName varchar(150) = NULL,
+    @SourceFileType varchar(50) = NULL,
 
     @OccurredAt datetime2(7) = NULL,
     @CompetenceDate date = NULL,
 
     @CustomerNameRaw varchar(200) = NULL,
     @CustomerDocumentRaw varchar(50) = NULL,
-    @CustomerEmailRaw varchar(200) = NULL,
     @CustomerPhoneRaw varchar(50) = NULL,
 
+    @RawPetNames varchar(500) = NULL,
     @PetNameRaw varchar(150) = NULL,
-    @PartnerNameRaw varchar(200) = NULL,
+    @PetSplitIndex int = NULL,
 
     @ServiceTypeRaw varchar(100) = NULL,
     @PlanNameRaw varchar(150) = NULL,
     @PackageNameRaw varchar(150) = NULL,
-    @LodgingTypeRaw varchar(150) = NULL,
 
     @PaymentMethodRaw varchar(100) = NULL,
-    @PaymentMethodNormalized varchar(50) = NULL,
     @PaymentStatusRaw varchar(100) = NULL,
-    @PaymentStatusNormalized varchar(50) = NULL,
 
     @GrossAmount decimal(18,2) = NULL,
-    @DiscountAmount decimal(18,2) = NULL,
-    @NetAmount decimal(18,2) = NULL,
     @TaxiAmount decimal(18,2) = NULL,
-    @Quantity decimal(18,4) = NULL,
+    @GroupTotalAmount decimal(18,2) = NULL,
 
     @StartDate date = NULL,
     @EndDate date = NULL,
 
-    @DescriptionRaw varchar(1000) = NULL,
     @ObservationRaw varchar(1500) = NULL,
 
-    @SourceSheetName varchar(150) = NULL,
-    @SourceSheetGroup varchar(100) = NULL,
     @ReferenceYear int = NULL,
-    @ReferenceMonth int = NULL,
-    @SourceFileType varchar(50) = NULL
+    @ReferenceMonth int = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -51,98 +47,72 @@ BEGIN
         batch_id,
         row_number,
         external_row_key,
+        source_content_hash,
         raw_payload_json,
-
+        source_file_name,
+        source_sheet_name,
+        source_file_type,
         occurred_at,
         competence_date,
-
         customer_name_raw,
         customer_document_raw,
-        customer_email_raw,
         customer_phone_raw,
-
+        raw_pet_names,
         pet_name_raw,
-        partner_name_raw,
-
+        pet_split_index,
         service_type_raw,
         plan_name_raw,
         package_name_raw,
-        lodging_type_raw,
-
         payment_method_raw,
-        payment_method_normalized,
         payment_status_raw,
-        payment_status_normalized,
-
         gross_amount,
-        discount_amount,
-        net_amount,
         taxi_amount,
-        quantity,
-
+        group_total_amount,
+        net_amount,
         start_date,
         end_date,
-
-        description_raw,
         observation_raw,
-
-        source_sheet_name,
-        source_sheet_group,
         reference_year,
         reference_month,
-        source_file_type,
-
         status,
-        parsed_at,
-        processed_at
+        is_current,
+        superseded_at,
+        replaced_by_import_row_id
     )
     VALUES
     (
         @BatchId,
         @RowNumber,
         @ExternalRowKey,
+        @SourceContentHash,
         @RawPayloadJson,
-
+        @SourceFileName,
+        @SourceSheetName,
+        @SourceFileType,
         @OccurredAt,
         @CompetenceDate,
-
         @CustomerNameRaw,
         @CustomerDocumentRaw,
-        @CustomerEmailRaw,
         @CustomerPhoneRaw,
-
+        @RawPetNames,
         @PetNameRaw,
-        @PartnerNameRaw,
-
+        @PetSplitIndex,
         @ServiceTypeRaw,
         @PlanNameRaw,
         @PackageNameRaw,
-        @LodgingTypeRaw,
-
         @PaymentMethodRaw,
-        @PaymentMethodNormalized,
         @PaymentStatusRaw,
-        @PaymentStatusNormalized,
-
         @GrossAmount,
-        @DiscountAmount,
-        @NetAmount,
         @TaxiAmount,
-        @Quantity,
-
+        @GroupTotalAmount,
+        @GroupTotalAmount,
         @StartDate,
         @EndDate,
-
-        @DescriptionRaw,
         @ObservationRaw,
-
-        @SourceSheetName,
-        @SourceSheetGroup,
         @ReferenceYear,
         @ReferenceMonth,
-        @SourceFileType,
-
         'pending',
+        1,
         NULL,
         NULL
     );
@@ -158,3 +128,5 @@ BEGIN
     WHERE id = @InsertedId;
 END
 GO
+
+

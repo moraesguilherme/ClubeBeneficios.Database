@@ -25,9 +25,7 @@ BEGIN
     );
 
     UPDATE dbo.etl_import_rows
-    SET
-        status = 'error',
-        processed_at = ISNULL(processed_at, SYSUTCDATETIME())
+    SET status = 'error'
     WHERE id = @ImportRowId;
 
     DECLARE @BatchId uniqueidentifier;
@@ -42,20 +40,21 @@ BEGIN
         success_rows = s.success_rows,
         error_rows = s.error_rows,
         status = CASE
-            WHEN s.total_rows > 0 AND s.processed_rows = s.total_rows THEN 'processed_with_errors'
-            ELSE 'processing'
-        END,
+                    WHEN s.total_rows > 0 AND s.processed_rows = s.total_rows AND s.error_rows > 0 THEN 'processed_with_errors'
+                    WHEN s.total_rows > 0 AND s.processed_rows = s.total_rows AND s.error_rows = 0 THEN 'processed'
+                    ELSE 'processing'
+                 END,
         finished_at = CASE
-            WHEN s.total_rows > 0 AND s.processed_rows = s.total_rows THEN SYSUTCDATETIME()
-            ELSE b.finished_at
-        END
+                        WHEN s.total_rows > 0 AND s.processed_rows = s.total_rows THEN SYSUTCDATETIME()
+                        ELSE b.finished_at
+                      END
     FROM dbo.etl_import_batches b
     CROSS APPLY
     (
         SELECT
             COUNT(*) AS total_rows,
-            SUM(CASE WHEN r.status IN ('processed', 'ignored', 'error') THEN 1 ELSE 0 END) AS processed_rows,
-            SUM(CASE WHEN r.status = 'processed' THEN 1 ELSE 0 END) AS success_rows,
+            SUM(CASE WHEN r.status IN ('imported', 'ignored', 'error') THEN 1 ELSE 0 END) AS processed_rows,
+            SUM(CASE WHEN r.status = 'imported' THEN 1 ELSE 0 END) AS success_rows,
             SUM(CASE WHEN r.status = 'error' THEN 1 ELSE 0 END) AS error_rows
         FROM dbo.etl_import_rows r
         WHERE r.batch_id = b.id
@@ -66,7 +65,6 @@ BEGIN
     FROM dbo.etl_import_row_errors
     WHERE id = SCOPE_IDENTITY();
 END
-
 GO
 
 
