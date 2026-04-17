@@ -156,11 +156,9 @@
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_exists_for_etl_row.sql" />
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row.sql" />
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_event_create_from_etl_row_and_rebuild_balance.sql" />
-    <Build Include="Views\Etl\vw_etl_batch_row_summary.sql" />
     <Build Include="Views\Etl\vw_etl_batches_admin_list.sql" />
     <Build Include="Views\Etl\vw_etl_creche_rows_pending_parse.sql" />
     <Build Include="Views\Etl\vw_etl_hotel_rows_pending_parse.sql" />
-    <Build Include="Views\Etl\vw_etl_rows_pending_processing.sql" />
     <Build Include="Views\Etl\vw_etl_rows_with_errors.sql" />
     <Build Include="Tables\Etl\etl_processing_runs.sql" />
     <Build Include="Tables\Etl\etl_import_batches.sql" />
