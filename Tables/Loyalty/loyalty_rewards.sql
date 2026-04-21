@@ -11,43 +11,70 @@ CREATE TABLE [dbo].[loyalty_rewards](
 	[updated_at] [datetime2](7) NOT NULL,
 	[created_by_user_id] [uniqueidentifier] NULL,
 	[updated_by_user_id] [uniqueidentifier] NULL,
+	[redemption_mode] [varchar](30) NULL,
+	[minimum_notice_hours] [int] NULL,
+	[cumulative_mode] [varchar](30) NULL,
+	[usage_window_type] [varchar](30) NULL,
+	[usage_window_value] [int] NULL,
+	[availability_type] [varchar](30) NULL,
+	[season_type] [varchar](30) NULL,
+	[is_transferable] [bit] NOT NULL,
  CONSTRAINT [PK_loyalty_rewards] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-
+ALTER TABLE [dbo].[loyalty_rewards] ADD  CONSTRAINT [DF_loyalty_rewards_is_transferable]  DEFAULT ((0)) FOR [is_transferable]
+GO
 ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [FK_loyalty_rewards_users_created_by] FOREIGN KEY([created_by_user_id])
 REFERENCES [dbo].[users] ([id])
 GO
-
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [FK_loyalty_rewards_users_created_by]
 GO
-
 ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [FK_loyalty_rewards_users_updated_by] FOREIGN KEY([updated_by_user_id])
 REFERENCES [dbo].[users] ([id])
 GO
-
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [FK_loyalty_rewards_users_updated_by]
 GO
-
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_eligible_level_code] CHECK  (([eligible_level_code] IS NULL OR ([eligible_level_code]='platinum' OR [eligible_level_code]='diamond' OR [eligible_level_code]='gold' OR [eligible_level_code]='silver' OR [eligible_level_code]='bronze')))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_availability_type] CHECK  (([availability_type] IS NULL OR ([availability_type]='custom' OR [availability_type]='date_range' OR [availability_type]='weekend' OR [availability_type]='weekdays' OR [availability_type]='general')))
 GO
-
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_availability_type]
+GO
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_cumulative_mode] CHECK  (([cumulative_mode] IS NULL OR ([cumulative_mode]='exclusive' OR [cumulative_mode]='non_cumulative' OR [cumulative_mode]='stackable')))
+GO
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_cumulative_mode]
+GO
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_eligible_level_code] CHECK  (([eligible_level_code] IS NULL OR ([eligible_level_code]='diamond' OR [eligible_level_code]='gold' OR [eligible_level_code]='silver' OR [eligible_level_code]='bronze')))
+GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_eligible_level_code]
 GO
-
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_minimum_notice_hours] CHECK  (([minimum_notice_hours] IS NULL OR [minimum_notice_hours]>=(0)))
+GO
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_minimum_notice_hours]
+GO
 ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_points_cost] CHECK  (([points_cost]>(0)))
 GO
-
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_points_cost]
 GO
-
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_status] CHECK  (([status]='archived' OR [status]='inactive' OR [status]='active' OR [status]='draft'))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_redemption_mode] CHECK  (([redemption_mode] IS NULL OR ([redemption_mode]='approval_required' OR [redemption_mode]='auto_approve' OR [redemption_mode]='manual_review')))
 GO
-
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_redemption_mode]
+GO
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_season_type] CHECK  (([season_type] IS NULL OR ([season_type]='custom' OR [season_type]='all' OR [season_type]='high' OR [season_type]='low')))
+GO
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_season_type]
+GO
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_status] CHECK  (([status]='archived' OR [status]='inactive' OR [status]='active' OR [status]='scheduled' OR [status]='draft'))
+GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_status]
 GO
-
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_usage_window_type] CHECK  (([usage_window_type] IS NULL OR ([usage_window_type]='year' OR [usage_window_type]='semester' OR [usage_window_type]='quarter' OR [usage_window_type]='month' OR [usage_window_type]='week' OR [usage_window_type]='day')))
+GO
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_usage_window_type]
+GO
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_usage_window_value] CHECK  (([usage_window_value] IS NULL OR [usage_window_value]>(0)))
+GO
+ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_usage_window_value]
+GO
 

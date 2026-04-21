@@ -28,7 +28,6 @@ CREATE TABLE [dbo].[etl_import_rows](
 	[source_file_type] [varchar](50) NULL,
 	[source_file_name] [varchar](255) NULL,
 	[source_content_hash] [varchar](64) NULL,
-	[source_group_hash] [varchar](64) NULL,
 	[raw_pet_names] [varchar](500) NULL,
 	[pet_split_index] [int] NULL,
 	[group_total_amount] [decimal](18, 2) NULL,
@@ -81,7 +80,7 @@ GO
 ALTER TABLE [dbo].[etl_import_rows] CHECK CONSTRAINT [CK_etl_import_rows_source_file_type]
 GO
 
-ALTER TABLE [dbo].[etl_import_rows]  WITH CHECK ADD  CONSTRAINT [CK_etl_import_rows_status] CHECK  (([status]='processed' OR [status]='matched' OR [status]='parsed' OR [status]='error' OR [status]='superseded' OR [status]='ignored' OR [status]='imported' OR [status]='pending'))
+ALTER TABLE [dbo].[etl_import_rows]  WITH CHECK ADD  CONSTRAINT [CK_etl_import_rows_status] CHECK  (([status]='pending' OR [status]='processed' OR [status]='ignored' OR [status]='error'))
 GO
 
 ALTER TABLE [dbo].[etl_import_rows] CHECK CONSTRAINT [CK_etl_import_rows_status]

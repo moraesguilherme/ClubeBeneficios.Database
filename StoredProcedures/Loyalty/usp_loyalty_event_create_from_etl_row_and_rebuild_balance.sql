@@ -1,3 +1,4 @@
+﻿
 CREATE PROCEDURE [dbo].[usp_loyalty_event_create_from_etl_row_and_rebuild_balance]
     @EventId uniqueidentifier,
     @ImportRowId bigint,

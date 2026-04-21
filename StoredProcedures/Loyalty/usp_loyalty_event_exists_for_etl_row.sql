@@ -1,3 +1,4 @@
+﻿
 CREATE PROCEDURE [dbo].[usp_loyalty_event_exists_for_etl_row]
     @ImportRowId bigint
 AS
@@ -19,3 +20,5 @@ BEGIN
 END
 
 GO
+
+

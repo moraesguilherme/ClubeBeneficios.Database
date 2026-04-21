@@ -16,29 +16,20 @@ CREATE TABLE [dbo].[loyalty_campaigns](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-
-ALTER TABLE [dbo].[loyalty_campaigns]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_campaigns_audience_type] CHECK  (([audience_type] IS NULL OR ([audience_type]='custom' OR [audience_type]='all_clients' OR [audience_type]='partner_customers' OR [audience_type]='clients')))
+ALTER TABLE [dbo].[loyalty_campaigns]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_campaigns_audience_type] CHECK  (([audience_type] IS NULL OR ([audience_type]='clients' OR [audience_type]='all_clients' OR [audience_type]='custom')))
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns] CHECK CONSTRAINT [CK_loyalty_campaigns_audience_type]
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_campaigns_campaign_type] CHECK  (([campaign_type]='custom' OR [campaign_type]='signup' OR [campaign_type]='referral' OR [campaign_type]='anniversary' OR [campaign_type]='seasonal' OR [campaign_type]='fixed_bonus' OR [campaign_type]='multiplier'))
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns] CHECK CONSTRAINT [CK_loyalty_campaigns_campaign_type]
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_campaigns_stacking_mode] CHECK  (([stacking_mode]='highest_only' OR [stacking_mode]='stackable' OR [stacking_mode]='exclusive'))
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns] CHECK CONSTRAINT [CK_loyalty_campaigns_stacking_mode]
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_campaigns_status] CHECK  (([status]='archived' OR [status]='inactive' OR [status]='active' OR [status]='scheduled' OR [status]='draft'))
 GO
-
 ALTER TABLE [dbo].[loyalty_campaigns] CHECK CONSTRAINT [CK_loyalty_campaigns_status]
 GO
-
 
