@@ -1,5 +1,4 @@
-﻿
-CREATE PROCEDURE [dbo].[usp_customer_loyalty_balance_rebuild_all]
+﻿CREATE PROCEDURE [dbo].[usp_customer_loyalty_balance_rebuild_all]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -40,4 +39,3 @@ BEGIN
 END
 
 GO
-

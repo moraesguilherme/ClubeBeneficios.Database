@@ -2,6 +2,7 @@
     @ConditionId uniqueidentifier,
     @RuleId uniqueidentifier,
     @ConditionType varchar(50),
+    @SourceType varchar(50) = NULL,
     @ServiceType varchar(50) = NULL,
     @PlanType varchar(100) = NULL,
     @PackageType varchar(100) = NULL,
@@ -24,6 +25,7 @@ BEGIN
         id,
         rule_id,
         condition_type,
+        source_type,
         service_type,
         plan_type,
         package_type,
@@ -43,6 +45,7 @@ BEGIN
         @ConditionId,
         @RuleId,
         @ConditionType,
+        @SourceType,
         @ServiceType,
         @PlanType,
         @PackageType,
@@ -61,7 +64,6 @@ BEGIN
     SELECT *
     FROM dbo.loyalty_rule_conditions
     WHERE id = @ConditionId;
-END
+END;
 GO
-
 

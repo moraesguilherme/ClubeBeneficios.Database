@@ -1,5 +1,4 @@
-﻿
-CREATE PROCEDURE [dbo].[usp_customer_loyalty_expire_inactive_points]
+﻿CREATE PROCEDURE [dbo].[usp_customer_loyalty_expire_inactive_points]
     @AsOf datetime2(7),
     @CreatedByUserId uniqueidentifier = NULL
 AS
@@ -99,4 +98,3 @@ BEGIN
 END
 
 GO
-

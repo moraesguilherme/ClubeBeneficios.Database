@@ -1,5 +1,4 @@
-﻿
-CREATE PROCEDURE [dbo].[usp_customer_loyalty_balance_rebuild]
+﻿CREATE PROCEDURE [dbo].[usp_customer_loyalty_balance_rebuild]
     @ClientId uniqueidentifier
 AS
 BEGIN
@@ -102,4 +101,3 @@ BEGIN
 END
 
 GO
-

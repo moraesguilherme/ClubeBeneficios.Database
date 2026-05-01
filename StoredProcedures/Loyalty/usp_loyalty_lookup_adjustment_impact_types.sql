@@ -9,7 +9,7 @@ BEGIN
         VALUES
             ('points',      'Pontos',         1),
             ('eligibility', 'Elegibilidade',  2),
-            ('level',       'N�vel',          3),
+            ('level',       'Nível',          3),
             ('score',       'Score',          4),
             ('mixed',       'Misto',          5),
             ('none',        'Sem impacto',    6)
@@ -17,5 +17,4 @@ BEGIN
     ORDER BY x.display_order;
 END
 GO
-
 

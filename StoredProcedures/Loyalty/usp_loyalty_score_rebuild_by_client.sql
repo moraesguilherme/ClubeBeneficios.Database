@@ -17,7 +17,10 @@ BEGIN
         @UpgradeDistance int = NULL,
         @DowngradeRiskFlag bit = 0,
         @LowRedemptionFlag bit = 0,
-        @PreviousScore int = NULL,
+        @PreviousLevelCode varchar(30) = NULL,
+        @PreviousAverageTicketAmount decimal(18,2) = NULL,
+        @NextLevelMinTicket decimal(18,2) = NULL,
+        @WindowMonths int = 12,
         @SnapshotId uniqueidentifier = NEWID();
 
     SELECT
@@ -26,26 +29,101 @@ BEGIN
     FROM dbo.customer_loyalty_balances b
     WHERE b.client_id = @ClientId;
 
+    SELECT TOP 1
+        @WindowMonths = evaluation_window_months
+    FROM dbo.loyalty_level_thresholds
+    WHERE status = 'active'
+    ORDER BY display_order ASC;
+
+    IF @WindowMonths IS NULL OR @WindowMonths < 1
+        SET @WindowMonths = 12;
+
     SELECT
         @PointsLast12m = ISNULL(SUM(CASE WHEN e.points_delta > 0 THEN e.points_delta ELSE 0 END), 0),
-        @AverageTicketAmount = ISNULL(AVG(CAST(ISNULL(e.monetary_amount, 0) AS decimal(18,2))), 0)
+        @AverageTicketAmount = ISNULL(AVG(CAST(NULLIF(e.monetary_amount, 0) AS decimal(18,2))), 0)
     FROM dbo.customer_loyalty_events e
     WHERE e.client_id = @ClientId
-      AND e.occurred_at >= DATEADD(MONTH, -12, SYSUTCDATETIME());
+      AND e.occurred_at >= DATEADD(MONTH, -@WindowMonths, SYSUTCDATETIME());
 
     SELECT
         @RedemptionsLast12m = COUNT(1)
     FROM dbo.loyalty_redemptions r
     WHERE r.client_id = @ClientId
       AND r.status IN ('approved', 'used', 'completed')
-      AND r.requested_at >= DATEADD(MONTH, -12, SYSUTCDATETIME());
+      AND r.requested_at >= DATEADD(MONTH, -@WindowMonths, SYSUTCDATETIME());
 
     SELECT TOP 1
-        @PreviousScore = s.score_value
+        @PreviousLevelCode = s.level_code,
+        @PreviousAverageTicketAmount = s.average_ticket_amount
     FROM dbo.loyalty_score_snapshots s
     WHERE s.client_id = @ClientId
     ORDER BY s.calculated_at DESC, s.created_at DESC;
 
+    SELECT TOP 1
+        @LevelCode = level_code
+    FROM dbo.loyalty_level_thresholds
+    WHERE status = 'active'
+      AND @AverageTicketAmount >= min_average_ticket_amount
+      AND (
+            max_average_ticket_amount IS NULL
+            OR @AverageTicketAmount <= max_average_ticket_amount
+          )
+    ORDER BY display_order DESC;
+
+    IF @LevelCode IS NULL
+    BEGIN
+        SELECT TOP 1
+            @LevelCode = level_code
+        FROM dbo.loyalty_level_thresholds
+        WHERE status = 'active'
+        ORDER BY display_order ASC;
+    END
+
+    SELECT TOP 1
+        @NextLevelMinTicket = min_average_ticket_amount
+    FROM dbo.loyalty_level_thresholds
+    WHERE status = 'active'
+      AND min_average_ticket_amount > @AverageTicketAmount
+    ORDER BY min_average_ticket_amount ASC;
+
+    SET @UpgradeDistance =
+        CASE
+            WHEN @NextLevelMinTicket IS NULL THEN 0
+            ELSE CEILING(@NextLevelMinTicket - @AverageTicketAmount)
+        END;
+
+    SET @DowngradeRiskFlag =
+        CASE
+            WHEN @PreviousAverageTicketAmount IS NOT NULL
+             AND @PreviousAverageTicketAmount > @AverageTicketAmount
+             AND (@PreviousAverageTicketAmount - @AverageTicketAmount) >= 100
+            THEN 1
+            ELSE 0
+        END;
+
+    SET @LowRedemptionFlag =
+        CASE
+            WHEN @AvailablePoints >= 5000 AND @RedemptionsLast12m = 0 THEN 1
+            ELSE 0
+        END;
+
+    SET @TrendCode =
+        CASE
+            WHEN @DowngradeRiskFlag = 1 THEN 'downgrade'
+            WHEN @UpgradeDistance IS NOT NULL AND @UpgradeDistance > 0 AND @UpgradeDistance <= 100 THEN 'upgrade'
+            ELSE 'stable'
+        END;
+
+    SET @TrendReason =
+        CASE
+            WHEN @DowngradeRiskFlag = 1 THEN 'Queda relevante no ticket medio em relacao ao ultimo calculo.'
+            WHEN @UpgradeDistance IS NOT NULL AND @UpgradeDistance > 0 AND @UpgradeDistance <= 100 THEN 'Cliente proximo da proxima faixa por ticket medio.'
+            WHEN @LowRedemptionFlag = 1 THEN 'Saldo alto com baixa utilizacao do programa.'
+            ELSE 'Sem sinais criticos no momento.'
+        END;
+
+    /* Score operacional continua existindo apenas como indicador,
+       mas o nível NÃO é mais definido pelo score. */
     SET @ScoreValue =
         ISNULL(@AvailablePoints / 10, 0) +
         ISNULL(@PointsLast12m / 20, 0) +
@@ -55,50 +133,6 @@ BEGIN
             WHEN @RedemptionsLast12m >= 3 THEN 50
             WHEN @RedemptionsLast12m >= 1 THEN 20
             ELSE 0
-        END;
-
-    SET @LevelCode =
-        CASE
-            WHEN @ScoreValue >= 1000 THEN 'diamond'
-            WHEN @ScoreValue >= 700 THEN 'gold'
-            WHEN @ScoreValue >= 400 THEN 'silver'
-            ELSE 'bronze'
-        END;
-
-    IF @ScoreValue >= 1000
-        SET @UpgradeDistance = 0;
-    ELSE IF @ScoreValue >= 700
-        SET @UpgradeDistance = 1000 - @ScoreValue;
-    ELSE IF @ScoreValue >= 400
-        SET @UpgradeDistance = 700 - @ScoreValue;
-    ELSE
-        SET @UpgradeDistance = 400 - @ScoreValue;
-
-    SET @LowRedemptionFlag =
-        CASE
-            WHEN @AvailablePoints >= 5000 AND @RedemptionsLast12m = 0 THEN 1
-            ELSE 0
-        END;
-
-    SET @DowngradeRiskFlag =
-        CASE
-            WHEN @PreviousScore IS NOT NULL AND @PreviousScore > @ScoreValue AND (@PreviousScore - @ScoreValue) >= 100 THEN 1
-            ELSE 0
-        END;
-
-    SET @TrendCode =
-        CASE
-            WHEN @DowngradeRiskFlag = 1 THEN 'downgrade'
-            WHEN @UpgradeDistance <= 100 THEN 'upgrade'
-            ELSE 'stable'
-        END;
-
-    SET @TrendReason =
-        CASE
-            WHEN @DowngradeRiskFlag = 1 THEN 'Queda relevante de score na compara��o com o �ltimo c�lculo.'
-            WHEN @UpgradeDistance <= 100 THEN 'Cliente pr�ximo da pr�xima faixa.'
-            WHEN @LowRedemptionFlag = 1 THEN 'Saldo alto com baixa utiliza��o do programa.'
-            ELSE 'Sem sinais cr�ticos no momento.'
         END;
 
     EXEC dbo.usp_loyalty_score_snapshot_create
@@ -118,7 +152,6 @@ BEGIN
     SELECT *
     FROM dbo.loyalty_score_snapshots
     WHERE id = @SnapshotId;
-END
+END;
 GO
-
 

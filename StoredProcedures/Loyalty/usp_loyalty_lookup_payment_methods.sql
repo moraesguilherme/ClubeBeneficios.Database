@@ -9,14 +9,13 @@ BEGIN
         VALUES
             ('pix',           'PIX',                   1),
             ('cash',          'Dinheiro',              2),
-            ('credit_card',   'Cart�o de cr�dito',     3),
-            ('debit_card',    'Cart�o de d�bito',      4),
-            ('bank_transfer', 'Transfer�ncia',         5),
+            ('credit_card',   'Cartão de crédito',     3),
+            ('debit_card',    'Cartão de débito',      4),
+            ('bank_transfer', 'Transferência',         5),
             ('boleto',        'Boleto',                6),
             ('other',         'Outro',                 7)
     ) AS x(payment_method_code, payment_method_name, display_order)
     ORDER BY x.display_order;
 END
 GO
-
 

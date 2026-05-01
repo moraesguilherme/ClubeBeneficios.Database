@@ -7,12 +7,11 @@ BEGIN
     FROM
     (
         VALUES
-            ('upgrade',   'Pr�ximo de upgrade', 1),
-            ('stable',    'Est�vel',            2),
+            ('upgrade',   'Próximo de upgrade', 1),
+            ('stable',    'Estável',            2),
             ('downgrade', 'Risco de downgrade', 3)
     ) AS x(trend_code, trend_name, display_order)
     ORDER BY x.display_order;
 END
 GO
-
 

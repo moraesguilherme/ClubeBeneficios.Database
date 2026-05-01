@@ -7,15 +7,14 @@ BEGIN
     FROM
     (
         VALUES
-            ('scoring',        'Pontua��o',     1),
-            ('level',          'N�veis',        2),
+            ('scoring',        'Pontuação',     1),
+            ('level',          'Níveis',        2),
             ('redemption',     'Resgate',       3),
-            ('usage',          'Utiliza��o',    4),
+            ('usage',          'Utilização',    4),
             ('eligibility',    'Elegibilidade', 5),
             ('campaign_bonus', 'Campanha',      6)
     ) AS x(category_code, category_name, display_order)
     ORDER BY x.display_order;
 END
 GO
-
 

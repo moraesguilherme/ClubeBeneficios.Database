@@ -9,7 +9,7 @@ BEGIN
         VALUES
             ('day',      'Dia',       1),
             ('week',     'Semana',    2),
-            ('month',    'M�s',       3),
+            ('month',    'Mês',       3),
             ('quarter',  'Trimestre', 4),
             ('semester', 'Semestre',  5),
             ('year',     'Ano',       6)
@@ -17,5 +17,4 @@ BEGIN
     ORDER BY x.display_order;
 END
 GO
-
 

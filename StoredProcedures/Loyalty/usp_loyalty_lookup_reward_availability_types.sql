@@ -8,13 +8,12 @@ BEGIN
     (
         VALUES
             ('general',   'Uso geral',        1),
-            ('weekdays',  'Dias �teis',       2),
+            ('weekdays',  'Dias úteis',       2),
             ('weekend',   'Fim de semana',    3),
-            ('date_range','Per�odo espec�fico',4),
+            ('date_range','Período específico',4),
             ('custom',    'Personalizado',    5)
     ) AS x(availability_type_code, availability_type_name, display_order)
     ORDER BY x.display_order;
 END
 GO
-
 

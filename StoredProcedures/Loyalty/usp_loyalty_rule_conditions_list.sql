@@ -8,6 +8,7 @@ BEGIN
         rc.id,
         rc.rule_id,
         rc.condition_type,
+        rc.source_type,
         rc.service_type,
         rc.plan_type,
         rc.package_type,
@@ -24,7 +25,6 @@ BEGIN
     FROM dbo.loyalty_rule_conditions rc
     WHERE rc.rule_id = @RuleId
     ORDER BY rc.id;
-END
+END;
 GO
-
 

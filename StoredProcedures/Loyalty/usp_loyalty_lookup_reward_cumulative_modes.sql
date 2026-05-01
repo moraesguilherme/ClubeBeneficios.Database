@@ -8,11 +8,10 @@ BEGIN
     (
         VALUES
             ('stackable',      'Cumulativa',      1),
-            ('non_cumulative', 'N�o cumulativa',  2),
+            ('non_cumulative', 'Não cumulativa',  2),
             ('exclusive',      'Exclusiva',       3)
     ) AS x(cumulative_mode_code, cumulative_mode_name, display_order)
     ORDER BY x.display_order;
 END
 GO
-
 

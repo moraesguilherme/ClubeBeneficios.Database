@@ -19,7 +19,7 @@ BEGIN
 
     IF @ClientId IS NULL
     BEGIN
-        RAISERROR('Resgate n�o encontrado.', 16, 1);
+        RAISERROR('Resgate não encontrado.', 16, 1);
         RETURN;
     END
 
@@ -47,7 +47,7 @@ BEGIN
         'loyalty_redemption',
         CONVERT(varchar(100), @RedemptionId),
         @Points,
-        CONCAT('Revers�o de resgate: ', @Reason),
+        CONCAT('Reversão de resgate: ', @Reason),
         SYSUTCDATETIME(),
         SYSUTCDATETIME(),
         SYSUTCDATETIME(),
@@ -60,5 +60,4 @@ BEGIN
     SELECT status = 'reversed', event_id = @EventId;
 END
 GO
-
 

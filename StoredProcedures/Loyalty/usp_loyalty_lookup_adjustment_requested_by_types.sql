@@ -8,7 +8,7 @@ BEGIN
     (
         VALUES
             ('admin',     'Admin',     1),
-            ('operation', 'Opera��o',  2),
+            ('operation', 'Operação',  2),
             ('system',    'Sistema',   3),
             ('client',    'Cliente',   4),
             ('internal',  'Interno',   5)
@@ -16,5 +16,4 @@ BEGIN
     ORDER BY x.display_order;
 END
 GO
-
 

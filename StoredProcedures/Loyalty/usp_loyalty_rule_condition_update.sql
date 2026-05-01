@@ -1,6 +1,7 @@
 ﻿CREATE   PROCEDURE [dbo].[usp_loyalty_rule_condition_update]
     @ConditionId uniqueidentifier,
     @ConditionType varchar(50),
+    @SourceType varchar(50) = NULL,
     @ServiceType varchar(50) = NULL,
     @PlanType varchar(100) = NULL,
     @PackageType varchar(100) = NULL,
@@ -21,6 +22,7 @@ BEGIN
     UPDATE dbo.loyalty_rule_conditions
     SET
         condition_type = @ConditionType,
+        source_type = @SourceType,
         service_type = @ServiceType,
         plan_type = @PlanType,
         package_type = @PackageType,
@@ -39,7 +41,6 @@ BEGIN
     SELECT *
     FROM dbo.loyalty_rule_conditions
     WHERE id = @ConditionId;
-END
+END;
 GO
-
 
