@@ -89,7 +89,7 @@ BEGIN
             @ClientId,
             'rule_evaluation',
             'ignored',
-            'Nenhuma regra de pontuacao aplicavel para a linha ETL.',
+            'Nenhuma regra de pontuação aplicável para a linha ETL.',
             NULL,
             SYSUTCDATETIME()
         );
@@ -151,7 +151,7 @@ BEGIN
                 @ClientId,
                 'event_creation',
                 'ignored',
-                'Evento ja existente para esta linha ETL e regra.',
+                'Evento já existente para esta linha ETL e regra.',
                 NULL,
                 SYSUTCDATETIME()
             );
@@ -241,10 +241,10 @@ BEGIN
         EXEC dbo.usp_customer_loyalty_balance_rebuild
             @ClientId = @ClientId;
 
-        EXEC dbo.usp_loyalty_score_rebuild_by_client
+        EXEC dbo.usp_loyalty_metrics_rebuild_by_client
             @ClientId = @ClientId;
 
-        EXEC dbo.usp_loyalty_reclassify_client_by_latest_score
+        EXEC dbo.usp_loyalty_reclassify_client_by_latest_metrics
             @ClientId = @ClientId,
             @CreatedByUserId = @CreatedByUserId;
 
@@ -266,7 +266,7 @@ BEGIN
             @ClientId,
             'finalization',
             'processed',
-            'Saldo, score e nivel recalculados.',
+            'Saldo, métricas e nível recalculados.',
             NULL,
             SYSUTCDATETIME()
         );
@@ -278,6 +278,6 @@ BEGIN
         created_events = @CreatedEvents,
         ignored_rules = @IgnoredRules,
         failed_rules = @FailedRules;
-END;
+END
 GO
 

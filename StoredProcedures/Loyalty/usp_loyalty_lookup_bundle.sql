@@ -21,7 +21,7 @@ BEGIN
     EXEC dbo.usp_loyalty_lookup_adjustment_impact_types;
     EXEC dbo.usp_loyalty_lookup_adjustment_requested_by_types;
     EXEC dbo.usp_loyalty_lookup_adjustment_statuses;
-    EXEC dbo.usp_loyalty_lookup_score_trend_codes;
+    EXEC dbo.usp_loyalty_lookup_trend_codes;
     EXEC dbo.usp_loyalty_lookup_processing_stages;
     EXEC dbo.usp_loyalty_lookup_processing_statuses;
     EXEC dbo.usp_loyalty_lookup_campaign_audience_types;

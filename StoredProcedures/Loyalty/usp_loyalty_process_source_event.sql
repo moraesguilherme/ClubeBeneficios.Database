@@ -58,7 +58,7 @@ BEGIN
             @ClientId,
             'rule_evaluation',
             'ignored',
-            CONCAT('Nenhuma regra aplicavel para ', @SourceType, ' / ', @ConditionType, '.'),
+            CONCAT('Nenhuma regra aplicável para ', @SourceType, ' / ', @ConditionType, '.'),
             NULL,
             SYSUTCDATETIME()
         );
@@ -124,7 +124,7 @@ BEGIN
                 @ClientId,
                 'event_creation',
                 'ignored',
-                'Evento ja existente para esta origem/regra/referencia.',
+                'Evento já existente para esta origem/regra/referência.',
                 NULL,
                 SYSUTCDATETIME()
             );
@@ -157,29 +157,6 @@ BEGIN
                     @CreatedByUserId = @CreatedByUserId;
 
                 SET @CreatedEvents += 1;
-
-                INSERT INTO dbo.loyalty_processing_log
-                (
-                    id,
-                    import_row_id,
-                    client_id,
-                    processing_stage,
-                    processing_status,
-                    message,
-                    loyalty_event_id,
-                    created_at
-                )
-                VALUES
-                (
-                    NEWID(),
-                    NULL,
-                    @ClientId,
-                    'event_creation',
-                    'processed',
-                    CONCAT('Evento criado para regra ', CONVERT(varchar(36), @RuleId), '. Pontos: ', @PointsDelta),
-                    @EventId,
-                    SYSUTCDATETIME()
-                );
             END TRY
             BEGIN CATCH
                 SET @FailedRules += 1;
@@ -239,7 +216,7 @@ BEGIN
             @ClientId,
             'finalization',
             'processed',
-            'Saldo, score e nivel recalculados apos evento de cliente/pet.',
+            'Saldo, métricas e nível recalculados após evento de cliente/pet.',
             NULL,
             SYSUTCDATETIME()
         );
@@ -253,6 +230,6 @@ BEGIN
         created_events = @CreatedEvents,
         ignored_rules = @IgnoredRules,
         failed_rules = @FailedRules;
-END;
+END
 GO
 

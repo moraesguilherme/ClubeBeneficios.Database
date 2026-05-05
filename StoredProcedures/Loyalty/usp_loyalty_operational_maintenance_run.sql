@@ -7,8 +7,8 @@ BEGIN
     EXEC dbo.usp_loyalty_operational_sync_scheduled_entities;
     EXEC dbo.usp_loyalty_redemptions_expire_due;
     EXEC dbo.usp_loyalty_points_expire_due;
-    EXEC dbo.usp_loyalty_score_rebuild_batch;
-    EXEC dbo.usp_loyalty_reclassify_batch_by_latest_score
+    EXEC dbo.usp_loyalty_metrics_rebuild_batch;
+    EXEC dbo.usp_loyalty_reclassify_batch_by_latest_metrics
         @CreatedByUserId = @CreatedByUserId;
 
     SELECT

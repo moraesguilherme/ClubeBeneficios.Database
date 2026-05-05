@@ -39,7 +39,7 @@ BEGIN
         @NewPetProcessedPets int = 0,
         @NewPetCreatedEvents int = 0,
 
-        @ScoreProcessedClients int = 0,
+        @MetricsProcessedClients int = 0,
         @ReclassificationProcessedClients int = 0;
 
     CREATE TABLE #EtlResult
@@ -234,23 +234,23 @@ BEGIN
     DROP TABLE #NewPetResult;
 
     BEGIN TRY
-        CREATE TABLE #ScoreResult
+        CREATE TABLE #MetricsResult
         (
             processed_clients int
         );
 
-        INSERT INTO #ScoreResult
-        EXEC dbo.usp_loyalty_score_rebuild_batch;
+        INSERT INTO #MetricsResult
+        EXEC dbo.usp_loyalty_metrics_rebuild_batch;
 
         SELECT
-            @ScoreProcessedClients = ISNULL(processed_clients, 0)
-        FROM #ScoreResult;
+            @MetricsProcessedClients = ISNULL(processed_clients, 0)
+        FROM #MetricsResult;
 
-        DROP TABLE #ScoreResult;
+        DROP TABLE #MetricsResult;
     END TRY
     BEGIN CATCH
-        IF OBJECT_ID('tempdb..#ScoreResult') IS NOT NULL
-            DROP TABLE #ScoreResult;
+        IF OBJECT_ID('tempdb..#MetricsResult') IS NOT NULL
+            DROP TABLE #MetricsResult;
 
         INSERT INTO dbo.loyalty_processing_log
         (
@@ -268,9 +268,9 @@ BEGIN
             NEWID(),
             NULL,
             NULL,
-            'score_rebuild',
+            'metrics_rebuild',
             'failed',
-            CONCAT('Falha no rebuild geral de score: ', ERROR_MESSAGE()),
+            CONCAT('Falha no rebuild geral de metrics: ', ERROR_MESSAGE()),
             NULL,
             SYSUTCDATETIME()
         );
@@ -283,7 +283,7 @@ BEGIN
         );
 
         INSERT INTO #ReclassifyResult
-        EXEC dbo.usp_loyalty_reclassify_batch_by_latest_score
+        EXEC dbo.usp_loyalty_reclassify_batch_by_latest_metrics
             @CreatedByUserId = @CreatedByUserId;
 
         SELECT
@@ -340,7 +340,7 @@ BEGIN
         new_pet_processed_pets = @NewPetProcessedPets,
         new_pet_created_events = @NewPetCreatedEvents,
 
-        score_processed_clients = @ScoreProcessedClients,
+        metrics_processed_clients = @MetricsProcessedClients,
         reclassification_processed_clients = @ReclassificationProcessedClients,
 
         total_created_events =

@@ -10,15 +10,14 @@ BEGIN
     FROM dbo.clients c
     WHERE c.id = @ClientId;
 
-    SELECT
-        *
+    SELECT *
     FROM dbo.customer_loyalty_balances
     WHERE client_id = @ClientId;
 
     SELECT TOP 1 *
-    FROM dbo.loyalty_score_snapshots
+    FROM dbo.customer_loyalty_metric_snapshots
     WHERE client_id = @ClientId
-    ORDER BY calculated_at DESC;
+    ORDER BY calculated_at DESC, created_at DESC;
 
     SELECT TOP 1 *
     FROM dbo.loyalty_level_history

@@ -10,7 +10,7 @@ BEGIN
             ('points',      'Pontos',         1),
             ('eligibility', 'Elegibilidade',  2),
             ('level',       'Nível',          3),
-            ('score',       'Score',          4),
+            ('metrics',     'Métricas',       4),
             ('mixed',       'Misto',          5),
             ('none',        'Sem impacto',    6)
     ) AS x(impact_type_code, impact_type_name, display_order)
