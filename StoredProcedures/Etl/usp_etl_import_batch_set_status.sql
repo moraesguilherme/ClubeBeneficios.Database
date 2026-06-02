@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_batch_set_status]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_batch_set_status]
     @BatchId uniqueidentifier,
     @Status varchar(30),
     @FinishedAt datetime2(7) = NULL,
@@ -22,7 +22,5 @@ BEGIN
     FROM dbo.etl_import_batches
     WHERE id = @BatchId;
 END
-
 GO
-
 

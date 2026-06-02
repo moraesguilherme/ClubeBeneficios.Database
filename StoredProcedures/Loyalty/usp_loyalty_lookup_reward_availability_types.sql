@@ -7,11 +7,9 @@ BEGIN
     FROM
     (
         VALUES
-            ('general',   'Uso geral',        1),
-            ('weekdays',  'Dias úteis',       2),
-            ('weekend',   'Fim de semana',    3),
-            ('date_range','Período específico',4),
-            ('custom',    'Personalizado',    5)
+            ('general',  'Geral',    1),
+            ('limited',  'Limitada', 2),
+            ('seasonal', 'Sazonal',  3)
     ) AS x(availability_type_code, availability_type_name, display_order)
     ORDER BY x.display_order;
 END

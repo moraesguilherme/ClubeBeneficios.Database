@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_set_status]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_set_status]
     @ImportRowId bigint,
     @Status varchar(30)
 AS
@@ -52,3 +52,4 @@ BEGIN
     WHERE id = @ImportRowId;
 END
 GO
+

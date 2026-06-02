@@ -7,9 +7,9 @@ BEGIN
     FROM
     (
         VALUES
-            ('manual_review',    'Revisão manual',      1),
-            ('auto_approve',     'Aprovação automática',2),
-            ('approval_required', 'Aprovação obrigatória', 3)
+            ('approval_required', 'Aprovação obrigatória', 1),
+            ('automatic',         'Automático',            2),
+            ('manual_review',     'Revisão manual',        3)
     ) AS x(redemption_mode_code, redemption_mode_name, display_order)
     ORDER BY x.display_order;
 END

@@ -3,7 +3,9 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @ClientId uniqueidentifier;
+    DECLARE
+        @ClientId uniqueidentifier,
+        @ProcessedClients int = 0;
 
     DECLARE cur CURSOR LOCAL FAST_FORWARD FOR
         SELECT b.client_id
@@ -14,17 +16,45 @@ BEGIN
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        EXEC dbo.usp_loyalty_metrics_rebuild_by_client
-            @ClientId = @ClientId;
+        BEGIN TRY
+            EXEC dbo.usp_loyalty_metrics_rebuild_by_client
+                @ClientId = @ClientId,
+                @ReturnResult = 0;
+
+            SET @ProcessedClients += 1;
+        END TRY
+        BEGIN CATCH
+            INSERT INTO dbo.loyalty_processing_log
+            (
+                id,
+                import_row_id,
+                client_id,
+                processing_stage,
+                processing_status,
+                message,
+                loyalty_event_id,
+                created_at
+            )
+            VALUES
+            (
+                NEWID(),
+                NULL,
+                @ClientId,
+                'metrics_rebuild',
+                'failed',
+                ERROR_MESSAGE(),
+                NULL,
+                SYSUTCDATETIME()
+            );
+        END CATCH;
 
         FETCH NEXT FROM cur INTO @ClientId;
-    END
+    END;
 
     CLOSE cur;
     DEALLOCATE cur;
 
-    SELECT COUNT(1) AS processed_clients
-    FROM dbo.customer_loyalty_balances;
-END
+    SELECT @ProcessedClients AS processed_clients;
+END;
 GO
 

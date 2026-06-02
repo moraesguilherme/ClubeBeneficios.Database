@@ -43,8 +43,8 @@ BEGIN
             s.trend_code,
             s.trend_reason,
             s.average_ticket_amount,
-            s.available_points,
-            s.pending_points,
+            ISNULL(b.available_points, s.available_points) AS available_points,
+			ISNULL(b.pending_points, s.pending_points) AS pending_points,
             s.upgrade_distance_amount,
             s.downgrade_risk_flag,
             s.low_redemption_flag,
@@ -52,6 +52,8 @@ BEGIN
         FROM LatestMetrics s
         INNER JOIN dbo.clients c
             ON c.id = s.client_id
+		LEFT JOIN dbo.customer_loyalty_balances b
+			ON b.client_id = s.client_id
         WHERE s.rn = 1
           AND (@Search IS NULL OR LTRIM(RTRIM(@Search)) = '' OR c.full_name LIKE '%' + @Search + '%')
           AND (@LevelCode IS NULL OR @LevelCode = '' OR s.level_code = @LevelCode)

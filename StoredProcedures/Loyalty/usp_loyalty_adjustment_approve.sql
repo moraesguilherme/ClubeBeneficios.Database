@@ -30,12 +30,41 @@ BEGIN
 
     IF @CurrentStatus <> 'pending'
     BEGIN
-        RAISERROR('Somente ajustes pending podem ser aprovados.', 16, 1);
+        RAISERROR('Somente ajustes pendentes podem ser aprovados.', 16, 1);
         RETURN;
     END
 
     BEGIN TRY
         BEGIN TRAN;
+
+        IF @ImpactType IN ('points', 'mixed')
+        BEGIN
+            IF @PointsDelta IS NULL OR @PointsDelta = 0
+            BEGIN
+                RAISERROR('Ajuste com impacto em pontos exige points_delta diferente de zero.', 16, 1);
+                ROLLBACK TRAN;
+                RETURN;
+            END
+
+            IF @PointsDelta < 0
+            BEGIN
+                DECLARE @AvailablePoints int;
+
+                SELECT
+                    @AvailablePoints = ISNULL(available_points, 0)
+                FROM dbo.customer_loyalty_balances
+                WHERE client_id = @ClientId;
+
+                SET @AvailablePoints = ISNULL(@AvailablePoints, 0);
+
+                IF @AvailablePoints + @PointsDelta < 0
+                BEGIN
+                    RAISERROR('Saldo insuficiente para aprovar este ajuste de debito.', 16, 1);
+                    ROLLBACK TRAN;
+                    RETURN;
+                END
+            END
+        END
 
         UPDATE dbo.loyalty_adjustments
         SET
@@ -48,13 +77,6 @@ BEGIN
 
         IF @ImpactType IN ('points', 'mixed')
         BEGIN
-            IF @PointsDelta IS NULL OR @PointsDelta = 0
-            BEGIN
-                RAISERROR('Ajuste com impacto em pontos exige points_delta diferente de zero.', 16, 1);
-                ROLLBACK TRAN;
-                RETURN;
-            END
-
             IF @LedgerEventId IS NULL
                 SET @LedgerEventId = NEWID();
 
@@ -87,9 +109,9 @@ BEGIN
                 @LedgerEventId,
                 @ClientId,
                 'manual_adjustment',
-				CASE WHEN @PointsDelta > 0 THEN 'credit' ELSE 'debit' END,
-				'adjustment',
-				@AdjustmentId,
+                CASE WHEN @PointsDelta > 0 THEN 'credit' ELSE 'debit' END,
+                'adjustment',
+                @AdjustmentId,
                 NULL,
                 NULL,
                 NULL,
@@ -116,6 +138,7 @@ BEGIN
     BEGIN CATCH
         IF @@TRANCOUNT > 0
             ROLLBACK TRAN;
+
         THROW;
     END CATCH;
 

@@ -20,7 +20,7 @@ BEGIN
 
     IF @CurrentStatus <> 'pending'
     BEGIN
-        RAISERROR('Somente ajustes pending podem ser rejeitados.', 16, 1);
+        RAISERROR('Somente ajustes pendentes podem ser rejeitados.', 16, 1);
         RETURN;
     END
 

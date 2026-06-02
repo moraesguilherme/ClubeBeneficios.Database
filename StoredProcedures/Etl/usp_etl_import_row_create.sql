@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_create]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_create]
     @BatchId uniqueidentifier,
     @RowNumber int,
     @ExternalRowKey varchar(200),
@@ -128,5 +128,4 @@ BEGIN
     WHERE id = @InsertedId;
 END
 GO
-
 

@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_supersede]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_supersede]
     @ExistingImportRowId bigint,
     @ReplacedByImportRowId bigint = NULL
 AS
@@ -18,5 +18,4 @@ BEGIN
     WHERE id = @ExistingImportRowId;
 END
 GO
-
 

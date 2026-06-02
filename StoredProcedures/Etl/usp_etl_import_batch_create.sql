@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_batch_create]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_batch_create]
     @Id uniqueidentifier,
     @SourceName varchar(100),
     @SourceType varchar(50),
@@ -50,7 +50,5 @@ BEGIN
     FROM dbo.etl_import_batches
     WHERE id = @Id;
 END
-
 GO
-
 

@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[loyalty_processing_log](
 	[id] [uniqueidentifier] NOT NULL,
-	[import_row_id] [bigint] NOT NULL,
+	[import_row_id] [bigint] NULL,
 	[client_id] [uniqueidentifier] NULL,
 	[processing_stage] [varchar](30) NOT NULL,
 	[processing_status] [varchar](30) NOT NULL,
@@ -18,7 +18,7 @@ REFERENCES [dbo].[clients] ([id])
 GO
 ALTER TABLE [dbo].[loyalty_processing_log] CHECK CONSTRAINT [FK_loyalty_processing_log_clients]
 GO
-ALTER TABLE [dbo].[loyalty_processing_log]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_processing_log_processing_stage] CHECK  (([processing_stage]='finalization' OR [processing_stage]='score_rebuild' OR [processing_stage]='balance_rebuild' OR [processing_stage]='event_creation' OR [processing_stage]='eligibility_check'))
+ALTER TABLE [dbo].[loyalty_processing_log]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_processing_log_processing_stage] CHECK  (([processing_stage]='finalization' OR [processing_stage]='level_reclassification' OR [processing_stage]='metrics_rebuild' OR [processing_stage]='score_rebuild' OR [processing_stage]='balance_rebuild' OR [processing_stage]='event_creation' OR [processing_stage]='eligibility_check'))
 GO
 ALTER TABLE [dbo].[loyalty_processing_log] CHECK CONSTRAINT [CK_loyalty_processing_log_processing_stage]
 GO

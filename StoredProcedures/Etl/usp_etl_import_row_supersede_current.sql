@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_supersede_current]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_supersede_current]
     @ExternalRowKey varchar(300),
     @ReplacedByImportRowId bigint = NULL,
     @SupersededAt datetime2(7) = NULL
@@ -16,4 +16,6 @@ BEGIN
 
     SELECT @@ROWCOUNT AS affected_rows;
 END
+
 GO
+

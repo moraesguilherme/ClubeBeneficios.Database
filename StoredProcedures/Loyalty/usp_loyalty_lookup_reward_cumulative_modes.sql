@@ -7,9 +7,8 @@ BEGIN
     FROM
     (
         VALUES
-            ('stackable',      'Cumulativa',      1),
-            ('non_cumulative', 'Não cumulativa',  2),
-            ('exclusive',      'Exclusiva',       3)
+            ('non_cumulative', 'Não cumulativa', 1),
+            ('cumulative',     'Cumulativa',     2)
     ) AS x(cumulative_mode_code, cumulative_mode_name, display_order)
     ORDER BY x.display_order;
 END

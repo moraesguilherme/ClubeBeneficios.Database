@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_set_replacement_for_superseded]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_set_replacement_for_superseded]
     @ExternalRowKey varchar(300),
     @ReplacedByImportRowId bigint
 AS
@@ -15,3 +15,4 @@ BEGIN
     SELECT @@ROWCOUNT AS affected_rows;
 END
 GO
+

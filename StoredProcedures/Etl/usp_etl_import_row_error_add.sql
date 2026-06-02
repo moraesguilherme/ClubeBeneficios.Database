@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_error_add]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_error_add]
     @ImportRowId bigint,
     @ErrorCode varchar(100),
     @ErrorMessage varchar(2000),
@@ -66,5 +66,4 @@ BEGIN
     WHERE id = SCOPE_IDENTITY();
 END
 GO
-
 

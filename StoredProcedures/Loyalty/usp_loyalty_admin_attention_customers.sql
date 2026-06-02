@@ -16,6 +16,7 @@ BEGIN
             s.upgrade_distance_amount,
             s.average_ticket_amount,
             s.available_points,
+			s.pending_points,
             s.calculated_at,
             ROW_NUMBER() OVER (PARTITION BY s.client_id ORDER BY s.calculated_at DESC, s.created_at DESC) AS rn
         FROM dbo.customer_loyalty_metric_snapshots s
@@ -26,6 +27,7 @@ BEGIN
         s.level_code,
         s.average_ticket_amount,
         s.available_points,
+		s.pending_points,
         status_label =
             CASE
                 WHEN s.downgrade_risk_flag = 1 THEN 'Risco de downgrade'

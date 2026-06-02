@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_processing_run_finish]
+﻿CREATE PROCEDURE [dbo].[usp_etl_processing_run_finish]
     @Id uniqueidentifier,
     @Status varchar(30),
     @ProcessedItems int,
@@ -24,7 +24,5 @@ BEGIN
     FROM dbo.etl_processing_runs
     WHERE id = @Id;
 END
-
 GO
-
 

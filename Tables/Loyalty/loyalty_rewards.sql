@@ -37,11 +37,11 @@ REFERENCES [dbo].[users] ([id])
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [FK_loyalty_rewards_users_updated_by]
 GO
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_availability_type] CHECK  (([availability_type] IS NULL OR ([availability_type]='custom' OR [availability_type]='date_range' OR [availability_type]='weekend' OR [availability_type]='weekdays' OR [availability_type]='general')))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_availability_type] CHECK  (([availability_type] IS NULL OR ([availability_type]='seasonal' OR [availability_type]='limited' OR [availability_type]='general')))
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_availability_type]
 GO
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_cumulative_mode] CHECK  (([cumulative_mode] IS NULL OR ([cumulative_mode]='exclusive' OR [cumulative_mode]='non_cumulative' OR [cumulative_mode]='stackable')))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_cumulative_mode] CHECK  (([cumulative_mode] IS NULL OR ([cumulative_mode]='cumulative' OR [cumulative_mode]='non_cumulative')))
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_cumulative_mode]
 GO
@@ -57,11 +57,11 @@ ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewa
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_points_cost]
 GO
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_redemption_mode] CHECK  (([redemption_mode] IS NULL OR ([redemption_mode]='approval_required' OR [redemption_mode]='auto_approve' OR [redemption_mode]='manual_review')))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_redemption_mode] CHECK  (([redemption_mode] IS NULL OR ([redemption_mode]='manual_review' OR [redemption_mode]='automatic' OR [redemption_mode]='approval_required')))
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_redemption_mode]
 GO
-ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_season_type] CHECK  (([season_type] IS NULL OR ([season_type]='custom' OR [season_type]='all' OR [season_type]='high' OR [season_type]='low')))
+ALTER TABLE [dbo].[loyalty_rewards]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_rewards_season_type] CHECK  (([season_type] IS NULL OR ([season_type]='holiday' OR [season_type]='high_season' OR [season_type]='low_season' OR [season_type]='all')))
 GO
 ALTER TABLE [dbo].[loyalty_rewards] CHECK CONSTRAINT [CK_loyalty_rewards_season_type]
 GO

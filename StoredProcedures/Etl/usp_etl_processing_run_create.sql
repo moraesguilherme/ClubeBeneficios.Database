@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_processing_run_create]
+﻿CREATE PROCEDURE [dbo].[usp_etl_processing_run_create]
     @Id uniqueidentifier,
     @BatchId uniqueidentifier = NULL,
     @RunType varchar(50),
@@ -38,7 +38,5 @@ BEGIN
     FROM dbo.etl_processing_runs
     WHERE id = @Id;
 END
-
 GO
-
 

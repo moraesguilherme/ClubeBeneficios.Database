@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[usp_etl_import_row_resolve_state]
+﻿CREATE PROCEDURE [dbo].[usp_etl_import_row_resolve_state]
     @ExternalRowKey varchar(200),
     @SourceContentHash varchar(64)
 AS
@@ -37,5 +37,4 @@ BEGIN
         @ExistingId AS existing_import_row_id;
 END
 GO
-
 
