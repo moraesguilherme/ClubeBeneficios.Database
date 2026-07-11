@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_request_approval_get_by_id]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_request_approval_get_by_id]
     @BenefitRequestId UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -22,5 +22,4 @@ BEGIN
     ORDER BY rr.reviewed_at DESC, rr.created_at DESC;
 END
 GO
-
 

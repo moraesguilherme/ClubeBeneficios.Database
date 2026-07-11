@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partners_change_status]
+﻿CREATE   PROCEDURE [dbo].[usp_partners_change_status]
     @PartnerId        UNIQUEIDENTIFIER,
     @NewStatus        VARCHAR(30),
     @Reason           VARCHAR(800) = NULL,
@@ -44,5 +44,4 @@ BEGIN
     );
 END
 GO
-
 

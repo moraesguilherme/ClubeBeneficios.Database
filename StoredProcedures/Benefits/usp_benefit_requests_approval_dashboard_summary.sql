@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_requests_approval_dashboard_summary]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_requests_approval_dashboard_summary]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -14,5 +14,4 @@ BEGIN
     FROM dbo.vw_benefit_request_approval_queue;
 END
 GO
-
 

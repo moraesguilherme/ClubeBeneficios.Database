@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_requests_pending_review_search]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_requests_pending_review_search]
     @Search VARCHAR(150) = NULL,
     @RequesterType VARCHAR(30) = NULL,
     @ApprovalStatus VARCHAR(30) = NULL,
@@ -30,5 +30,4 @@ BEGIN
         q.requested_at DESC;
 END
 GO
-
 

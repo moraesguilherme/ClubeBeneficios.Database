@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_benefits_pending_list]
+﻿CREATE   VIEW [dbo].[vw_benefits_pending_list]
 AS
 SELECT
     b.id,
@@ -32,5 +32,4 @@ OUTER APPLY
 WHERE b.status IN ('pending_review', 'under_review');
 
 GO
-
 

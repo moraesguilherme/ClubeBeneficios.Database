@@ -1,4 +1,4 @@
-﻿CREATE   PROCEDURE [dbo].[usp_loyalty_redemption_mark_used]
+﻿CREATE PROCEDURE [dbo].[usp_loyalty_redemption_mark_used]
     @RedemptionId uniqueidentifier,
     @DecisionNotes varchar(1500) = NULL,
     @DecidedByUserId uniqueidentifier = NULL
@@ -6,9 +6,13 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @CurrentStatus varchar(30);
+    DECLARE 
+        @CurrentStatus varchar(30),
+        @ScheduledFor datetime2(7);
 
-    SELECT @CurrentStatus = status
+    SELECT 
+        @CurrentStatus = status,
+        @ScheduledFor = scheduled_for
     FROM dbo.loyalty_redemptions
     WHERE id = @RedemptionId;
 
@@ -21,6 +25,13 @@ BEGIN
     IF @CurrentStatus <> 'approved'
     BEGIN
         RAISERROR('Somente resgates approved podem ser marcados como used.', 16, 1);
+        RETURN;
+    END
+
+    IF @ScheduledFor IS NOT NULL
+       AND @ScheduledFor > SYSUTCDATETIME()
+    BEGIN
+        RAISERROR('A recompensa ainda nao pode ser marcada como utilizada antes da data agendada.', 16, 1);
         RETURN;
     END
 

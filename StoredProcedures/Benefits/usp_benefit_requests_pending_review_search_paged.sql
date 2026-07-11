@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_requests_pending_review_search_paged]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_requests_pending_review_search_paged]
     @Search VARCHAR(150) = NULL,
     @RequesterType VARCHAR(30) = NULL,
     @ApprovalStatus VARCHAR(30) = NULL,
@@ -47,5 +47,4 @@ BEGIN
     ORDER BY rn;
 END
 GO
-
 

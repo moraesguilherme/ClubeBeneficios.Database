@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_clients_admin_search_paged]
+﻿CREATE   PROCEDURE [dbo].[usp_clients_admin_search_paged]
     @Search VARCHAR(150) = NULL,
     @Status VARCHAR(30) = NULL,
     @OriginType VARCHAR(30) = NULL,
@@ -37,5 +37,4 @@ BEGIN
     ORDER BY rn;
 END
 GO
-
 

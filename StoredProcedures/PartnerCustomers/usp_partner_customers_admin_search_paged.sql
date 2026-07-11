@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partner_customers_admin_search_paged]
+﻿CREATE   PROCEDURE [dbo].[usp_partner_customers_admin_search_paged]
     @Search VARCHAR(150) = NULL,
     @PartnerId UNIQUEIDENTIFIER = NULL,
     @Status VARCHAR(30) = NULL,
@@ -61,5 +61,4 @@ BEGIN
     ORDER BY rn;
 END
 GO
-
 

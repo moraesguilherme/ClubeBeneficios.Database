@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partner_levels_recalculate]
+﻿CREATE   PROCEDURE [dbo].[usp_partner_levels_recalculate]
     @PartnerId UNIQUEIDENTIFIER,
     @ChangedByUserId UNIQUEIDENTIFIER = NULL
 AS
@@ -62,5 +62,4 @@ BEGIN
 	END
 
 GO
-
 

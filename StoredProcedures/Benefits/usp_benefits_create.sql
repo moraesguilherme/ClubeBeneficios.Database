@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefits_create]
+﻿CREATE   PROCEDURE [dbo].[usp_benefits_create]
     @PartnerId UNIQUEIDENTIFIER,
     @Title VARCHAR(180),
     @BenefitType VARCHAR(40),
@@ -46,98 +46,114 @@ BEGIN
 
     DECLARE @BenefitId UNIQUEIDENTIFIER = NEWID();
 
-    BEGIN TRANSACTION;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    INSERT INTO dbo.benefits
-    (
-        id, partner_id, created_by_user_id, updated_by_user_id,
-        title, benefit_type, direction, target_actor_type, status,
-        short_description, full_description, internal_notes,
-        eligibility_type, recurrence_type, recurrence_value, recurrence_period,
-        validity_type, starts_at, ends_at,
-        requires_manual_release, auto_activate_when_approved, highlight_in_showcase,
-        allow_first_use_only, requires_active_access_code, requires_partner_availability, requires_matilha_acceptance_rules,
-        stacking_rule, created_at, updated_at
-    )
-    VALUES
-    (
-        @BenefitId, @PartnerId, @CreatedByUserId, @CreatedByUserId,
-        @Title, @BenefitType, @Direction, @TargetActorType, @InitialStatus,
-        @ShortDescription, @FullDescription, @InternalNotes,
-        @EligibilityType, @RecurrenceType, @RecurrenceValue, @RecurrencePeriod,
-        @ValidityType, @StartsAt, @EndsAt,
-        @RequiresManualRelease, @AutoActivateWhenApproved, @HighlightInShowcase,
-        @AllowFirstUseOnly, @RequiresActiveAccessCode, @RequiresPartnerAvailability, @RequiresMatilhaAcceptanceRules,
-        @StackingRule, SYSUTCDATETIME(), SYSUTCDATETIME()
-    );
-
-    IF @LevelCodesCsv IS NOT NULL AND LTRIM(RTRIM(@LevelCodesCsv)) <> ''
-    BEGIN
-        INSERT INTO dbo.benefit_level_scopes
+        INSERT INTO dbo.benefits
         (
-            id, benefit_id, level_type, level_code, created_at
-        )
-        SELECT
-            NEWID(), @BenefitId, ISNULL(@LevelType, 'client_level'), LTRIM(RTRIM(value)), SYSUTCDATETIME()
-        FROM STRING_SPLIT(@LevelCodesCsv, ',')
-        WHERE LTRIM(RTRIM(value)) <> '';
-    END
-
-    IF @EligibilityType IN ('behavior', 'hybrid')
-    BEGIN
-        INSERT INTO dbo.benefit_behavior_rules
-        (
-            id, benefit_id, min_frequency_enabled, min_frequency_value, frequency_window_months,
-            min_ticket_enabled, min_ticket_value, ticket_window_months,
-            first_use_only, requires_matilha_approval, custom_rule_text,
-            created_at, updated_at
+            id, partner_id, created_by_user_id, updated_by_user_id,
+            title, benefit_type, direction, target_actor_type, status,
+            short_description, full_description, internal_notes,
+            eligibility_type, recurrence_type, recurrence_value, recurrence_period,
+            validity_type, starts_at, ends_at,
+            requires_manual_release, auto_activate_when_approved, highlight_in_showcase,
+            allow_first_use_only, requires_active_access_code, requires_partner_availability, requires_matilha_acceptance_rules,
+            stacking_rule, created_at, updated_at
         )
         VALUES
         (
-            NEWID(), @BenefitId, @MinFrequencyEnabled, @MinFrequencyValue, @FrequencyWindowMonths,
-            @MinTicketEnabled, @MinTicketValue, @TicketWindowMonths,
-            @BehaviorFirstUseOnly, @BehaviorRequiresMatilhaApproval, @CustomRuleText,
-            SYSUTCDATETIME(), SYSUTCDATETIME()
+            @BenefitId, @PartnerId, @CreatedByUserId, @CreatedByUserId,
+            @Title, @BenefitType, @Direction, @TargetActorType, @InitialStatus,
+            @ShortDescription, @FullDescription, @InternalNotes,
+            @EligibilityType, @RecurrenceType, @RecurrenceValue, @RecurrencePeriod,
+            @ValidityType, @StartsAt, @EndsAt,
+            @RequiresManualRelease, @AutoActivateWhenApproved, @HighlightInShowcase,
+            @AllowFirstUseOnly, @RequiresActiveAccessCode, @RequiresPartnerAvailability, @RequiresMatilhaAcceptanceRules,
+            @StackingRule, SYSUTCDATETIME(), SYSUTCDATETIME()
         );
-    END
 
-    IF @EligibilityType IN ('code', 'hybrid') OR @RequiresAccessCode = 1 OR @RequiresActiveAccessCode = 1
-    BEGIN
-        INSERT INTO dbo.benefit_code_rules
+        IF @LevelCodesCsv IS NOT NULL AND LTRIM(RTRIM(@LevelCodesCsv)) <> ''
+        BEGIN
+            INSERT INTO dbo.benefit_level_scopes
+            (
+                id, benefit_id, level_type, level_code, created_at
+            )
+            SELECT
+                NEWID(), @BenefitId, ISNULL(@LevelType, 'client_level'), LTRIM(RTRIM(value)), SYSUTCDATETIME()
+            FROM STRING_SPLIT(@LevelCodesCsv, ',')
+            WHERE LTRIM(RTRIM(value)) <> '';
+        END
+
+        IF @EligibilityType IN ('behavior', 'hybrid')
+        BEGIN
+            INSERT INTO dbo.benefit_behavior_rules
+            (
+                id, benefit_id, min_frequency_enabled, min_frequency_value, frequency_window_months,
+                min_ticket_enabled, min_ticket_value, ticket_window_months,
+                first_use_only, requires_matilha_approval, custom_rule_text,
+                created_at, updated_at
+            )
+            VALUES
+            (
+                NEWID(), @BenefitId, @MinFrequencyEnabled, @MinFrequencyValue, @FrequencyWindowMonths,
+                @MinTicketEnabled, @MinTicketValue, @TicketWindowMonths,
+                @BehaviorFirstUseOnly, @BehaviorRequiresMatilhaApproval, @CustomRuleText,
+                SYSUTCDATETIME(), SYSUTCDATETIME()
+            );
+        END
+
+        IF @EligibilityType IN ('code', 'hybrid') OR @RequiresAccessCode = 1 OR @RequiresActiveAccessCode = 1
+        BEGIN
+            INSERT INTO dbo.benefit_code_rules
+            (
+                id, benefit_id, requires_access_code, allow_any_active_partner_code,
+                specific_access_code_id, code_validation_mode, created_at, updated_at
+            )
+            VALUES
+            (
+                NEWID(), @BenefitId, @RequiresAccessCode, @AllowAnyActivePartnerCode,
+                @SpecificAccessCodeId, @CodeValidationMode, SYSUTCDATETIME(), SYSUTCDATETIME()
+            );
+        END
+
+        INSERT INTO dbo.benefit_status_history
         (
-            id, benefit_id, requires_access_code, allow_any_active_partner_code,
-            specific_access_code_id, code_validation_mode, created_at, updated_at
+            benefit_id, from_status, to_status, reason, changed_by_user_id, changed_at
         )
         VALUES
         (
-            NEWID(), @BenefitId, @RequiresAccessCode, @AllowAnyActivePartnerCode,
-            @SpecificAccessCodeId, @CodeValidationMode, SYSUTCDATETIME(), SYSUTCDATETIME()
+            @BenefitId, NULL, @InitialStatus, 'Cadastro inicial do benefício.', @CreatedByUserId, SYSUTCDATETIME()
         );
-    END
 
-    INSERT INTO dbo.benefit_status_history
-    (
-        benefit_id, from_status, to_status, reason, changed_by_user_id, changed_at
-    )
-    VALUES
-    (
-        @BenefitId, NULL, @InitialStatus, 'Cadastro inicial do benefício.', @CreatedByUserId, SYSUTCDATETIME()
-    );
+        INSERT INTO dbo.benefit_metrics_snapshot
+        (
+            benefit_id, requests_count, approved_requests_count, usages_count, conversion_rate, refreshed_at
+        )
+        VALUES
+        (
+            @BenefitId, 0, 0, 0, 0, SYSUTCDATETIME()
+        );
 
-    INSERT INTO dbo.benefit_metrics_snapshot
-    (
-        benefit_id, requests_count, approved_requests_count, usages_count, conversion_rate, refreshed_at
-    )
-    VALUES
-    (
-        @BenefitId, 0, 0, 0, 0, SYSUTCDATETIME()
-    );
+        IF @InitialStatus IN ('pending_review', 'under_review')
+        BEGIN
+            EXEC dbo.usp_benefit_notification_enqueue
+                @BenefitId = @BenefitId,
+                @EventType = 'benefits.benefit.submitted',
+                @PreviousStatus = NULL,
+                @Reason = 'Benefício enviado para análise.',
+                @EventReferenceId = @BenefitId;
+        END
 
-    COMMIT TRANSACTION;
+        COMMIT TRANSACTION;
 
-    SELECT @BenefitId AS benefit_id;
+        SELECT @BenefitId AS benefit_id;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
 END
-
 GO
-
 

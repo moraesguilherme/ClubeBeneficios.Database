@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[clients](
+﻿CREATE TABLE [dbo].[clients](
 	[id] [uniqueidentifier] NOT NULL,
 	[user_id] [uniqueidentifier] NULL,
 	[full_name] [varchar](150) NOT NULL,
@@ -31,35 +31,24 @@ CREATE TABLE [dbo].[clients](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  DEFAULT (newsequentialid()) FOR [id]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_origin_type]  DEFAULT ('manual') FOR [origin_type]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_status]  DEFAULT ('lead') FOR [status]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_accepts_marketing]  DEFAULT ((0)) FOR [accepts_marketing]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_created_at]  DEFAULT (sysutcdatetime()) FOR [created_at]
 GO
-
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_updated_at]  DEFAULT (sysutcdatetime()) FOR [updated_at]
 GO
-
 ALTER TABLE [dbo].[clients]  WITH CHECK ADD  CONSTRAINT [CK_clients_origin_type] CHECK  (([origin_type]='internal_import' OR [origin_type]='partner_conversion' OR [origin_type]='indication' OR [origin_type]='landing_page' OR [origin_type]='site' OR [origin_type]='manual'))
 GO
-
 ALTER TABLE [dbo].[clients] CHECK CONSTRAINT [CK_clients_origin_type]
 GO
-
 ALTER TABLE [dbo].[clients]  WITH CHECK ADD  CONSTRAINT [CK_clients_status] CHECK  (([status]='archived' OR [status]='blocked' OR [status]='inactive' OR [status]='active' OR [status]='pending_behavior_evaluation' OR [status]='pending_documents' OR [status]='pending_profile' OR [status]='lead'))
 GO
-
 ALTER TABLE [dbo].[clients] CHECK CONSTRAINT [CK_clients_status]
 GO
-
 

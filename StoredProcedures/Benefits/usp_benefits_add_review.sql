@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefits_add_review]
+﻿CREATE   PROCEDURE [dbo].[usp_benefits_add_review]
     @BenefitId UNIQUEIDENTIFIER,
     @ReviewStatus VARCHAR(30),
     @ReviewPoint VARCHAR(200) = NULL,
@@ -26,5 +26,4 @@ BEGIN
 END
 
 GO
-
 

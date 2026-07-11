@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_client_benefit_dashboard_summary]
+﻿CREATE   PROCEDURE [dbo].[usp_client_benefit_dashboard_summary]
     @ClientId UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -25,5 +25,4 @@ BEGIN
     ORDER BY requested_at DESC, updated_at DESC;
 END
 GO
-
 

@@ -20,6 +20,7 @@
 	[decided_by_user_id] [uniqueidentifier] NULL,
 	[created_at] [datetime2](7) NOT NULL,
 	[updated_at] [datetime2](7) NOT NULL,
+	[scheduled_for] [datetime2](7) NULL,
  CONSTRAINT [PK_loyalty_redemptions] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC

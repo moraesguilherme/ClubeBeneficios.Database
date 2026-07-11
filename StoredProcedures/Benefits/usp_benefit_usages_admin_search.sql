@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_usages_admin_search]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_usages_admin_search]
     @Search VARCHAR(150) = NULL,
     @UsedByType VARCHAR(30) = NULL,
     @UsageStatus VARCHAR(30) = NULL,
@@ -24,5 +24,4 @@ BEGIN
     ORDER BY v.used_at DESC, v.created_at DESC;
 END
 GO
-
 

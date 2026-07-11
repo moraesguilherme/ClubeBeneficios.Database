@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_requests_admin_search_paged]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_requests_admin_search_paged]
     @Search VARCHAR(150) = NULL,
     @RequesterType VARCHAR(30) = NULL,
     @RequestStatus VARCHAR(30) = NULL,
@@ -43,5 +43,4 @@ BEGIN
     ORDER BY rn;
 END
 GO
-
 

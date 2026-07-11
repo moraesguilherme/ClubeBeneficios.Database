@@ -1,36 +1,41 @@
-﻿CREATE TABLE dbo.refresh_tokens
+﻿CREATE TABLE [dbo].[refresh_tokens](
+	[id] [uniqueidentifier] NOT NULL,
+	[session_id] [uniqueidentifier] NOT NULL,
+	[user_id] [uniqueidentifier] NULL,
+	[partner_customer_id] [uniqueidentifier] NULL,
+	[token] [varchar](500) NOT NULL,
+	[expires_at] [datetime2](7) NOT NULL,
+	[created_at] [datetime2](7) NOT NULL,
+	[revoked_at] [datetime2](7) NULL,
+	[replaced_by_token] [varchar](500) NULL,
+	[created_by_ip] [varchar](100) NULL,
+PRIMARY KEY CLUSTERED 
 (
-    id                      UNIQUEIDENTIFIER   NOT NULL,
-    session_id              UNIQUEIDENTIFIER   NOT NULL,
-    user_id                 UNIQUEIDENTIFIER   NULL,
-    partner_customer_id     UNIQUEIDENTIFIER   NULL,
-    token                   VARCHAR(500)       NOT NULL,
-    expires_at              DATETIME2(7)       NOT NULL,
-    created_at              DATETIME2(7)       NOT NULL,
-    revoked_at              DATETIME2(7)       NULL,
-    replaced_by_token       VARCHAR(500)       NULL,
-    created_by_ip           VARCHAR(100)       NULL,
-
-    CONSTRAINT PK_refresh_tokens PRIMARY KEY CLUSTERED (id ASC),
-    CONSTRAINT UQ_refresh_tokens_token UNIQUE NONCLUSTERED (token ASC),
-    CONSTRAINT FK_refresh_tokens_sessions FOREIGN KEY (session_id) REFERENCES dbo.sessions(id),
-    CONSTRAINT FK_refresh_tokens_users FOREIGN KEY (user_id) REFERENCES dbo.users(id),
-    CONSTRAINT FK_refresh_tokens_partner_customers FOREIGN KEY (partner_customer_id) REFERENCES dbo.partner_customers(id),
-    CONSTRAINT CK_refresh_tokens_actor CHECK (
-        (CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END +
-         CASE WHEN partner_customer_id IS NOT NULL THEN 1 ELSE 0 END) = 1
-    )
-);
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_refresh_tokens_token] UNIQUE NONCLUSTERED 
+(
+	[token] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[refresh_tokens]  WITH CHECK ADD  CONSTRAINT [FK_refresh_tokens_partner_customers] FOREIGN KEY([partner_customer_id])
+REFERENCES [dbo].[partner_customers] ([id])
+GO
+ALTER TABLE [dbo].[refresh_tokens] CHECK CONSTRAINT [FK_refresh_tokens_partner_customers]
+GO
+ALTER TABLE [dbo].[refresh_tokens]  WITH CHECK ADD  CONSTRAINT [FK_refresh_tokens_sessions] FOREIGN KEY([session_id])
+REFERENCES [dbo].[sessions] ([id])
+GO
+ALTER TABLE [dbo].[refresh_tokens] CHECK CONSTRAINT [FK_refresh_tokens_sessions]
+GO
+ALTER TABLE [dbo].[refresh_tokens]  WITH CHECK ADD  CONSTRAINT [FK_refresh_tokens_users] FOREIGN KEY([user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+ALTER TABLE [dbo].[refresh_tokens] CHECK CONSTRAINT [FK_refresh_tokens_users]
+GO
+ALTER TABLE [dbo].[refresh_tokens]  WITH CHECK ADD  CONSTRAINT [CK_refresh_tokens_actor] CHECK  (((case when [user_id] IS NOT NULL then (1) else (0) end+case when [partner_customer_id] IS NOT NULL then (1) else (0) end)=(1)))
+GO
+ALTER TABLE [dbo].[refresh_tokens] CHECK CONSTRAINT [CK_refresh_tokens_actor]
 GO
 
-CREATE INDEX IX_refresh_tokens_session_id
-    ON dbo.refresh_tokens(session_id);
-GO
-
-CREATE INDEX IX_refresh_tokens_user_id
-    ON dbo.refresh_tokens(user_id);
-GO
-
-CREATE INDEX IX_refresh_tokens_partner_customer_id
-    ON dbo.refresh_tokens(partner_customer_id);
-GO

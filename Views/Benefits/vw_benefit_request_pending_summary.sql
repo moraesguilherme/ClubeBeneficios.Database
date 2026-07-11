@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_benefit_request_pending_summary]
+﻿CREATE   VIEW [dbo].[vw_benefit_request_pending_summary]
 AS
 SELECT
     r.partner_id,
@@ -25,5 +25,4 @@ GROUP BY
     r.benefit_id,
     b.title;
 GO
-
 

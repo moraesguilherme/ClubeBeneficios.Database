@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partners_admin_search]
+﻿CREATE   PROCEDURE [dbo].[usp_partners_admin_search]
     @Search         VARCHAR(150) = NULL,
     @Status         VARCHAR(30)  = NULL,
     @Level          VARCHAR(30)  = NULL,
@@ -105,5 +105,4 @@ BEGIN
     FETCH NEXT @PageSize ROWS ONLY;
 END
 GO
-
 

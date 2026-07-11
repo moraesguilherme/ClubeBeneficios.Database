@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partner_customers_partner_filter_options]
+﻿CREATE   PROCEDURE [dbo].[usp_partner_customers_partner_filter_options]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,5 +18,4 @@ BEGIN
     ORDER BY p.trade_name;
 END
 GO
-
 

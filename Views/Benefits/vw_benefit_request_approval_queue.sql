@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_benefit_request_approval_queue]
+﻿CREATE   VIEW [dbo].[vw_benefit_request_approval_queue]
 AS
 SELECT
     r.id,
@@ -110,5 +110,4 @@ WHERE
     r.review_required = 1
     OR r.approval_status IS NOT NULL;
 GO
-
 

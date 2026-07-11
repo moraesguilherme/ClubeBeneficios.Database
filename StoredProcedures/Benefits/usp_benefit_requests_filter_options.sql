@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefit_requests_filter_options]
+﻿CREATE   PROCEDURE [dbo].[usp_benefit_requests_filter_options]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -9,9 +9,9 @@ BEGIN
     UNION ALL
     SELECT 'request_statuses', 'requested', 'Solicitado'
     UNION ALL
-    SELECT 'request_statuses', 'pending_review', 'Pendente de an�lise'
+    SELECT 'request_statuses', 'pending_review', 'Pendente de análise'
     UNION ALL
-    SELECT 'request_statuses', 'under_review', 'Em an�lise'
+    SELECT 'request_statuses', 'under_review', 'Em análise'
     UNION ALL
     SELECT 'request_statuses', 'approved', 'Aprovado'
     UNION ALL
@@ -23,13 +23,13 @@ BEGIN
     UNION ALL
     SELECT 'request_statuses', 'scheduled', 'Agendado'
     UNION ALL
-    SELECT 'request_statuses', 'no_show', 'N�o compareceu'
+    SELECT 'request_statuses', 'no_show', 'Não compareceu'
     UNION ALL
-    SELECT 'request_statuses', 'converted_to_usage', 'Convertido em utiliza��o'
+    SELECT 'request_statuses', 'converted_to_usage', 'Convertido em utilização'
     UNION ALL
-    SELECT 'approval_statuses', 'pending_review', 'Pendente de an�lise'
+    SELECT 'approval_statuses', 'pending_review', 'Pendente de análise'
     UNION ALL
-    SELECT 'approval_statuses', 'under_review', 'Em an�lise'
+    SELECT 'approval_statuses', 'under_review', 'Em análise'
     UNION ALL
     SELECT 'approval_statuses', 'approved', 'Aprovado'
     UNION ALL
@@ -44,5 +44,4 @@ BEGIN
     SELECT 'pet_source_types', 'partner_customer_pet', 'Pet do cliente parceiro';
 END
 GO
-
 

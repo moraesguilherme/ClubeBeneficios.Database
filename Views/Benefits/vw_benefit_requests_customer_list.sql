@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_benefit_requests_customer_list]
+﻿CREATE   VIEW [dbo].[vw_benefit_requests_customer_list]
 AS
 SELECT
     r.id,
@@ -39,5 +39,4 @@ LEFT JOIN dbo.client_pets cp
 LEFT JOIN dbo.partner_customer_pets pcp
     ON pcp.id = r.requester_partner_customer_pet_id;
 GO
-
 

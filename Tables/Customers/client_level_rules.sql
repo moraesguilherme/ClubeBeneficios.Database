@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[client_level_rules](
+﻿CREATE TABLE [dbo].[client_level_rules](
 	[id] [uniqueidentifier] NOT NULL,
 	[level_code] [varchar](30) NOT NULL,
 	[min_monthly_usage] [int] NULL,
@@ -19,11 +19,8 @@ CREATE TABLE [dbo].[client_level_rules](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-
 ALTER TABLE [dbo].[client_level_rules]  WITH CHECK ADD  CONSTRAINT [CK_client_level_rules_level_code] CHECK  (([level_code]='platinum' OR [level_code]='diamond' OR [level_code]='gold' OR [level_code]='silver' OR [level_code]='bronze'))
 GO
-
 ALTER TABLE [dbo].[client_level_rules] CHECK CONSTRAINT [CK_client_level_rules_level_code]
 GO
-
 

@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partner_customer_benefit_requests_list]
+﻿CREATE   PROCEDURE [dbo].[usp_partner_customer_benefit_requests_list]
     @PartnerCustomerId UNIQUEIDENTIFIER
 AS
 BEGIN
@@ -11,5 +11,4 @@ BEGIN
     ORDER BY requested_at DESC, updated_at DESC;
 END
 GO
-
 

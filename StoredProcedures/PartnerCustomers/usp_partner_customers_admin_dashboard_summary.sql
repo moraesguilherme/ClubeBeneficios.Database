@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_partner_customers_admin_dashboard_summary]
+﻿CREATE   PROCEDURE [dbo].[usp_partner_customers_admin_dashboard_summary]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -11,5 +11,4 @@ BEGIN
     ORDER BY partner_name;
 END
 GO
-
 

@@ -1,4 +1,4 @@
-CREATE   PROCEDURE [dbo].[usp_benefits_module_operational_summary]
+﻿CREATE   PROCEDURE [dbo].[usp_benefits_module_operational_summary]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -15,5 +15,4 @@ BEGIN
         (SELECT COUNT(1) FROM dbo.partner_customers) AS total_partner_customers;
 END
 GO
-
 

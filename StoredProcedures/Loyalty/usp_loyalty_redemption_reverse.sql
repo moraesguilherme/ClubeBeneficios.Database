@@ -44,7 +44,7 @@ BEGIN
         @ClientId,
         'redemption_reversal',
         'credit',
-        'loyalty_redemption',
+        'redemption',
         CONVERT(varchar(100), @RedemptionId),
         @Points,
         CONCAT('Reversão de resgate: ', @Reason),

@@ -93,7 +93,7 @@ BEGIN
             @ClientId,
             'reward_redemption',
             'debit',
-            'loyalty_redemption',
+            'redemption',
             CONVERT(varchar(100), @RedemptionId),
             NULL,
             NULL,

@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_benefit_request_detail]
+﻿CREATE   VIEW [dbo].[vw_benefit_request_detail]
 AS
 SELECT
     r.id,
@@ -99,5 +99,4 @@ LEFT JOIN dbo.partner_customer_pets pcp
 LEFT JOIN dbo.partner_access_codes pac
     ON pac.id = r.access_code_id;
 GO
-
 
