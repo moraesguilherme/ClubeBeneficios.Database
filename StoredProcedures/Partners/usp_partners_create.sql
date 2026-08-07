@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.usp_partners_create
+﻿CREATE   PROCEDURE [dbo].[usp_partners_create]
     @TradeName                VARCHAR(150),
     @LegalName                VARCHAR(150) = NULL,
     @Document                 VARCHAR(30) = NULL,
@@ -123,7 +123,7 @@ BEGIN
         @PartnerId,
         NULL,
         @Status,
-        'CriaÃ§Ã£o inicial do parceiro.',
+        'Criação inicial do parceiro.',
         @CreatedByUserId,
         @Now
     );
@@ -151,3 +151,4 @@ BEGIN
     SELECT @PartnerId AS id;
 END
 GO
+

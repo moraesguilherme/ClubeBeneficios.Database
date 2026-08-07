@@ -1,0 +1,49 @@
+﻿CREATE TABLE [dbo].[loyalty_level_thresholds](
+	[id] [uniqueidentifier] NOT NULL,
+	[level_code] [varchar](30) NOT NULL,
+	[level_name] [varchar](80) NOT NULL,
+	[min_average_ticket_amount] [decimal](18, 2) NOT NULL,
+	[max_average_ticket_amount] [decimal](18, 2) NULL,
+	[evaluation_window_months] [int] NOT NULL,
+	[downgrade_grace_months] [int] NOT NULL,
+	[display_order] [int] NOT NULL,
+	[status] [varchar](30) NOT NULL,
+	[created_at] [datetime2](7) NOT NULL,
+	[updated_at] [datetime2](7) NOT NULL,
+	[created_by_user_id] [uniqueidentifier] NULL,
+	[updated_by_user_id] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_loyalty_level_thresholds] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_window]  DEFAULT ((12)) FOR [evaluation_window_months]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_grace]  DEFAULT ((1)) FOR [downgrade_grace_months]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_display]  DEFAULT ((0)) FOR [display_order]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_status]  DEFAULT ('active') FOR [status]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_created_at]  DEFAULT (sysutcdatetime()) FOR [created_at]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] ADD  CONSTRAINT [DF_loyalty_level_thresholds_updated_at]  DEFAULT (sysutcdatetime()) FOR [updated_at]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_level_thresholds_amounts] CHECK  (([min_average_ticket_amount]>=(0) AND ([max_average_ticket_amount] IS NULL OR [max_average_ticket_amount]>=[min_average_ticket_amount])))
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] CHECK CONSTRAINT [CK_loyalty_level_thresholds_amounts]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_level_thresholds_grace] CHECK  (([downgrade_grace_months]>=(0)))
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] CHECK CONSTRAINT [CK_loyalty_level_thresholds_grace]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_level_thresholds_status] CHECK  (([status]='archived' OR [status]='inactive' OR [status]='active'))
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] CHECK CONSTRAINT [CK_loyalty_level_thresholds_status]
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_level_thresholds_window] CHECK  (([evaluation_window_months]>(0)))
+GO
+ALTER TABLE [dbo].[loyalty_level_thresholds] CHECK CONSTRAINT [CK_loyalty_level_thresholds_window]
+GO
+

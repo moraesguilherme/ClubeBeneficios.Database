@@ -1,31 +1,38 @@
-﻿CREATE TABLE dbo.sessions
+﻿CREATE TABLE [dbo].[sessions](
+	[id] [uniqueidentifier] NOT NULL,
+	[user_id] [uniqueidentifier] NULL,
+	[partner_customer_id] [uniqueidentifier] NULL,
+	[access_token_jti] [varchar](100) NOT NULL,
+	[ip_address] [varchar](100) NULL,
+	[user_agent] [varchar](500) NULL,
+	[created_at] [datetime2](7) NOT NULL,
+	[expires_at] [datetime2](7) NOT NULL,
+	[revoked_at] [datetime2](7) NULL,
+	[is_valid] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
 (
-    id                      UNIQUEIDENTIFIER   NOT NULL,
-    user_id                 UNIQUEIDENTIFIER   NULL,
-    partner_customer_id     UNIQUEIDENTIFIER   NULL,
-    access_token_jti        VARCHAR(100)       NOT NULL,
-    ip_address              VARCHAR(100)       NULL,
-    user_agent              VARCHAR(500)       NULL,
-    created_at              DATETIME2(7)       NOT NULL,
-    expires_at              DATETIME2(7)       NOT NULL,
-    revoked_at              DATETIME2(7)       NULL,
-    is_valid                BIT                NOT NULL CONSTRAINT DF_sessions_is_valid DEFAULT ((1)),
-
-    CONSTRAINT PK_sessions PRIMARY KEY CLUSTERED (id ASC),
-    CONSTRAINT UQ_sessions_access_token_jti UNIQUE NONCLUSTERED (access_token_jti ASC),
-    CONSTRAINT FK_sessions_users FOREIGN KEY (user_id) REFERENCES dbo.users(id),
-    CONSTRAINT FK_sessions_partner_customers FOREIGN KEY (partner_customer_id) REFERENCES dbo.partner_customers(id),
-    CONSTRAINT CK_sessions_actor CHECK (
-        (CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END +
-         CASE WHEN partner_customer_id IS NOT NULL THEN 1 ELSE 0 END) = 1
-    )
-);
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+ CONSTRAINT [UQ_sessions_access_token_jti] UNIQUE NONCLUSTERED 
+(
+	[access_token_jti] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[sessions] ADD  CONSTRAINT [DF_sessions_is_valid]  DEFAULT ((1)) FOR [is_valid]
+GO
+ALTER TABLE [dbo].[sessions]  WITH CHECK ADD  CONSTRAINT [FK_sessions_partner_customers] FOREIGN KEY([partner_customer_id])
+REFERENCES [dbo].[partner_customers] ([id])
+GO
+ALTER TABLE [dbo].[sessions] CHECK CONSTRAINT [FK_sessions_partner_customers]
+GO
+ALTER TABLE [dbo].[sessions]  WITH CHECK ADD  CONSTRAINT [FK_sessions_users] FOREIGN KEY([user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+ALTER TABLE [dbo].[sessions] CHECK CONSTRAINT [FK_sessions_users]
+GO
+ALTER TABLE [dbo].[sessions]  WITH CHECK ADD  CONSTRAINT [CK_sessions_actor] CHECK  (((case when [user_id] IS NOT NULL then (1) else (0) end+case when [partner_customer_id] IS NOT NULL then (1) else (0) end)=(1)))
+GO
+ALTER TABLE [dbo].[sessions] CHECK CONSTRAINT [CK_sessions_actor]
 GO
 
-CREATE INDEX IX_sessions_user_id
-    ON dbo.sessions(user_id);
-GO
-
-CREATE INDEX IX_sessions_partner_customer_id
-    ON dbo.sessions(partner_customer_id);
-GO

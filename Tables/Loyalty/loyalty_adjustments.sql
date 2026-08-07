@@ -1,0 +1,56 @@
+﻿CREATE TABLE [dbo].[loyalty_adjustments](
+	[id] [uniqueidentifier] NOT NULL,
+	[client_id] [uniqueidentifier] NOT NULL,
+	[adjustment_type] [varchar](50) NOT NULL,
+	[impact_type] [varchar](30) NOT NULL,
+	[points_delta] [int] NULL,
+	[target_entity_type] [varchar](50) NULL,
+	[target_entity_id] [uniqueidentifier] NULL,
+	[reason] [varchar](1500) NOT NULL,
+	[requested_by_type] [varchar](30) NOT NULL,
+	[requested_by_user_id] [uniqueidentifier] NULL,
+	[status] [varchar](30) NOT NULL,
+	[decision_notes] [varchar](1500) NULL,
+	[requested_at] [datetime2](7) NOT NULL,
+	[decided_at] [datetime2](7) NULL,
+	[created_at] [datetime2](7) NOT NULL,
+	[updated_at] [datetime2](7) NOT NULL,
+	[decided_by_user_id] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_loyalty_adjustments] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [FK_loyalty_adjustments_clients] FOREIGN KEY([client_id])
+REFERENCES [dbo].[clients] ([id])
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [FK_loyalty_adjustments_clients]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [FK_loyalty_adjustments_users_decided_by] FOREIGN KEY([decided_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [FK_loyalty_adjustments_users_decided_by]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [FK_loyalty_adjustments_users_requested_by] FOREIGN KEY([requested_by_user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [FK_loyalty_adjustments_users_requested_by]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_adjustments_adjustment_type] CHECK  (([adjustment_type]='custom' OR [adjustment_type]='manual_debit' OR [adjustment_type]='manual_credit' OR [adjustment_type]='downgrade_review' OR [adjustment_type]='eligibility_override' OR [adjustment_type]='redemption_reversal' OR [adjustment_type]='points_correction'))
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [CK_loyalty_adjustments_adjustment_type]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_adjustments_impact_type] CHECK  (([impact_type]='none' OR [impact_type]='mixed' OR [impact_type]='score' OR [impact_type]='level' OR [impact_type]='eligibility' OR [impact_type]='points'))
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [CK_loyalty_adjustments_impact_type]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_adjustments_requested_by_type] CHECK  (([requested_by_type]='internal' OR [requested_by_type]='client' OR [requested_by_type]='system' OR [requested_by_type]='operation' OR [requested_by_type]='admin'))
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [CK_loyalty_adjustments_requested_by_type]
+GO
+ALTER TABLE [dbo].[loyalty_adjustments]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_adjustments_status] CHECK  (([status]='canceled' OR [status]='rejected' OR [status]='approved' OR [status]='pending'))
+GO
+ALTER TABLE [dbo].[loyalty_adjustments] CHECK CONSTRAINT [CK_loyalty_adjustments_status]
+GO
+

@@ -1,0 +1,36 @@
+CREATE VIEW [dbo].[vw_etl_import_rows_history]
+AS
+SELECT
+    r.id,
+    r.batch_id,
+    r.row_number,
+    r.external_row_key,
+    r.source_content_hash,
+    r.source_file_name,
+    r.source_sheet_name,
+    r.source_file_type,
+    r.customer_name_raw,
+    r.customer_document_raw,
+    r.customer_phone_raw,
+    r.raw_pet_names,
+    r.pet_name_raw,
+    r.pet_split_index,
+    r.service_type_raw,
+    r.plan_name_raw,
+    r.package_name_raw,
+    r.payment_method_raw,
+    r.payment_status_raw,
+    r.gross_amount,
+    r.taxi_amount,
+    r.group_total_amount,
+    r.start_date,
+    r.end_date,
+    r.competence_date,
+    r.occurred_at,
+    r.observation_raw,
+    r.status,
+    r.is_current,
+    r.superseded_at,
+    r.replaced_by_import_row_id
+FROM dbo.etl_import_rows r;
+GO

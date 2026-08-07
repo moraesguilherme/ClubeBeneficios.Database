@@ -1,8 +1,4 @@
-SET ANSI_NULLS ON;
-SET QUOTED_IDENTIFIER ON;
-GO
-
-CREATE OR ALTER PROCEDURE dbo.usp_benefits_add_review
+﻿CREATE   PROCEDURE [dbo].[usp_benefits_add_review]
     @BenefitId UNIQUEIDENTIFIER,
     @ReviewStatus VARCHAR(30),
     @ReviewPoint VARCHAR(200) = NULL,
@@ -28,4 +24,6 @@ BEGIN
     ELSE IF @ReviewStatus = 'rejected'
         EXEC dbo.usp_benefits_change_status @BenefitId = @BenefitId, @NewStatus = 'rejected', @Reason = @ReviewRecommendation, @ChangedByUserId = @ReviewedByUserId;
 END
+
 GO
+

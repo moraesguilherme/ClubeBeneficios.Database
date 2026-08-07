@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.usp_partners_add_note
+﻿CREATE   PROCEDURE [dbo].[usp_partners_add_note]
     @PartnerId         UNIQUEIDENTIFIER,
     @NoteType          VARCHAR(30) = 'general',
     @Content           VARCHAR(MAX),
@@ -25,3 +25,4 @@ BEGIN
     );
 END
 GO
+

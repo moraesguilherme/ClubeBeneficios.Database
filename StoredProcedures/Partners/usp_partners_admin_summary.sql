@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.usp_partners_admin_summary
+﻿CREATE   PROCEDURE [dbo].[usp_partners_admin_summary]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -21,3 +21,4 @@ BEGIN
     FROM dbo.partners;
 END
 GO
+
