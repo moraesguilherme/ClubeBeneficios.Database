@@ -1,4 +1,4 @@
-﻿CREATE VIEW dbo.vw_partners_admin_list
+﻿CREATE VIEW [dbo].[vw_partners_admin_list]
 AS
 SELECT
     p.id,
@@ -46,3 +46,4 @@ LEFT JOIN dbo.partner_contacts c
 LEFT JOIN dbo.partner_metrics_snapshot ms
     ON ms.partner_id = p.id;
 GO
+

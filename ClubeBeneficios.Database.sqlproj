@@ -48,6 +48,9 @@
     <Folder Include="Tables\Loyalty" />
     <Folder Include="StoredProcedures\Notifications" />
     <Folder Include="Tables\Notifications" />
+    <Folder Include="Scripts\Notifications" />
+    <Folder Include="Scripts\Partners" />
+    <Folder Include="Views\PartnerCustomer" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="StoredProcedures\Benefits\usp_benefit_requests_change_status.sql" />
@@ -366,6 +369,40 @@
     <Build Include="Tables\Notifications\notification_recipients.sql" />
     <Build Include="Tables\Notifications\notification_template_versions.sql" />
     <Build Include="Tables\Notifications\notification_templates.sql" />
+    <Build Include="Scripts\Notifications\notification_template_benefits.sql" />
+    <Build Include="Scripts\Notifications\notification_template_partner_account_status.sql" />
+    <Build Include="Scripts\Notifications\notification_templates_benefit_requests.sql" />
+    <Build Include="Scripts\Partners\001_add_public_catalog_link_reference.sql" />
+    <Build Include="Scripts\Partners\999_sync_local_partner_adjustments.sql" />
+    <Build Include="Scripts\create_app_settings.sql" />
+    <Build Include="Scripts\selecionar configutacao ambiente.sql" />
+    <Build Include="Seeds\Benefits\001_benefit_rules_seed.sql" />
+    <Build Include="Seeds\001_roles_seed.sql" />
+    <Build Include="StoredProcedures\Customers\usp_client_account_invitation_complete.sql" />
+    <Build Include="StoredProcedures\Customers\usp_client_account_invitation_get_by_token_hash.sql" />
+    <Build Include="StoredProcedures\Customers\usp_client_account_invitation_create.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_account_invitation_complete.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_account_invitation_create.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_account_invitation_get_by_token_hash.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_account_invitations_expire_due.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_public_catalog_link_get_by_slug.sql" />
+    <Build Include="StoredProcedures\Partners\usp_partner_public_catalog_link_get_or_create.sql" />
+    <Build Include="StoredProcedures\Partners\usp_public_partner_benefit_request_create.sql" />
+    <Build Include="StoredProcedures\Partners\usp_public_partner_catalog_get_by_slug.sql" />
+    <Build Include="Tables\Auth\access_code_usages.sql" />
+    <Build Include="Tables\Auth\app_settings.sql" />
+    <Build Include="Tables\Benefits\benefit_request_correction_tokens.sql" />
+    <Build Include="Tables\Customers\client_account_invitations.sql" />
+    <Build Include="Tables\Customers\client_terms_acceptances.sql" />
+    <Build Include="Tables\Customers\zz_legacy_customer_loyalty_score_history.sql" />
+    <Build Include="Tables\Customers\zz_legacy_customer_loyalty_scores.sql" />
+    <Build Include="Tables\Loyalty\zz_legacy_loyalty_score_snapshots.sql" />
+    <Build Include="Tables\Partners\partner_account_invitations.sql" />
+    <Build Include="Tables\Partners\partner_public_catalog_links.sql" />
+    <Build Include="Tables\Partners\partner_terms_acceptances.sql" />
+    <Build Include="Views\PartnerCustomer\vw_partner_customer_benefit_dashboard_summary.sql" />
+    <Build Include="Views\PartnerCustomer\vw_partner_customers_admin_summary.sql" />
+    <Build Include="Views\PartnerCustomer\vw_partner_customers_conversion_funnel.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeployment.sql" />

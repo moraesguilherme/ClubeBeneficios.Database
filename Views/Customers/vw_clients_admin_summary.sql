@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_clients_admin_summary]
+﻿CREATE   VIEW [dbo].[vw_clients_admin_summary]
 AS
 SELECT
     COUNT(1) AS total_clients,
@@ -12,5 +12,4 @@ SELECT
     MAX(updated_at) AS latest_updated_at
 FROM dbo.clients;
 GO
-
 

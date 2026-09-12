@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[vw_etl_rows_with_errors]
+﻿CREATE VIEW [dbo].[vw_etl_rows_with_errors]
 AS
 SELECT
     r.id AS import_row_id,
@@ -16,3 +16,4 @@ INNER JOIN dbo.etl_import_row_errors e
     ON e.import_row_id = r.id;
 
 GO
+

@@ -1,4 +1,4 @@
-CREATE   VIEW [dbo].[vw_client_benefit_dashboard_summary]
+﻿CREATE   VIEW [dbo].[vw_client_benefit_dashboard_summary]
 AS
 SELECT
     c.id AS client_id,
@@ -34,5 +34,4 @@ GROUP BY
     c.phone,
     c.status;
 GO
-
 

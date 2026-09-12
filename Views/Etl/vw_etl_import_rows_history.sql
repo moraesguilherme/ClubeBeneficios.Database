@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[vw_etl_import_rows_history]
+﻿CREATE VIEW [dbo].[vw_etl_import_rows_history]
 AS
 SELECT
     r.id,
@@ -34,3 +34,4 @@ SELECT
     r.replaced_by_import_row_id
 FROM dbo.etl_import_rows r;
 GO
+

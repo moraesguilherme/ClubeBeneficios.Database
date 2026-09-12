@@ -25,6 +25,7 @@ BEGIN
         @RequestedAt DATETIME2(7),
         @ExpiresAt DATETIME2(7),
         @UsedAt DATETIME2(7),
+        @HasVaccinationCard BIT = 0,
         @PayloadJson NVARCHAR(MAX),
         @RequesterTemplateKey VARCHAR(120),
         @PartnerTemplateKey VARCHAR(120),
@@ -32,7 +33,12 @@ BEGIN
         @AdminConfiguredEventType VARCHAR(120),
         @RequesterIdempotencyKey VARCHAR(250),
         @PartnerIdempotencyKey VARCHAR(250),
-        @AdminIdempotencyPrefix VARCHAR(200);
+        @AdminIdempotencyPrefix VARCHAR(200),
+		@CorrectionToken VARCHAR(128),
+        @CorrectionTokenHash VARCHAR(128),
+        @CorrectionUrl VARCHAR(1000),
+        @FrontPublicBaseUrl VARCHAR(500),
+		@PublicCorrectionBaseUrl VARCHAR(500);
 
     DECLARE @NotificationResult TABLE
     (
@@ -101,6 +107,28 @@ BEGIN
     WHERE u.benefit_request_id = @BenefitRequestId
     ORDER BY u.used_at DESC, u.created_at DESC;
 
+    SELECT
+        @HasVaccinationCard =
+            CASE
+                WHEN EXISTS
+                (
+                    SELECT 1
+                    FROM dbo.partner_customer_documents d
+                    INNER JOIN dbo.benefit_requests br
+                        ON br.requester_partner_customer_id = d.partner_customer_id
+                    WHERE br.id = @BenefitRequestId
+                      AND d.document_type = 'vaccination_card'
+                      AND d.status IN ('pending', 'valid')
+                      AND (
+                            br.requester_partner_customer_pet_id IS NULL
+                            OR d.partner_customer_pet_id = br.requester_partner_customer_pet_id
+                            OR d.partner_customer_pet_id IS NULL
+                          )
+                )
+                THEN 1
+                ELSE 0
+            END;
+
     SET @RequesterTypeLabel =
         CASE
             WHEN @RequesterType = 'client' THEN 'Cliente Matilha'
@@ -124,15 +152,76 @@ BEGIN
             ELSE COALESCE(@RequestStatus, 'Não informado')
         END;
 
+			SELECT
+				@FrontPublicBaseUrl = setting_value
+			FROM dbo.app_settings
+			WHERE setting_key = 'FrontPublicBaseUrl';
+
+			IF @FrontPublicBaseUrl IS NULL OR LTRIM(RTRIM(@FrontPublicBaseUrl)) = ''
+				SET @FrontPublicBaseUrl = 'http://localhost:5173';
+
+			SET @FrontPublicBaseUrl = LTRIM(RTRIM(@FrontPublicBaseUrl));
+
+			IF RIGHT(@FrontPublicBaseUrl, 1) = '/'
+				SET @FrontPublicBaseUrl = LEFT(@FrontPublicBaseUrl, LEN(@FrontPublicBaseUrl) - 1);
+
+			SET @PublicCorrectionBaseUrl =
+				CONCAT(@FrontPublicBaseUrl, '/ajustar-solicitacao-beneficio?token=');
+
+	    IF @EventType = 'benefits.request.changes_requested'
+    BEGIN
+        SET @CorrectionToken =
+            LOWER(CONVERT(VARCHAR(64), CRYPT_GEN_RANDOM(32), 2));
+
+        SET @CorrectionTokenHash =
+            LOWER(CONVERT(VARCHAR(128), HASHBYTES('SHA2_256', @CorrectionToken), 2));
+
+        UPDATE dbo.benefit_request_correction_tokens
+        SET
+            status = 'cancelled',
+            updated_at = SYSUTCDATETIME()
+        WHERE benefit_request_id = @BenefitRequestId
+          AND status = 'active';
+
+        INSERT INTO dbo.benefit_request_correction_tokens
+        (
+            id,
+            benefit_request_id,
+            token_hash,
+            status,
+            expires_at,
+            used_at,
+            created_at,
+            updated_at
+        )
+        VALUES
+        (
+            NEWID(),
+            @BenefitRequestId,
+            @CorrectionTokenHash,
+            'active',
+            DATEADD(DAY, 7, SYSUTCDATETIME()),
+            NULL,
+            SYSUTCDATETIME(),
+            SYSUTCDATETIME()
+        );
+
+        SET @CorrectionUrl = CONCAT(@PublicCorrectionBaseUrl, @CorrectionToken);
+    END
+
     SELECT
         @PayloadJson =
         (
             SELECT
+                CONVERT(VARCHAR(36), @BenefitRequestId) AS requestId,
+                CONVERT(VARCHAR(36), @BenefitId) AS benefitId,
+                CONVERT(VARCHAR(36), @PartnerId) AS partnerId,
+
                 @RequesterName AS requesterName,
                 @RequesterEmail AS requesterEmail,
                 @RequesterType AS requesterType,
                 @RequesterTypeLabel AS requesterTypeLabel,
-                @PetName AS petName,
+                COALESCE(@PetName, 'Não informado') AS petName,
 
                 @BenefitTitle AS benefitTitle,
                 @PartnerName AS partnerName,
@@ -145,36 +234,52 @@ BEGIN
                 CONVERT(VARCHAR(10), @ExpiresAt, 103) AS expiresAt,
                 CONVERT(VARCHAR(10), @UsedAt, 103) AS usedAt,
 
+                CASE WHEN @HasVaccinationCard = 1 THEN 'Sim' ELSE 'Não' END AS hasVaccinationCard,
+
                 COALESCE(@ReviewPoint, '') AS reviewPoint,
-                COALESCE(@ReviewRecommendation, '') AS reviewRecommendation
+				COALESCE(@ReviewRecommendation, '') AS reviewRecommendation,
+				COALESCE(@CorrectionUrl, '') AS correctionUrl
             FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
         );
 
-    IF @EventType = 'benefits.request.created'
+    IF @EventType = 'benefits.request.submitted.admin'
+    BEGIN
+        SET @RequesterTemplateKey = NULL;
+        SET @PartnerTemplateKey = NULL;
+        SET @AdminTemplateKey = 'benefits.request.submitted.admin';
+        SET @AdminConfiguredEventType = 'benefits.request.submitted.admin';
+    END
+    ELSE IF @EventType = 'benefits.request.created'
     BEGIN
         SET @RequesterTemplateKey = 'benefits.request.created.requester';
         SET @PartnerTemplateKey = 'benefits.request.created.partner';
         SET @AdminTemplateKey = 'benefits.request.created.admin';
         SET @AdminConfiguredEventType = 'benefits.request.created.admin';
     END
-    ELSE IF @EventType IN (
-        'benefits.request.approved',
-        'benefits.request.changes_requested',
-        'benefits.request.rejected'
-    )
-    BEGIN
-        SET @RequesterTemplateKey = 'benefits.request.status_changed.requester';
-        SET @PartnerTemplateKey = 'benefits.request.status_changed.partner';
-        SET @AdminTemplateKey = 'benefits.request.status_changed.admin';
+   ELSE IF @EventType = 'benefits.request.changes_requested'
+	BEGIN
+		SET @RequesterTemplateKey = 'benefits.request.changes_requested.requester';
 
-        SET @AdminConfiguredEventType =
-            CASE
-                WHEN @EventType = 'benefits.request.approved' THEN 'benefits.request.approved.admin'
-                WHEN @EventType = 'benefits.request.changes_requested' THEN 'benefits.request.changes_requested.admin'
-                WHEN @EventType = 'benefits.request.rejected' THEN 'benefits.request.rejected.admin'
-                ELSE NULL
-            END;
-    END
+		SET @PartnerTemplateKey = NULL;
+		SET @AdminTemplateKey = NULL;
+		SET @AdminConfiguredEventType = NULL;
+	END
+	ELSE IF @EventType IN (
+		'benefits.request.approved',
+		'benefits.request.rejected'
+	)
+	BEGIN
+		SET @RequesterTemplateKey = 'benefits.request.status_changed.requester';
+		SET @PartnerTemplateKey = 'benefits.request.status_changed.partner';
+		SET @AdminTemplateKey = 'benefits.request.status_changed.admin';
+
+		SET @AdminConfiguredEventType =
+			CASE
+				WHEN @EventType = 'benefits.request.approved' THEN 'benefits.request.approved.admin'
+				WHEN @EventType = 'benefits.request.rejected' THEN 'benefits.request.rejected.admin'
+				ELSE NULL
+			END;
+	END
     ELSE IF @EventType = 'benefits.usage.registered'
     BEGIN
         SET @RequesterTemplateKey = 'benefits.usage.registered.requester';
@@ -186,7 +291,6 @@ BEGIN
     BEGIN
         RETURN;
     END
-
     SET @RequesterIdempotencyKey =
         CASE
             WHEN @EventReferenceId IS NOT NULL THEN
@@ -211,7 +315,9 @@ BEGIN
                 CONCAT(@EventType, ':', CONVERT(VARCHAR(36), @BenefitRequestId), ':admin')
         END;
 
-    IF @RequesterEmail IS NOT NULL AND LTRIM(RTRIM(@RequesterEmail)) <> ''
+    IF @RequesterTemplateKey IS NOT NULL
+       AND @RequesterEmail IS NOT NULL
+       AND LTRIM(RTRIM(@RequesterEmail)) <> ''
     BEGIN
         DELETE FROM @NotificationResult;
 
@@ -230,7 +336,9 @@ BEGIN
             @IdempotencyKey = @RequesterIdempotencyKey;
     END
 
-    IF @PartnerEmail IS NOT NULL AND LTRIM(RTRIM(@PartnerEmail)) <> ''
+    IF @PartnerTemplateKey IS NOT NULL
+       AND @PartnerEmail IS NOT NULL
+       AND LTRIM(RTRIM(@PartnerEmail)) <> ''
     BEGIN
         DELETE FROM @NotificationResult;
 
@@ -250,6 +358,7 @@ BEGIN
     END
 
     IF @AdminConfiguredEventType IS NOT NULL
+       AND @AdminTemplateKey IS NOT NULL
     BEGIN
         EXEC dbo.usp_notification_enqueue_configured_recipients
             @Module = 'benefits',

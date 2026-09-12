@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[vw_etl_batches_admin_list]
+﻿CREATE VIEW [dbo].[vw_etl_batches_admin_list]
 AS
 SELECT
     b.id,
@@ -22,3 +22,4 @@ SELECT
 FROM dbo.etl_import_batches b;
 
 GO
+

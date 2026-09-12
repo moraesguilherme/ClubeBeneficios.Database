@@ -10,6 +10,7 @@
     @InternalNotes VARCHAR(MAX) = NULL,
     @Status VARCHAR(30) = NULL,
     @EligibilityType VARCHAR(30),
+	@UsageScope VARCHAR(30) = 'customer',
     @RecurrenceType VARCHAR(40),
     @RecurrenceValue INT = NULL,
     @RecurrencePeriod VARCHAR(20) = NULL,
@@ -45,132 +46,190 @@ BEGIN
     SET NOCOUNT ON;
     SET XACT_ABORT ON;
 
-    BEGIN TRANSACTION;
+    DECLARE @CurrentStatus VARCHAR(30);
+    DECLARE @EffectiveStatus VARCHAR(30);
+    DECLARE @Now DATETIME2(7) = SYSUTCDATETIME();
+    DECLARE @NotificationEventReferenceId UNIQUEIDENTIFIER = NEWID();
 
-    UPDATE dbo.benefits
-    SET
-        partner_id = ISNULL(@PartnerId, partner_id),
-        title = @Title,
-        benefit_type = @BenefitType,
-        direction = ISNULL(@Direction, direction),
-        target_actor_type = @TargetActorType,
-        status = ISNULL(@Status, status),
-        short_description = @ShortDescription,
-        full_description = @FullDescription,
-        internal_notes = @InternalNotes,
-        eligibility_type = @EligibilityType,
-        recurrence_type = @RecurrenceType,
-        recurrence_value = @RecurrenceValue,
-        recurrence_period = @RecurrencePeriod,
-        validity_type = @ValidityType,
-        starts_at = @StartsAt,
-        ends_at = @EndsAt,
-        requires_manual_release = @RequiresManualRelease,
-        auto_activate_when_approved = @AutoActivateWhenApproved,
-        highlight_in_showcase = @HighlightInShowcase,
-        allow_first_use_only = @AllowFirstUseOnly,
-        requires_active_access_code = @RequiresActiveAccessCode,
-        requires_partner_availability = @RequiresPartnerAvailability,
-        requires_matilha_acceptance_rules = @RequiresMatilhaAcceptanceRules,
-        stacking_rule = @StackingRule,
-        updated_by_user_id = @UpdatedByUserId,
-        updated_at = SYSUTCDATETIME()
+    SELECT
+        @CurrentStatus = status
+    FROM dbo.benefits
     WHERE id = @BenefitId;
 
-    DELETE FROM dbo.benefit_level_scopes
-    WHERE benefit_id = @BenefitId;
-
-    IF @LevelCodesCsv IS NOT NULL AND LTRIM(RTRIM(@LevelCodesCsv)) <> ''
+    IF @CurrentStatus IS NULL
     BEGIN
-        INSERT INTO dbo.benefit_level_scopes
-        (
-            id,
-            benefit_id,
-            level_type,
-            level_code,
-            created_at
-        )
-        SELECT
-            NEWID(),
-            @BenefitId,
-            ISNULL(@LevelType, 'client_level'),
-            LTRIM(RTRIM(value)),
-            SYSUTCDATETIME()
-        FROM STRING_SPLIT(@LevelCodesCsv, ',')
-        WHERE LTRIM(RTRIM(value)) <> '';
+        RAISERROR('Benefício não encontrado.', 16, 1);
+        RETURN;
     END
 
-    DELETE FROM dbo.benefit_behavior_rules
-    WHERE benefit_id = @BenefitId;
+    SET @EffectiveStatus = ISNULL(@Status, @CurrentStatus);
 
-    IF @EligibilityType IN ('behavior', 'hybrid')
-    BEGIN
-        INSERT INTO dbo.benefit_behavior_rules
-        (
-            id,
-            benefit_id,
-            min_frequency_enabled,
-            min_frequency_value,
-            frequency_window_months,
-            min_ticket_enabled,
-            min_ticket_value,
-            ticket_window_months,
-            first_use_only,
-            requires_matilha_approval,
-            custom_rule_text,
-            created_at,
-            updated_at
-        )
-        VALUES
-        (
-            NEWID(),
-            @BenefitId,
-            @MinFrequencyEnabled,
-            @MinFrequencyValue,
-            @FrequencyWindowMonths,
-            @MinTicketEnabled,
-            @MinTicketValue,
-            @TicketWindowMonths,
-            @BehaviorFirstUseOnly,
-            @BehaviorRequiresMatilhaApproval,
-            @CustomRuleText,
-            SYSUTCDATETIME(),
-            SYSUTCDATETIME()
-        );
-    END
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    DELETE FROM dbo.benefit_code_rules
-    WHERE benefit_id = @BenefitId;
+        UPDATE dbo.benefits
+        SET
+            partner_id = ISNULL(@PartnerId, partner_id),
+            title = @Title,
+            benefit_type = @BenefitType,
+            direction = ISNULL(@Direction, direction),
+            target_actor_type = @TargetActorType,
+            status = @EffectiveStatus,
+            short_description = @ShortDescription,
+            full_description = @FullDescription,
+            internal_notes = @InternalNotes,
+            eligibility_type = @EligibilityType,
+			usage_scope = ISNULL(@UsageScope, 'customer'),
+            recurrence_type = @RecurrenceType,
+            recurrence_value = @RecurrenceValue,
+            recurrence_period = @RecurrencePeriod,
+            validity_type = @ValidityType,
+            starts_at = @StartsAt,
+            ends_at = @EndsAt,
+            requires_manual_release = @RequiresManualRelease,
+            auto_activate_when_approved = @AutoActivateWhenApproved,
+            highlight_in_showcase = @HighlightInShowcase,
+            allow_first_use_only = @AllowFirstUseOnly,
+            requires_active_access_code = @RequiresActiveAccessCode,
+            requires_partner_availability = @RequiresPartnerAvailability,
+            requires_matilha_acceptance_rules = @RequiresMatilhaAcceptanceRules,
+            stacking_rule = @StackingRule,
+            updated_by_user_id = @UpdatedByUserId,
+            updated_at = @Now
+        WHERE id = @BenefitId;
 
-    IF @EligibilityType IN ('code', 'hybrid')
-       OR @RequiresAccessCode = 1
-       OR @RequiresActiveAccessCode = 1
-    BEGIN
-        INSERT INTO dbo.benefit_code_rules
-        (
-            id,
-            benefit_id,
-            requires_access_code,
-            allow_any_active_partner_code,
-            specific_access_code_id,
-            code_validation_mode,
-            created_at,
-            updated_at
-        )
-        VALUES
-        (
-            NEWID(),
-            @BenefitId,
-            @RequiresAccessCode,
-            @AllowAnyActivePartnerCode,
-            @SpecificAccessCodeId,
-            @CodeValidationMode,
-            SYSUTCDATETIME(),
-            SYSUTCDATETIME()
-        );
-    END
+        DELETE FROM dbo.benefit_level_scopes
+        WHERE benefit_id = @BenefitId;
 
-    COMMIT TRANSACTION;
+        IF @LevelCodesCsv IS NOT NULL AND LTRIM(RTRIM(@LevelCodesCsv)) <> ''
+        BEGIN
+            INSERT INTO dbo.benefit_level_scopes
+            (
+                id,
+                benefit_id,
+                level_type,
+                level_code,
+                created_at
+            )
+            SELECT
+                NEWID(),
+                @BenefitId,
+                ISNULL(@LevelType, 'client_level'),
+                LTRIM(RTRIM(value)),
+                @Now
+            FROM STRING_SPLIT(@LevelCodesCsv, ',')
+            WHERE LTRIM(RTRIM(value)) <> '';
+        END
+
+        DELETE FROM dbo.benefit_behavior_rules
+        WHERE benefit_id = @BenefitId;
+
+        IF @EligibilityType IN ('behavior', 'hybrid')
+        BEGIN
+            INSERT INTO dbo.benefit_behavior_rules
+            (
+                id,
+                benefit_id,
+                min_frequency_enabled,
+                min_frequency_value,
+                frequency_window_months,
+                min_ticket_enabled,
+                min_ticket_value,
+                ticket_window_months,
+                first_use_only,
+                requires_matilha_approval,
+                custom_rule_text,
+                created_at,
+                updated_at
+            )
+            VALUES
+            (
+                NEWID(),
+                @BenefitId,
+                @MinFrequencyEnabled,
+                @MinFrequencyValue,
+                @FrequencyWindowMonths,
+                @MinTicketEnabled,
+                @MinTicketValue,
+                @TicketWindowMonths,
+                @BehaviorFirstUseOnly,
+                @BehaviorRequiresMatilhaApproval,
+                @CustomRuleText,
+                @Now,
+                @Now
+            );
+        END
+
+        DELETE FROM dbo.benefit_code_rules
+        WHERE benefit_id = @BenefitId;
+
+        IF @EligibilityType IN ('code', 'hybrid')
+           OR @RequiresAccessCode = 1
+           OR @RequiresActiveAccessCode = 1
+        BEGIN
+            INSERT INTO dbo.benefit_code_rules
+            (
+                id,
+                benefit_id,
+                requires_access_code,
+                allow_any_active_partner_code,
+                specific_access_code_id,
+                code_validation_mode,
+                created_at,
+                updated_at
+            )
+            VALUES
+            (
+                NEWID(),
+                @BenefitId,
+                @RequiresAccessCode,
+                @AllowAnyActivePartnerCode,
+                @SpecificAccessCodeId,
+                @CodeValidationMode,
+                @Now,
+                @Now
+            );
+        END
+
+        IF @CurrentStatus <> @EffectiveStatus
+        BEGIN
+            INSERT INTO dbo.benefit_status_history
+            (
+                benefit_id,
+                from_status,
+                to_status,
+                reason,
+                changed_by_user_id,
+                changed_at
+            )
+            VALUES
+            (
+                @BenefitId,
+                @CurrentStatus,
+                @EffectiveStatus,
+                'Benefício atualizado e reenviado para análise.',
+                @UpdatedByUserId,
+                @Now
+            );
+
+            EXEC dbo.usp_benefit_notification_enqueue
+                @BenefitId = @BenefitId,
+                @EventType = 'benefits.benefit.status_changed',
+                @PreviousStatus = @CurrentStatus,
+                @Reason = 'Benefício atualizado e reenviado para análise.',
+                @EventReferenceId = @NotificationEventReferenceId;
+        END
+
+        COMMIT TRANSACTION;
+
+        SELECT CAST(1 AS BIT) AS updated;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
 END
 GO
 

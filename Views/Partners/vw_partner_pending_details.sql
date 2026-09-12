@@ -1,4 +1,4 @@
-﻿CREATE VIEW dbo.vw_partner_pending_details
+﻿CREATE VIEW [dbo].[vw_partner_pending_details]
 AS
 SELECT
     p.id,
@@ -30,3 +30,4 @@ LEFT JOIN dbo.partner_contacts c
    AND c.is_primary = 1
 WHERE p.status IN ('pending', 'under_review');
 GO
+

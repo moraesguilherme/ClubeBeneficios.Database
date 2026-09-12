@@ -43,6 +43,11 @@ ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_created_at]  DEFAULT (sy
 GO
 ALTER TABLE [dbo].[clients] ADD  CONSTRAINT [DF_clients_updated_at]  DEFAULT (sysutcdatetime()) FOR [updated_at]
 GO
+ALTER TABLE [dbo].[clients]  WITH CHECK ADD  CONSTRAINT [FK_clients_users] FOREIGN KEY([user_id])
+REFERENCES [dbo].[users] ([id])
+GO
+ALTER TABLE [dbo].[clients] CHECK CONSTRAINT [FK_clients_users]
+GO
 ALTER TABLE [dbo].[clients]  WITH CHECK ADD  CONSTRAINT [CK_clients_origin_type] CHECK  (([origin_type]='internal_import' OR [origin_type]='partner_conversion' OR [origin_type]='indication' OR [origin_type]='landing_page' OR [origin_type]='site' OR [origin_type]='manual'))
 GO
 ALTER TABLE [dbo].[clients] CHECK CONSTRAINT [CK_clients_origin_type]

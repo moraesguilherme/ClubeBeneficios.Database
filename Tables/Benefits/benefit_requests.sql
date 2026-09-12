@@ -27,6 +27,7 @@
 	[approval_decided_at] [datetime2](7) NULL,
 	[approval_decided_by_user_id] [uniqueidentifier] NULL,
 	[approval_reason] [varchar](1500) NULL,
+	[public_catalog_link_id] [uniqueidentifier] NULL,
  CONSTRAINT [PK_benefit_requests] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -69,6 +70,11 @@ ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_req
 REFERENCES [dbo].[partners] ([id])
 GO
 ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_partners]
+GO
+ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_public_catalog_links] FOREIGN KEY([public_catalog_link_id])
+REFERENCES [dbo].[partner_public_catalog_links] ([id])
+GO
+ALTER TABLE [dbo].[benefit_requests] CHECK CONSTRAINT [FK_benefit_requests_public_catalog_links]
 GO
 ALTER TABLE [dbo].[benefit_requests]  WITH CHECK ADD  CONSTRAINT [FK_benefit_requests_users_approval_decided] FOREIGN KEY([approval_decided_by_user_id])
 REFERENCES [dbo].[users] ([id])

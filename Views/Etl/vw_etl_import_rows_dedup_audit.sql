@@ -1,4 +1,4 @@
-CREATE VIEW [dbo].[vw_etl_import_rows_dedup_audit]
+﻿CREATE VIEW [dbo].[vw_etl_import_rows_dedup_audit]
 AS
 SELECT
     r.external_row_key,
@@ -12,3 +12,4 @@ SELECT
 FROM dbo.etl_import_rows r
 GROUP BY r.external_row_key;
 GO
+

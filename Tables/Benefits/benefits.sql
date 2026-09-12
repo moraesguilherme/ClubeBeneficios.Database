@@ -35,6 +35,7 @@
 	[inactivated_at] [datetime2](7) NULL,
 	[created_at] [datetime2](7) NOT NULL,
 	[updated_at] [datetime2](7) NOT NULL,
+	[usage_scope] [varchar](30) NULL,
  CONSTRAINT [PK_benefits] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -121,6 +122,10 @@ GO
 ALTER TABLE [dbo].[benefits]  WITH CHECK ADD  CONSTRAINT [CK_benefits_target_actor_type] CHECK  (([target_actor_type]='partner_customer' OR [target_actor_type]='client'))
 GO
 ALTER TABLE [dbo].[benefits] CHECK CONSTRAINT [CK_benefits_target_actor_type]
+GO
+ALTER TABLE [dbo].[benefits]  WITH CHECK ADD  CONSTRAINT [CK_benefits_usage_scope] CHECK  (([usage_scope]='customer_pet' OR [usage_scope]='customer'))
+GO
+ALTER TABLE [dbo].[benefits] CHECK CONSTRAINT [CK_benefits_usage_scope]
 GO
 ALTER TABLE [dbo].[benefits]  WITH CHECK ADD  CONSTRAINT [CK_benefits_validity_type] CHECK  (([validity_type]='campaign_period' OR [validity_type]='until_stock' OR [validity_type]='date_range' OR [validity_type]='continuous'))
 GO
