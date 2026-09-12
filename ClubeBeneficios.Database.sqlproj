@@ -392,6 +392,7 @@
     <Build Include="Views\PartnerCustomer\vw_partner_customer_benefit_dashboard_summary.sql" />
     <Build Include="Views\PartnerCustomer\vw_partner_customers_admin_summary.sql" />
     <Build Include="Views\PartnerCustomer\vw_partner_customers_conversion_funnel.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_customer_rewards_available_list.sql" />
   </ItemGroup>
   <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')" />
