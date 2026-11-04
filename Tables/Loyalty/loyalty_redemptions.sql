@@ -63,4 +63,12 @@ ALTER TABLE [dbo].[loyalty_redemptions]  WITH CHECK ADD  CONSTRAINT [CK_loyalty_
 GO
 ALTER TABLE [dbo].[loyalty_redemptions] CHECK CONSTRAINT [CK_loyalty_redemptions_status]
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [UX_loyalty_redemptions_client_reward_active]
+ON [dbo].[loyalty_redemptions]
+(
+    [client_id] ASC,
+    [reward_id] ASC
+)
+WHERE [status] IN ('requested', 'under_review', 'approved');
+GO
 

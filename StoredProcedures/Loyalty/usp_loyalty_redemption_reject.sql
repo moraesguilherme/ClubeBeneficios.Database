@@ -1,41 +1,63 @@
-﻿CREATE   PROCEDURE [dbo].[usp_loyalty_redemption_reject]
+﻿
+CREATE PROCEDURE [dbo].[usp_loyalty_redemption_reject]
     @RedemptionId uniqueidentifier,
     @DecisionNotes varchar(1500) = NULL,
     @DecidedByUserId uniqueidentifier = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-    DECLARE @CurrentStatus varchar(30);
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    SELECT @CurrentStatus = status
-    FROM dbo.loyalty_redemptions
-    WHERE id = @RedemptionId;
+        --------------------------------------------------
+        -- 1. Rejeitar somente solicitacoes elegiveis
+        --------------------------------------------------
+        UPDATE dbo.loyalty_redemptions
+        SET
+            status = 'rejected',
+            rejected_at = SYSUTCDATETIME(),
+            internal_notes = @DecisionNotes,
+            decided_by_user_id = @DecidedByUserId,
+            updated_at = SYSUTCDATETIME()
+        WHERE id = @RedemptionId
+          AND status IN ('requested', 'under_review');
 
-    IF @CurrentStatus IS NULL
-    BEGIN
-        RAISERROR('Resgate nao encontrado.', 16, 1);
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RAISERROR(
+                'Resgate nao encontrado ou nao disponivel para rejeicao.',
+                16,
+                1
+            );
+        END;
+
+        --------------------------------------------------
+        -- 2. Registrar a notificacao
+        --------------------------------------------------
+        EXEC dbo.usp_loyalty_redemption_notification_enqueue
+            @RedemptionId = @RedemptionId,
+            @EventType = 'loyalty.redemption.rejected';
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(2048);
+        SET @ErrorMessage = ERROR_MESSAGE();
+
+        RAISERROR('%s', 16, 1, @ErrorMessage);
         RETURN;
-    END
+    END CATCH;
 
-    IF @CurrentStatus NOT IN ('requested', 'under_review')
-    BEGIN
-        RAISERROR('Somente resgates em requested/under_review podem ser rejeitados.', 16, 1);
-        RETURN;
-    END
-
-    UPDATE dbo.loyalty_redemptions
-    SET
-        status = 'rejected',
-        rejected_at = SYSUTCDATETIME(),
-        internal_notes = @DecisionNotes,
-        decided_by_user_id = @DecidedByUserId,
-        updated_at = SYSUTCDATETIME()
-    WHERE id = @RedemptionId;
-
+    --------------------------------------------------
+    -- 3. Retornar o resgate atualizado
+    --------------------------------------------------
     SELECT *
     FROM dbo.loyalty_redemptions
     WHERE id = @RedemptionId;
 END
 GO
-

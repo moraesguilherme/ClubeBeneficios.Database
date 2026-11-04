@@ -393,6 +393,14 @@
     <Build Include="Views\PartnerCustomer\vw_partner_customers_admin_summary.sql" />
     <Build Include="Views\PartnerCustomer\vw_partner_customers_conversion_funnel.sql" />
     <Build Include="StoredProcedures\Loyalty\usp_loyalty_customer_rewards_available_list.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_customer_redemption_get.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_customer_redemption_create.sql" />
+    <Build Include="StoredProcedures\Loyalty\usp_loyalty_redemption_notification_enqueue.sql" />
+    <None Include="Scripts\Notifications\notification_template_loyalty_approved.sql" />
+    <None Include="Scripts\Notifications\notification_template_loyalty_requested.sql" />
+    <None Include="Scripts\Notifications\notification_template_loyalty_used.sql" />
+    <None Include="Scripts\Notifications\notification_template_loyalty_rejected_canceled.sql" />
+    <None Include="Scripts\Notifications\notification_template_loyalty_requested_adimin.sql" />
   </ItemGroup>
   <Import Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="'$(SQLDBExtensionsRefPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')" />

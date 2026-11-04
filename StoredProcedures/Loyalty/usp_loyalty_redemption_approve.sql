@@ -115,6 +115,10 @@ BEGIN
         EXEC dbo.usp_customer_loyalty_balance_rebuild
             @ClientId = @ClientId;
 
+        EXEC dbo.usp_loyalty_redemption_notification_enqueue
+            @RedemptionId = @RedemptionId,
+            @EventType = 'loyalty.redemption.approved';
+
         COMMIT TRAN;
     END TRY
     BEGIN CATCH

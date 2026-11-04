@@ -5,48 +5,64 @@
 AS
 BEGIN
     SET NOCOUNT ON;
+    SET XACT_ABORT ON;
 
-    DECLARE 
-        @CurrentStatus varchar(30),
-        @ScheduledFor datetime2(7);
+    DECLARE @Now datetime2(7) = SYSUTCDATETIME();
 
-    SELECT 
-        @CurrentStatus = status,
-        @ScheduledFor = scheduled_for
-    FROM dbo.loyalty_redemptions
-    WHERE id = @RedemptionId;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    IF @CurrentStatus IS NULL
-    BEGIN
-        RAISERROR('Resgate nao encontrado.', 16, 1);
+        --------------------------------------------------
+        -- 1. Registrar utilizacao
+        --------------------------------------------------
+        UPDATE dbo.loyalty_redemptions
+        SET
+            status = 'used',
+            used_at = @Now,
+            internal_notes = @DecisionNotes,
+            decided_by_user_id = @DecidedByUserId,
+            updated_at = @Now
+        WHERE id = @RedemptionId
+          AND status = 'approved'
+          AND (
+              scheduled_for IS NULL
+              OR scheduled_for <= @Now
+          );
+
+        IF @@ROWCOUNT = 0
+        BEGIN
+            RAISERROR(
+                'Resgate nao encontrado, nao aprovado ou com data agendada futura.',
+                16,
+                1
+            );
+        END;
+
+        --------------------------------------------------
+        -- 2. Enfileirar notificacao
+        --------------------------------------------------
+        EXEC dbo.usp_loyalty_redemption_notification_enqueue
+            @RedemptionId = @RedemptionId,
+            @EventType = 'loyalty.redemption.used';
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(2048);
+        SET @ErrorMessage = ERROR_MESSAGE();
+
+        RAISERROR('%s', 16, 1, @ErrorMessage);
         RETURN;
-    END
+    END CATCH;
 
-    IF @CurrentStatus <> 'approved'
-    BEGIN
-        RAISERROR('Somente resgates approved podem ser marcados como used.', 16, 1);
-        RETURN;
-    END
-
-    IF @ScheduledFor IS NOT NULL
-       AND @ScheduledFor > SYSUTCDATETIME()
-    BEGIN
-        RAISERROR('A recompensa ainda nao pode ser marcada como utilizada antes da data agendada.', 16, 1);
-        RETURN;
-    END
-
-    UPDATE dbo.loyalty_redemptions
-    SET
-        status = 'used',
-        used_at = SYSUTCDATETIME(),
-        internal_notes = @DecisionNotes,
-        decided_by_user_id = @DecidedByUserId,
-        updated_at = SYSUTCDATETIME()
-    WHERE id = @RedemptionId;
-
+    --------------------------------------------------
+    -- 3. Retornar registro atualizado
+    --------------------------------------------------
     SELECT *
     FROM dbo.loyalty_redemptions
     WHERE id = @RedemptionId;
 END
 GO
-

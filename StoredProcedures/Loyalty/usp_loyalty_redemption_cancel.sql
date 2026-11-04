@@ -110,6 +110,11 @@ BEGIN
                 @ClientId = @ClientId;
         END
 
+        EXEC dbo.usp_loyalty_redemption_notification_enqueue
+            @RedemptionId = @RedemptionId,
+            @EventType = 'loyalty.redemption.canceled',
+            @PreviousStatus = @CurrentStatus;
+
         COMMIT TRAN;
     END TRY
     BEGIN CATCH
